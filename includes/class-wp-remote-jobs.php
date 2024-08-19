@@ -124,6 +124,8 @@ class Wp_Remote_Jobs
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wp-remote-jobs-public.php';
 
+
+
         $this->loader = new Wp_Remote_Jobs_Loader();
 
     }
@@ -166,6 +168,8 @@ class Wp_Remote_Jobs
 
         // Add hook for registering custom taxonomies and fields
         $this->loader->add_action('init', $this, 'register_job_taxonomies_and_fields');
+
+        $this->loader->add_action('init', $this, 'create_block_submit_job_block_init');
 
     }
 
@@ -380,6 +384,12 @@ class Wp_Remote_Jobs
                 update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
             }
         }
+    }
+    public function create_block_submit_job_block_init()
+    {
+        register_block_type(__DIR__ . '/blocks/submit-job/build', array(
+            'render_callback' => 'render_submit_job_block',
+        ));
     }
 
     /**
