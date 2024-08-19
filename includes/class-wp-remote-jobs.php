@@ -205,11 +205,26 @@ class Wp_Remote_Jobs
             'has_archive'        => true,
             'hierarchical'       => false,
             'menu_position'      => null,
-            'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
-            'show_in_rest'       => true, // Enable REST API
+            'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ),
+            'show_in_rest'       => true,
+            'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits'),
         );
 
         register_post_type('jobs', $args);
+
+        // Ensure taxonomy meta boxes show up in the block editor
+        add_filter('register_post_type_args', array($this, 'add_taxonomies_to_job_cpt'), 10, 2);
+    }
+
+    /**
+     * Ensure taxonomy meta boxes show up in the block editor
+     */
+    public function add_taxonomies_to_job_cpt($args, $post_type)
+    {
+        if ('jobs' === $post_type) {
+            $args['taxonomies'] = array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits');
+        }
+        return $args;
     }
 
     /**
@@ -230,6 +245,7 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'job-category'),
+            'show_in_rest' => true,
         ));
 
         // Register Skills taxonomy
@@ -243,6 +259,7 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'job-skills'),
+            'show_in_rest' => true,
         ));
 
         // Register Location taxonomy
@@ -256,6 +273,7 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'job-location'),
+            'show_in_rest' => true,
         ));
 
         // Register Employment Type taxonomy
@@ -269,6 +287,7 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'employment-type'),
+            'show_in_rest' => true,
         ));
 
         // Register Benefits taxonomy
@@ -282,6 +301,7 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'job-benefits'),
+            'show_in_rest' => true,
         ));
 
         // Add custom fields
