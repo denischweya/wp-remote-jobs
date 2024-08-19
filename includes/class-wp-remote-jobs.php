@@ -331,14 +331,10 @@ class Wp_Remote_Jobs
     {
         wp_nonce_field('job_meta_box', 'job_meta_box_nonce');
 
-        $job_title = get_post_meta($post->ID, '_job_title', true);
         $worldwide = get_post_meta($post->ID, '_worldwide', true);
         $salary_min = get_post_meta($post->ID, '_salary_min', true);
         $salary_max = get_post_meta($post->ID, '_salary_max', true);
         $how_to_apply = get_post_meta($post->ID, '_how_to_apply', true);
-
-        echo '<p><label for="job_title">' . __('Job Title', 'wp-remote-jobs') . '</label><br>';
-        echo '<input type="text" id="job_title" name="job_title" value="' . esc_attr($job_title) . '" size="25" /></p>';
 
         echo '<p><label>' . __('Is position open worldwide?', 'wp-remote-jobs') . '</label><br>';
         echo '<input type="radio" id="worldwide_yes" name="worldwide" value="yes" ' . checked($worldwide, 'yes', false) . '>';
@@ -373,7 +369,6 @@ class Wp_Remote_Jobs
         }
 
         $fields = array(
-            'job_title',
             'worldwide',
             'salary_min',
             'salary_max',
