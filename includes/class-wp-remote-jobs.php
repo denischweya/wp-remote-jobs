@@ -124,6 +124,8 @@ class Wp_Remote_Jobs
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wp-remote-jobs-public.php';
 
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/submit-job/block.php';
+
 
 
         $this->loader = new Wp_Remote_Jobs_Loader();
@@ -169,7 +171,11 @@ class Wp_Remote_Jobs
         // Add hook for registering custom taxonomies and fields
         $this->loader->add_action('init', $this, 'register_job_taxonomies_and_fields');
 
+        // Initialize the 'Submit Job' block
         $this->loader->add_action('init', $this, 'create_block_submit_job_block_init');
+
+        // Enqueue Select2 scripts and styles for the 'Submit Job' block
+        $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2_for_submit_job_block');
 
     }
 
@@ -211,7 +217,7 @@ class Wp_Remote_Jobs
             'menu_position'      => null,
             'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ),
             'show_in_rest'       => true,
-            'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits'),
+            'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range'),
         );
 
         register_post_type('jobs', $args);
@@ -226,7 +232,7 @@ class Wp_Remote_Jobs
     public function add_taxonomies_to_job_cpt($args, $post_type)
     {
         if ('jobs' === $post_type) {
-            $args['taxonomies'] = array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits');
+            $args['taxonomies'] = array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range');
         }
         return $args;
     }
@@ -268,10 +274,19 @@ class Wp_Remote_Jobs
 
         // Register Location taxonomy
         register_taxonomy('job_location', 'jobs', array(
-            'hierarchical' => false,
+            'hierarchical' => true,
             'labels' => array(
                 'name' => _x('Locations', 'taxonomy general name', 'wp-remote-jobs'),
                 'singular_name' => _x('Location', 'taxonomy singular name', 'wp-remote-jobs'),
+                'search_items' => __('Search Location', 'wp-remote-jobs'),
+                'all_items' => __('All Location', 'wp-remote-jobs'),
+                'parent_item' => __('Parent Location', 'wp-remote-jobs'),
+                'parent_item_colon' => __('Parent Location:', 'wp-remote-jobs'),
+                'edit_item' => __('Edit Location', 'wp-remote-jobs'),
+                'update_item' => __('Update Location', 'wp-remote-jobs'),
+                'add_new_item' => __('Add New Location', 'wp-remote-jobs'),
+                'new_item_name' => __('New Location Name', 'wp-remote-jobs'),
+                'menu_name' => __('Location', 'wp-remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -279,7 +294,6 @@ class Wp_Remote_Jobs
             'rewrite' => array('slug' => 'job-location'),
             'show_in_rest' => true,
         ));
-
         // Register Employment Type taxonomy
         register_taxonomy('employment_type', 'jobs', array(
             'hierarchical' => true,
@@ -305,6 +319,29 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'job-benefits'),
+            'show_in_rest' => true,
+        ));
+
+        // Register Salary Range taxonomy
+        register_taxonomy('salary_range', 'jobs', array(
+            'hierarchical' => true,
+            'labels' => array(
+                'name' => _x('Salary Ranges', 'taxonomy general name', 'wp-remote-jobs'),
+                'singular_name' => _x('Salary Range', 'taxonomy singular name', 'wp-remote-jobs'),
+                'search_items' => __('Search Salary Ranges', 'wp-remote-jobs'),
+                'all_items' => __('All Salary Ranges', 'wp-remote-jobs'),
+                'parent_item' => __('Parent Salary Range', 'wp-remote-jobs'),
+                'parent_item_colon' => __('Parent Salary Range:', 'wp-remote-jobs'),
+                'edit_item' => __('Edit Salary Range', 'wp-remote-jobs'),
+                'update_item' => __('Update Salary Range', 'wp-remote-jobs'),
+                'add_new_item' => __('Add New Salary Range', 'wp-remote-jobs'),
+                'new_item_name' => __('New Salary Range Name', 'wp-remote-jobs'),
+                'menu_name' => __('Salary Range', 'wp-remote-jobs'),
+            ),
+            'show_ui' => true,
+            'show_admin_column' => true,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'salary-range'),
             'show_in_rest' => true,
         ));
 
@@ -336,9 +373,7 @@ class Wp_Remote_Jobs
         wp_nonce_field('job_meta_box', 'job_meta_box_nonce');
 
         $worldwide = get_post_meta($post->ID, '_worldwide', true);
-        $salary_min = get_post_meta($post->ID, '_salary_min', true);
-        $salary_max = get_post_meta($post->ID, '_salary_max', true);
-        $how_to_apply = get_post_meta($post->ID, '_how_to_apply', true);
+        $job_location = get_post_meta($post->ID, '_job_location', true);
 
         echo '<p><label>' . __('Is position open worldwide?', 'wp-remote-jobs') . '</label><br>';
         echo '<input type="radio" id="worldwide_yes" name="worldwide" value="yes" ' . checked($worldwide, 'yes', false) . '>';
@@ -346,13 +381,25 @@ class Wp_Remote_Jobs
         echo '<input type="radio" id="worldwide_no" name="worldwide" value="no" ' . checked($worldwide, 'no', false) . '>';
         echo '<label for="worldwide_no">No</label></p>';
 
-        echo '<p><label>' . __('Salary Range', 'wp-remote-jobs') . '</label><br>';
-        echo '<input type="number" id="salary_min" name="salary_min" value="' . esc_attr($salary_min) . '" placeholder="Min" />';
-        echo ' - ';
-        echo '<input type="number" id="salary_max" name="salary_max" value="' . esc_attr($salary_max) . '" placeholder="Max" /></p>';
+        echo '<p><label for="job_location">' . __('Job Location', 'wp-remote-jobs') . '</label><br>';
+        echo '<select id="job_location" name="job_location" class="select2-country">';
+        echo '<option value="">' . __('Select a country', 'wp-remote-jobs') . '</option>';
+        $countries = $this->get_countries_list();
+        foreach ($countries as $code => $name) {
+            echo '<option value="' . esc_attr($code) . '" ' . selected($job_location, $code, false) . '>' . esc_html($name) . '</option>';
+        }
+        echo '</select></p>';
 
-        echo '<p><label for="how_to_apply">' . __('How to Apply', 'wp-remote-jobs') . '</label><br>';
-        echo '<textarea id="how_to_apply" name="how_to_apply" rows="5" cols="50">' . esc_textarea($how_to_apply) . '</textarea></p>';
+        // Enqueue Select2 scripts and styles
+        wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'), '4.0.13', true);
+        wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css', array(), '4.0.13');
+
+        // Initialize Select2
+        wp_add_inline_script('select2', '
+            jQuery(document).ready(function($) {
+                $(".select2-country").select2();
+            });
+        ');
     }
 
     /**
@@ -374,9 +421,7 @@ class Wp_Remote_Jobs
 
         $fields = array(
             'worldwide',
-            'salary_min',
-            'salary_max',
-            'how_to_apply',
+            'job_location',
         );
 
         foreach ($fields as $field) {
@@ -385,6 +430,22 @@ class Wp_Remote_Jobs
             }
         }
     }
+
+    /**
+     * Get list of countries
+     */
+    private function get_countries_list()
+    {
+        return array(
+            'US' => 'United States',
+            'CA' => 'Canada',
+            'GB' => 'United Kingdom',
+            'FR' => 'France',
+            'DE' => 'Germany',
+            // Add more countries as needed
+        );
+    }
+
     public function create_block_submit_job_block_init()
     {
         register_block_type(__DIR__ . '/blocks/submit-job/build', array(
@@ -392,6 +453,35 @@ class Wp_Remote_Jobs
         ));
     }
 
+    // Function to check if the block is present on the page
+    public function is_submit_job_block_present()
+    {
+        if (has_block('create-block/submit-job')) {
+            return true;
+        }
+
+        // Check for the block in post content
+        global $post;
+        if (is_a($post, 'WP_Post') && has_blocks($post->post_content)) {
+            $blocks = parse_blocks($post->post_content);
+            foreach ($blocks as $block) {
+                if ('create-block/submit-job' === $block['blockName']) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // Function to enqueue Select2 files
+    public function enqueue_select2_for_submit_job_block()
+    {
+        //if ($this->is_submit_job_block_present()) {
+        wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0-rc.0');
+        wp_enqueue_script('select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), '4.1.0-rc.0', true);
+        // }
+    }
     /**
      * Register all of the hooks related to the public-facing functionality
      * of the plugin.

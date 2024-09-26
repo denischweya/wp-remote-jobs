@@ -23,3 +23,17 @@
 /* eslint-disable no-console */
 console.log( 'Hello World! (from create-block-submit-job block)' );
 /* eslint-enable no-console */
+
+jQuery(document).ready(function($) {
+    $('.select2-multi').select2();
+
+    $('input[name="worldwide"]').change(function() {
+        $('select[name="job_location"]').toggle(this.value === 'no');
+    });
+
+    $('.select2-countries').select2();
+        
+    $('input[name="worldwide"]').change(function() {
+        $('.select2-countries').parent().toggle(this.value === 'no');
+    });
+});
