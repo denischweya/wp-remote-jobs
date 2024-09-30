@@ -15,8 +15,9 @@ function render_submit_job_block($attributes, $content)
     }
     ?>
     </select>
-
-    <select name="job_skills[]" multiple required class="select2-multi" placeholder="<?php esc_attr_e('Skills', 'wp-remote-jobs'); ?>">
+    <label for="job_skills">Select Skills</label>
+    <select name="job_skills" multiple required class="select2-multi select-skills"
+        placeholder="<?php esc_attr_e('Skills', 'wp-remote-jobs'); ?>">
         <?php
             $skills = get_terms(['taxonomy' => 'job_skills', 'hide_empty' => false]);
     foreach ($skills as $skill) {
@@ -32,12 +33,12 @@ function render_submit_job_block($attributes, $content)
         <input type="radio" name="worldwide" value="no" required> No
     </fieldset>
 
-    <select name="job_location" style="display:none;" class="select2-countries">
+    <select name="job_location" style="display:none;" class="select2-single select-country">
         <option value="">Select Country</option>
         <?php
-        $countries = get_countries_list(); // You need to implement this function
-    foreach ($countries as $country_code => $country_name) {
-        echo '<option value="' . esc_attr($country_code) . '">' . esc_html($country_name) . '</option>';
+        $countries = get_terms(['taxonomy' => 'job_location', 'hide_empty' => false]);
+    foreach ($countries as $country) {
+        echo '<option value="' . esc_attr($country->term_id) . '">' . esc_html($country->name) . '</option>';
     }
     ?>
     </select>
@@ -54,36 +55,47 @@ function render_submit_job_block($attributes, $content)
 
     <select name="salary_range" required>
         <option value="">Select Salary Range</option>
-        <option value="0-30000">$0 - $30,000</option>
-        <option value="30001-60000">$30,001 - $60,000</option>
-        <option value="60001-90000">$60,001 - $90,000</option>
-        <option value="90001-120000">$90,001 - $120,000</option>
-        <option value="120001+">$120,001+</option>
+        <?php
+        $salary_ranges = get_terms(['taxonomy' => 'salary_range', 'hide_empty' => false]);
+    foreach ($salary_ranges as $range) {
+        echo '<option value="' . esc_attr($range->term_id) . '">' . esc_html($range->name) . '</option>';
+    }
+    ?>
     </select>
 
-    <textarea name="job_description" placeholder="Job Description" required></textarea>
+    <label for="job_description">Job Description</label>
+    <?php
+    wp_editor(
+        '',
+        'job_description',
+        array(
+            'textarea_name' => 'job_description',
+            'media_buttons' => false,
+            'textarea_rows' => 10,
+            'teeny' => true,
+            'quicktags' => false,
+            'tinymce' => array(
+                'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                'toolbar2' => '',
+            ),
+        )
+    );
+    ?>
 
-
-    <select name="benefits[]" multiple class="select2-multi">
+    <label for="benefits">Select Benefits</label>
+    <select name="benefits[]" multiple class="select2-multi select-benefits">
         <?php
-            $benefits = get_terms(['taxonomy' => 'benefits', 'hide_empty' => false]);
+        $benefits = get_terms(['taxonomy' => 'benefits', 'hide_empty' => false]);
     foreach ($benefits as $benefit) {
         echo '<option value="' . esc_attr($benefit->term_id) . '">' . esc_html($benefit->name) . '</option>';
     }
     ?>
     </select>
 
-    <textarea name="how_to_apply" placeholder="How to Apply" required></textarea>
-
     <input type="submit" value="Submit Job">
     <?php wp_nonce_field('submit_job', 'job_nonce'); ?>
 </form>
-<script>
-    document.querySelector('input[name="worldwide"]').addEventListener('change', function() {
-        document.querySelector('select[name="job_location"]').style.display = this.value === 'no' ? 'block' :
-            'none';
-    });
-</script>
+
 <?php
     return ob_get_clean();
 }
@@ -112,14 +124,17 @@ function handle_job_submission()
             wp_set_object_terms($job_id, array_map('intval', $_POST['benefits']), 'benefits');
 
             if ($worldwide === 'no') {
-                $job_location = sanitize_text_field($_POST['job_location']);
-                update_post_meta($job_id, '_job_location', $job_location);
+                $job_location = intval($_POST['job_location']);
+                wp_set_object_terms($job_id, $job_location, 'job_location');
             }
 
             // Set custom fields
             update_post_meta($job_id, '_worldwide', $worldwide);
             update_post_meta($job_id, '_salary_range', $salary_range);
             update_post_meta($job_id, '_how_to_apply', $how_to_apply);
+
+            // Set salary range taxonomy
+            wp_set_object_terms($job_id, intval($_POST['salary_range']), 'salary_range');
 
             wp_redirect(add_query_arg('job_submitted', 'success', wp_get_referer()));
             exit;

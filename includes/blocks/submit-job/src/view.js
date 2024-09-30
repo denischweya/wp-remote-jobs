@@ -25,15 +25,20 @@ console.log( 'Hello World! (from create-block-submit-job block)' );
 /* eslint-enable no-console */
 
 jQuery(document).ready(function($) {
-    $('.select2-multi').select2();
-
-    $('input[name="worldwide"]').change(function() {
-        $('select[name="job_location"]').toggle(this.value === 'no');
+    $('.select-skills').select2({
+        placeholder: "Select Skills",
+        allowClear: true
+    });
+    $('.select-benefits').select2({
+        placeholder: "Select Benefits",
+        allowClear: true
     });
 
-    $('.select2-countries').select2();
-        
-    $('input[name="worldwide"]').change(function() {
-        $('.select2-countries').parent().toggle(this.value === 'no');
+    $('.select-country').select2({
+        placeholder: "Select Skills",
+        allowClear: true
+    });
+    $('input[name="worldwide"]').on('change', function() {
+        $('select[name="job_location"]').toggle(this.value === 'no');
     });
 });

@@ -175,7 +175,7 @@ class Wp_Remote_Jobs
         $this->loader->add_action('init', $this, 'create_block_submit_job_block_init');
 
         // Enqueue Select2 scripts and styles for the 'Submit Job' block
-        $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2_for_submit_job_block');
+        $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2');
 
     }
 
@@ -475,11 +475,11 @@ class Wp_Remote_Jobs
     }
 
     // Function to enqueue Select2 files
-    public function enqueue_select2_for_submit_job_block()
+    public function enqueue_select2()
     {
         //if ($this->is_submit_job_block_present()) {
-        wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0-rc.0');
-        wp_enqueue_script('select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), '4.1.0-rc.0', true);
+        wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . '../public/css/select2.min.css', array(), '4.1.0-rc.0');
+        wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . '../public/js/select2.min.js', array( 'jquery' ), '4.1.0-rc.0', true);
         // }
     }
     /**

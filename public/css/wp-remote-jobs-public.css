@@ -18,7 +18,10 @@
     border-radius: 4px;
     font-size: 16px;
 }
-
+#job-submission-form textarea {
+    height: 40px;
+    width: 100% !important;
+}
 #job-submission-form select[multiple] {
     height: auto;
 }
@@ -65,6 +68,10 @@
 }
 
 /* Select2 Customization */
+.select2-container {
+    width: 100% !important;
+    margin-bottom: 15px;
+}
 .select2-container--default .select2-selection--multiple {
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -81,4 +88,8 @@
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     color: white;
     margin-right: 5px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+    padding-left: 10px;
+    padding-right: 5px;
 }
