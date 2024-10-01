@@ -126,6 +126,8 @@ class Wp_Remote_Jobs
 
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/submit-job/block.php';
 
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/list-jobs/job-list/block.php';
+
 
 
         $this->loader = new Wp_Remote_Jobs_Loader();

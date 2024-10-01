@@ -21,6 +21,7 @@
 #job-submission-form textarea {
     height: 40px;
     width: 100% !important;
+    margin-bottom: 0px;
 }
 #job-submission-form select[multiple] {
     height: auto;
@@ -88,6 +89,7 @@
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     color: white;
     margin-right: 5px;
+    border: none;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
     padding-left: 10px;

@@ -71,7 +71,7 @@ function render_submit_job_block($attributes, $content)
         array(
             'textarea_name' => 'job_description',
             'media_buttons' => false,
-            'textarea_rows' => 10,
+            'textarea_rows' => 20,
             'teeny' => true,
             'quicktags' => false,
             'tinymce' => array(
