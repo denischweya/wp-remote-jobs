@@ -41,7 +41,7 @@ function render_job_listings_block($attributes)
 				</p>
 			</div>
 			<div class="job-date">
-				<span><?php echo get_the_date(); ?></span>
+				<span><?php echo human_time_diff(get_the_time('U'), current_time('timestamp')) . ' ago'; ?></span>
 			</div>
 		</div>
 		<div class="job-details">

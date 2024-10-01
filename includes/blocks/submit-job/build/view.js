@@ -45,6 +45,16 @@ jQuery(document).ready(function ($) {
     $('select[name="job_location"]').toggle(this.value === 'no');
   });
 });
+jQuery(document).ready(function ($) {
+  $('.next-step').click(function () {
+    $('#step1').hide();
+    $('#step2').show();
+  });
+  $('.prev-step').click(function () {
+    $('#step2').hide();
+    $('#step1').show();
+  });
+});
 /******/ })()
 ;
 //# sourceMappingURL=view.js.map
