@@ -1,0 +1,1 @@
+console.log("Hello World! (from wp-remote-jobs-registration block)");

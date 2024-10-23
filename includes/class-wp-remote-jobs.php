@@ -174,13 +174,14 @@ class Wp_Remote_Jobs
         $this->loader->add_action('init', $this, 'register_job_taxonomies_and_fields');
 
         // Initialize the 'Submit Job' block
-        $this->loader->add_action('init', $this, 'create_block_submit_job_block_init');
+        $this->loader->add_action('init', $this, 'submit_job_block_init');
+        $this->loader->add_action('init', $this, 'init_registration_block');
 
         // Enqueue Select2 scripts and styles for the 'Submit Job' block
         $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2');
 
         // populate job location taxonomy with countries
-        $this->loader->add_action('init', $this, 'populate_job_location_taxonomy');
+        // $this->loader->add_action('init', $this, 'populate_job_location_taxonomy');
 
     }
 
@@ -227,7 +228,7 @@ class Wp_Remote_Jobs
 
         register_post_type('jobs', $args);
 
-        // Ensure taxonomy meta boxes show up in the block editor
+        // Add this line to ensure taxonomy meta boxes show up in the block editor
         add_filter('register_post_type_args', array($this, 'add_taxonomies_to_job_cpt'), 10, 2);
     }
 
@@ -451,13 +452,18 @@ class Wp_Remote_Jobs
         );
     }
 
-    public function create_block_submit_job_block_init()
+    public function submit_job_block_init()
     {
         register_block_type(__DIR__ . '/blocks/submit-job/build', array(
             'render_callback' => 'render_submit_job_block',
         ));
     }
-
+    public function init_registration_block()
+    {
+        register_block_type(__DIR__ . '/blocks/registration/build', array(
+            'render_callback' => 'render_registration_block',
+        ));
+    }
     // Function to check if the block is present on the page
     public function is_submit_job_block_present()
     {
@@ -483,6 +489,11 @@ class Wp_Remote_Jobs
         // Check if the taxonomy exists
         if (!taxonomy_exists('job_location')) {
             error_log('Job location taxonomy does not exist.');
+            return;
+        }
+
+        // Check if the function has already run
+        if (get_option('job_location_populated')) {
             return;
         }
 
@@ -523,6 +534,9 @@ class Wp_Remote_Jobs
                 error_log('Country term already exists: ' . $country);
             }
         }
+
+        // Set option to indicate that the function has run
+        update_option('job_location_populated', true);
     }
 
 
