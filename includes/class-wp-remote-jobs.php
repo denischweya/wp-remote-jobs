@@ -128,7 +128,7 @@ class Wp_Remote_Jobs
 
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/list-jobs/job-list/block.php';
 
-
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/registration/registration.php';
 
         $this->loader = new Wp_Remote_Jobs_Loader();
 
@@ -175,7 +175,7 @@ class Wp_Remote_Jobs
 
         // Initialize the 'Submit Job' block
         $this->loader->add_action('init', $this, 'submit_job_block_init');
-        $this->loader->add_action('init', $this, 'init_registration_block');
+        $this->loader->add_action('init', $this, 'registration_block_init');
 
         // Enqueue Select2 scripts and styles for the 'Submit Job' block
         $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2');
@@ -451,17 +451,16 @@ class Wp_Remote_Jobs
             // Add more countries as needed
         );
     }
-
+    public function registration_block_init()
+    {
+        register_block_type(__DIR__ . '/blocks/registration/build', array(
+            'render_callback' => 'render_registration_block',
+        ));
+    }
     public function submit_job_block_init()
     {
         register_block_type(__DIR__ . '/blocks/submit-job/build', array(
             'render_callback' => 'render_submit_job_block',
-        ));
-    }
-    public function init_registration_block()
-    {
-        register_block_type(__DIR__ . '/blocks/registration/build', array(
-            'render_callback' => 'render_registration_block',
         ));
     }
     // Function to check if the block is present on the page

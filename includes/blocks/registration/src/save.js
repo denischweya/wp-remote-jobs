@@ -17,8 +17,7 @@ import { useBlockProps } from '@wordpress/block-editor';
  */
 export default function save() {
 	return (
-		<p { ...useBlockProps.save() }>
-			{ 'Registration Form – hello from the saved content!' }
-		</p>
+        // Returning null means the block’s output will be generated dynamically on the server-side (in PHP)
+		null
 	);
 }

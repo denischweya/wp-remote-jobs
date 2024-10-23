@@ -13,6 +13,9 @@ import { __ } from '@wordpress/i18n';
  */
 import { useBlockProps } from '@wordpress/block-editor';
 
+import { PanelBody, TextControl, TextareaControl, Button } from '@wordpress/components';
+import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
  * Those files can contain any CSS code that gets applied to the editor.
@@ -29,13 +32,53 @@ import './editor.scss';
  *
  * @return {Element} Element to render.
  */
-export default function Edit() {
+export default function Edit({ attributes, setAttributes }) {
+	const { companyName, companyHQ, logo, websiteURL, email, description } = attributes;
+
 	return (
-		<p { ...useBlockProps() }>
-			{ __(
-				'Registration Form – hello from the editor!',
-				'registration'
-			) }
-		</p>
+		<div { ...useBlockProps() }>
+			<div className="registration-form">
+				<h2>{__('Registration Form', 'registration')}</h2>
+				<p>{__('Please fill out the form below:', 'registration')}</p>
+				<TextControl
+					label={__('Company Name', 'registration')}
+					value={companyName}
+					onChange={(value) => setAttributes({ companyName: value })}
+				/>
+				<TextControl
+					label={__('Company HQ', 'registration')}
+					value={companyHQ}
+					onChange={(value) => setAttributes({ companyHQ: value })}
+				/>
+				<MediaUploadCheck>
+					<MediaUpload
+						onSelect={(media) => setAttributes({ logo: media.url })}
+						allowedTypes={['image']}
+						value={logo}
+						render={({ open }) => (
+							<Button onClick={open}>
+								{logo ? __('Change Logo', 'registration') : __('Upload Logo', 'registration')}
+							</Button>
+						)}
+					/>
+				</MediaUploadCheck>
+				<TextControl
+					label={__('Company Website URL', 'registration')}
+					value={websiteURL}
+					onChange={(value) => setAttributes({ websiteURL: value })}
+				/>
+				<TextControl
+					label={__('Email', 'registration')}
+					type="email"
+					value={email}
+					onChange={(value) => setAttributes({ email: value })}
+				/>
+				<TextareaControl
+					label={__('Company Description', 'registration')}
+					value={description}
+					onChange={(value) => setAttributes({ description: value })}
+				/>
+			</div>
+		</div>
 	);
 }
