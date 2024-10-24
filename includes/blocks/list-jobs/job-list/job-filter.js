@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('type', typeSelect.value);
         formData.append('location', locationSelect.value);
 
-        fetch(form.getAttribute('data-ajax-url'), {
+        fetch(form.dataset.ajaxUrl, {
             method: 'POST',
             body: formData
         })
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 jobListings.innerHTML = data.data;
             } else {
-                console.error('Error:', data);
+                console.error('Error filtering jobs:', data.data);
             }
         })
         .catch(error => console.error('Error:', error));

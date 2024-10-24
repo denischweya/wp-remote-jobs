@@ -546,6 +546,8 @@ class Wp_Remote_Jobs
         wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . '../public/css/select2.min.css', array(), '4.1.0-rc.0');
         wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . '../public/js/select2.min.js', array( 'jquery' ), '4.1.0-rc.0', true);
         // }
+        wp_enqueue_script('job-filter', plugin_dir_url(__FILE__) . '../includes/blocks/list-jobs/job-list/src/view.js', array('jquery'), '1.0', true);
+
     }
     /**
      * Register all of the hooks related to the public-facing functionality

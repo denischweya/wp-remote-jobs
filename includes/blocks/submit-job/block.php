@@ -26,7 +26,8 @@ function render_submit_job_block($attributes, $content)
     <div class="form-group">
         <label
             for="job_title"><?php esc_html_e('Job Title *', 'your-text-domain'); ?></label>
-        <input type="text" id="job_title" name="job_title" required value="<?php echo esc_attr($_SESSION['job_form_data']['job_title'] ?? ''); ?>">
+        <input type="text" id="job_title" name="job_title" required
+            value="<?php echo esc_attr($_SESSION['job_form_data']['job_title'] ?? ''); ?>">
         <small><?php esc_html_e('Example: "Senior Designer". Titles must describe one position.', 'your-text-domain'); ?></small>
     </div>
 
@@ -113,16 +114,16 @@ function render_submit_job_block($attributes, $content)
             $_SESSION['job_form_data']['job_description'] ?? '',
             'job_description',
             array(
-                        'textarea_name' => 'job_description',
-                        'media_buttons' => false,
-                        'textarea_rows' => 10,
-                        'teeny' => true,
-                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                        'tinymce' => array(
-                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                    'toolbar2' => '',
-                        ),
-                    )
+                                        'textarea_name' => 'job_description',
+                                        'media_buttons' => false,
+                                        'textarea_rows' => 10,
+                                        'teeny' => true,
+                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                        'tinymce' => array(
+                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                    'toolbar2' => '',
+                                        ),
+                                    )
         );
     ?>
     </div>
@@ -188,7 +189,8 @@ function handle_job_submission()
 add_action('template_redirect', 'handle_job_submission');
 
 // Add a function to clear session data when the job is successfully submitted
-function clear_job_session_data() {
+function clear_job_session_data()
+{
     if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success') {
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -197,6 +199,4 @@ function clear_job_session_data() {
     }
 }
 add_action('template_redirect', 'clear_job_session_data');
-?>
-
 ?>

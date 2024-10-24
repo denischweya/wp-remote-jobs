@@ -86,3 +86,32 @@
     padding: 4px 8px;
     border-radius: 16px;
 }
+
+/* search */
+.job-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.job-search-form input[type="text"],
+.job-search-form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 200px;
+}
+
+.job-search-form input[type="text"] {
+    background: url('search-icon.png') no-repeat right 10px center;
+    background-size: 16px;
+    padding-right: 30px; /* Adjust for icon */
+}
+
+.job-search-form select {
+    appearance: none;
+    background: url('dropdown-icon.png') no-repeat right 10px center;
+    background-size: 10px;
+    padding-right: 30px; /* Adjust for icon */
+}
