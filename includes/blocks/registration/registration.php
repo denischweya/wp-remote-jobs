@@ -11,71 +11,107 @@ function render_registration_block($attributes, $content)
     $description = isset($attributes['description']) ? wp_kses_post($attributes['description']) : '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Handle file upload
+        $logo_url = '';
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = wp_upload_dir();
+            $file_name = sanitize_file_name($_FILES['logo']['name']);
+            $file_path = $upload_dir['path'] . '/' . $file_name;
+
+            // Move uploaded file
+            if (move_uploaded_file($_FILES['logo']['tmp_name'], $file_path)) {
+                $logo_url = $upload_dir['url'] . '/' . $file_name;
+            }
+        }
+
         // Process form submission
         $user_id = wp_create_user($_POST['email'], wp_generate_password(), $_POST['email']);
 
         if (!is_wp_error($user_id)) {
             update_user_meta($user_id, 'company_name', sanitize_text_field($_POST['company_name']));
             update_user_meta($user_id, 'company_hq', sanitize_text_field($_POST['company_hq']));
-            update_user_meta($user_id, 'company_logo', esc_url_raw($_POST['logo']));
+            update_user_meta($user_id, 'company_logo', esc_url_raw($logo_url));
             update_user_meta($user_id, 'company_website', esc_url_raw($_POST['website_url']));
             update_user_meta($user_id, 'company_description', wp_kses_post($_POST['description']));
 
-            // You might want to add a success message here
-            echo '<p>' . __('Registration successful!', 'wp-remote-jobs') . '</p>';
+            // Send notification email to user with their password
+            wp_new_user_notification($user_id, null, 'user');
+
+            // Redirect to login page
+            wp_safe_redirect(wp_login_url() . '?registration=success');
+            exit;
         } else {
-            // Handle registration error
-            echo '<p>' . __('Registration failed. Please try again.', 'wp-remote-jobs') . '</p>';
+            echo '<p class="error">' . __('Registration failed. Please try again.', 'wp-remote-jobs') . '</p>';
         }
     }
 
     ob_start();
     ?>
 <div class="wp-block-wp-remote-jobs-registration">
-	<h2><?php esc_html_e('Registration Form', 'registration'); ?>
-	</h2>
-	<form id="registration-form" method="post">
-		<div>
-			<label
-				for="company-name"><?php esc_html_e('Company Name', 'registration'); ?></label>
-			<input type="text" id="company-name" name="company_name"
-				value="<?php echo $company_name; ?>" required>
-		</div>
-		<div>
-			<label
-				for="company-hq"><?php esc_html_e('Company HQ', 'registration'); ?></label>
-			<input type="text" id="company-hq" name="company_hq"
-				value="<?php echo $company_hq; ?>" required>
-		</div>
-		<div>
-			<label
-				for="logo"><?php esc_html_e('Logo', 'registration'); ?></label>
-			<input type="url" id="logo" name="logo"
-				value="<?php echo $logo; ?>">
-		</div>
-		<div>
-			<label
-				for="website-url"><?php esc_html_e('Company Website URL', 'registration'); ?></label>
-			<input type="url" id="website-url" name="website_url"
-				value="<?php echo $website_url; ?>" required>
-		</div>
-		<div>
-			<label
-				for="email"><?php esc_html_e('Email', 'registration'); ?></label>
-			<input type="email" id="email" name="email"
-				value="<?php echo $email; ?>" required>
-		</div>
-		<div>
-			<label
-				for="description"><?php esc_html_e('Company Description', 'registration'); ?></label>
-			<textarea id="description" name="description"
-				required><?php echo $description; ?></textarea>
-		</div>
-		<div>
-			<input type="submit"
-				value="<?php esc_attr_e('Submit', 'registration'); ?>">
-		</div>
-	</form>
+	<div class="registration-container">
+		<h2 class="registration-title">
+			<?php esc_html_e('Company Registration', 'registration'); ?>
+		</h2>
+		<form id="registration-form" method="post" class="registration-form" enctype="multipart/form-data">
+			<div class="form-group">
+				<label
+					for="company-name"><?php esc_html_e('Company Name', 'registration'); ?></label>
+				<input type="text" id="company-name" name="company_name"
+					value="<?php echo $company_name; ?>" required>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group">
+					<label
+						for="company-hq"><?php esc_html_e('Company HQ (Address)', 'registration'); ?></label>
+					<input type="text" id="company-hq" name="company_hq"
+						value="<?php echo $company_hq; ?>" required>
+				</div>
+				<div class="form-group">
+					<label
+						for="website-url"><?php esc_html_e('Company Website URL', 'registration'); ?></label>
+					<input type="url" id="website-url" name="website_url"
+						value="<?php echo $website_url; ?>" required>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group">
+					<label
+						for="email"><?php esc_html_e('Email Address', 'registration'); ?></label>
+					<input type="email" id="email" name="email"
+						value="<?php echo $email; ?>" required>
+				</div>
+				<div class="form-group">
+					<label
+						for="logo"><?php esc_html_e('Company Logo', 'registration'); ?></label>
+					<div class="logo-upload-container">
+						<input type="file" id="logo" name="logo" accept="image/*" class="file-upload">
+						<?php if ($logo): ?>
+						<div class="logo-preview">
+							<img src="<?php echo esc_url($logo); ?>"
+								alt="Company Logo Preview">
+							<button type="button" class="button remove-logo-button">
+								<?php esc_html_e('Remove Logo', 'registration'); ?>
+							</button>
+						</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label
+					for="description"><?php esc_html_e('Company Description', 'registration'); ?></label>
+				<textarea id="description" name="description" rows="4"
+					required><?php echo $description; ?></textarea>
+			</div>
+
+			<button type="submit" class="submit-button">
+				<?php esc_html_e('Complete Registration', 'registration'); ?>
+			</button>
+		</form>
+	</div>
 </div>
 <?php
     return ob_get_clean();
