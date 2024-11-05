@@ -24,9 +24,18 @@
 console.log( 'Hello World! (from create-block-submit-job block)' );
 /* eslint-enable no-console */
 
+
 jQuery(document).ready(function($) {
     $('.select-skills').select2({
-        placeholder: "Select Skills",
+        tags: true,
+        tokenSeparators: [','],
+        placeholder: 'Select or type skills',
+        allowClear: true
+    });
+    $('.select-tags').select2({
+        tags: true,
+        tokenSeparators: [','],
+        placeholder: 'Select or type tags',
         allowClear: true
     });
     $('.select-benefits').select2({
@@ -52,5 +61,25 @@ jQuery(document).ready(function($) {
     $('.prev-step').click(function() {
         $('#step2').hide();
         $('#step1').show();
+    });
+});
+
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
+// Initialize Select2
+jQuery(document).ready(function($) {
+    $('.select2-single').select2();
+    
+    // Handle worldwide radio button changes
+    $('input[name="worldwide"]').change(function() {
+        if ($(this).val() === 'no') {
+            $('.location-select').show();
+            $('#job_location').prop('required', true);
+        } else {
+            $('.location-select').hide();
+            $('#job_location').prop('required', false);
+        }
     });
 });

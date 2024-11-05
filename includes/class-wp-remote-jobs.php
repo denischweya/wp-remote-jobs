@@ -224,7 +224,7 @@ class Wp_Remote_Jobs
             'menu_position'      => null,
             'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ),
             'show_in_rest'       => true,
-            'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range'),
+            'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range', 'job_tags'),
         );
 
         register_post_type('jobs', $args);
@@ -239,7 +239,7 @@ class Wp_Remote_Jobs
     public function add_taxonomies_to_job_cpt($args, $post_type)
     {
         if ('jobs' === $post_type) {
-            $args['taxonomies'] = array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range');
+            $args['taxonomies'] = array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range', 'job_tags');
         }
         return $args;
     }
@@ -349,6 +349,29 @@ class Wp_Remote_Jobs
             'show_admin_column' => true,
             'query_var' => true,
             'rewrite' => array('slug' => 'salary-range'),
+            'show_in_rest' => true,
+        ));
+
+        // Add Job Tags taxonomy
+        register_taxonomy('job_tags', 'jobs', array(
+            'hierarchical' => true,
+            'labels' => array(
+                'name' => _x('Job Tags', 'taxonomy general name', 'wp-remote-jobs'),
+                'singular_name' => _x('Job Tag', 'taxonomy singular name', 'wp-remote-jobs'),
+                'search_items' => __('Search Job Tags', 'wp-remote-jobs'),
+                'all_items' => __('All Job Tags', 'wp-remote-jobs'),
+                'parent_item' => __('Parent Job Tag', 'wp-remote-jobs'),
+                'parent_item_colon' => __('Parent Job Tag:', 'wp-remote-jobs'),
+                'edit_item' => __('Edit Job Tag', 'wp-remote-jobs'),
+                'update_item' => __('Update Job Tag', 'wp-remote-jobs'),
+                'add_new_item' => __('Add New Job Tag', 'wp-remote-jobs'),
+                'new_item_name' => __('New Job Tag Name', 'wp-remote-jobs'),
+                'menu_name' => __('Job Tags', 'wp-remote-jobs'),
+            ),
+            'show_ui' => true,
+            'show_admin_column' => true,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'job-tags'),
             'show_in_rest' => true,
         ));
 

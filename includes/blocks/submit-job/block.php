@@ -26,47 +26,18 @@ function render_submit_job_block($attributes, $content)
     if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success') {
         ?>
 <div class="job-submission-success">
-    <h2><?php esc_html_e('Job Submitted Successfully!', 'your-text-domain'); ?>
+    <h2><?php esc_html_e('Job Submitted Successfully!', 'wp-remote-jobs'); ?>
     </h2>
-    <p><?php esc_html_e('Thank you for submitting your job listing. It will be reviewed by our team and published soon.', 'your-text-domain'); ?>
+    <p><?php esc_html_e('Thank you for submitting your job listing. It will be reviewed by our team and published soon.', 'wp-remote-jobs'); ?>
     </p>
     <p>
         <a href="<?php echo esc_url(remove_query_arg('job_submitted')); ?>"
             class="button submit-another-job">
-            <?php esc_html_e('Submit Another Job', 'your-text-domain'); ?>
+            <?php esc_html_e('Submit Another Job', 'wp-remote-jobs'); ?>
         </a>
     </p>
 </div>
-<style>
-    .job-submission-success {
-        background: #f0f9ff;
-        border: 1px solid #3262f9;
-        border-radius: 4px;
-        padding: 20px;
-        margin: 20px 0;
-        text-align: center;
-    }
 
-    .job-submission-success h2 {
-        color: #3262f9;
-        margin-top: 0;
-    }
-
-    .submit-another-job {
-        display: inline-block;
-        background: #3262f9;
-        color: #fff;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 4px;
-        margin-top: 15px;
-    }
-
-    .submit-another-job:hover {
-        background: #2451d1;
-        color: #fff;
-    }
-</style>
 <?php
         return ob_get_clean();
     }
@@ -74,27 +45,26 @@ function render_submit_job_block($attributes, $content)
     // If no successful submission, show the form
     ?>
 <form id="job-submission-form" method="post">
-    <h2><?php esc_html_e('Submit a New Job', 'your-text-domain'); ?>
-    </h2>
+
     <p class="required-fields">
-        <?php esc_html_e('REQUIRED FIELDS *', 'your-text-domain'); ?>
+        <?php esc_html_e('REQUIRED FIELDS *', 'wp-remote-jobs'); ?>
     </p>
 
     <div class="form-group">
         <label
-            for="job_title"><?php esc_html_e('Job Title *', 'your-text-domain'); ?></label>
+            for="job_title"><?php esc_html_e('Job Title *', 'wp-remote-jobs'); ?></label>
         <input type="text" id="job_title" name="job_title" required
             value="<?php echo esc_attr($_SESSION['job_form_data']['job_title'] ?? ''); ?>">
-        <small><?php esc_html_e('Example: "Senior Designer". Titles must describe one position.', 'your-text-domain'); ?></small>
+        <small><?php esc_html_e('Example: "Senior Designer". Titles must describe one position.', 'wp-remote-jobs'); ?></small>
     </div>
 
     <div class="form-row">
         <div class="form-group col-md-6">
             <label
-                for="job_category"><?php esc_html_e('Category *', 'your-text-domain'); ?></label>
+                for="job_category"><?php esc_html_e('Category *', 'wp-remote-jobs'); ?></label>
             <select id="job_category" name="job_category" required>
                 <option value="">
-                    <?php esc_html_e('Select a category', 'your-text-domain'); ?>
+                    <?php esc_html_e('Select a category', 'wp-remote-jobs'); ?>
                 </option>
                 <?php
                     $categories = get_terms(['taxonomy' => 'job_category', 'hide_empty' => false]);
@@ -106,36 +76,71 @@ function render_submit_job_block($attributes, $content)
         </div>
         <div class="form-group col-md-6">
             <label
-                for="job_skills"><?php esc_html_e('Skills (If Applicable)', 'your-text-domain'); ?></label>
-            <select id="job_skills" name="job_skills[]" multiple class="select2-multi select-skills">
+                for="job_skills"><?php esc_html_e('Skills (If Applicable)', 'wp-remote-jobs'); ?></label>
+            <select id="job_skills" name="job_skills[]" multiple class="select2-multi select-skills" data-tags="true"
+                data-token-separators='[","]'>
                 <?php
-    $skills = get_terms(['taxonomy' => 'job_skills', 'hide_empty' => false]);
+                $skills = get_terms(['taxonomy' => 'job_skills', 'hide_empty' => false]);
     foreach ($skills as $skill) {
         echo '<option value="' . esc_attr($skill->term_id) . '">' . esc_html($skill->name) . '</option>';
     }
     ?>
             </select>
+            <small><?php esc_html_e('Type to select existing skills or add new ones', 'wp-remote-jobs'); ?></small>
         </div>
     </div>
 
-    <div class="form-group">
-        <label><?php esc_html_e('Is This Role Open Worldwide? *', 'your-text-domain'); ?></label>
-        <small><?php esc_html_e('Selecting \'Yes\' means your future hire can work anywhere in the world without any location or time zone restrictions!', 'your-text-domain'); ?></small>
-        <div class="radio-group">
-            <label><input type="radio" name="worldwide" value="yes" required>
-                <?php esc_html_e('Yes', 'your-text-domain'); ?></label>
-            <label><input type="radio" name="worldwide" value="no" required>
-                <?php esc_html_e('No', 'your-text-domain'); ?></label>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label><?php esc_html_e('Is This Role Open Worldwide? *', 'wp-remote-jobs'); ?></label>
+            <small><?php esc_html_e('Selecting \'Yes\' means your future hire can work anywhere in the world without any location or time zone restrictions!', 'wp-remote-jobs'); ?></small>
+            <div class="radio-group">
+                <label><input type="radio" name="worldwide" value="yes" required>
+                    <?php esc_html_e('Yes', 'wp-remote-jobs'); ?></label>
+                <label><input type="radio" name="worldwide" value="no" required>
+                    <?php esc_html_e('No', 'wp-remote-jobs'); ?></label>
+            </div>
+
+            <div class="location-select" style="display: none;">
+                <label
+                    for="job_location"><?php esc_html_e('Job Location *', 'wp-remote-jobs'); ?></label>
+                <select id="job_location" name="job_location" class="select2-single">
+                    <option value="">
+                        <?php esc_html_e('Select Location', 'wp-remote-jobs'); ?>
+                    </option>
+                    <?php
+        $locations = get_terms(['taxonomy' => 'job_location', 'hide_empty' => false]);
+    foreach ($locations as $location) {
+        echo '<option value="' . esc_attr($location->term_id) . '">' . esc_html($location->name) . '</option>';
+    }
+    ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label
+                for="job_tags"><?php esc_html_e('Job Tags', 'wp-remote-jobs'); ?></label>
+            <select id="job_tags" name="job_tags[]" multiple class="select2-multi select-tags" data-tags="true"
+                data-token-separators='[","]'>
+                <?php
+                $tags = get_terms(['taxonomy' => 'job_tags', 'hide_empty' => false]);
+    foreach ($tags as $tag) {
+        echo '<option value="' . esc_attr($tag->term_id) . '">' . esc_html($tag->name) . '</option>';
+    }
+    ?>
+            </select>
+            <small><?php esc_html_e('Type to select existing tags or add new ones', 'wp-remote-jobs'); ?></small>
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-group col-md-6">
             <label
-                for="salary_range"><?php esc_html_e('Salary Range', 'your-text-domain'); ?></label>
+                for="salary_range"><?php esc_html_e('Salary Range', 'wp-remote-jobs'); ?></label>
             <select id="salary_range" name="salary_range">
                 <option value="">
-                    <?php esc_html_e('Please Select', 'your-text-domain'); ?>
+                    <?php esc_html_e('Please Select', 'wp-remote-jobs'); ?>
                 </option>
                 <?php
     $salary_ranges = get_terms(['taxonomy' => 'salary_range', 'hide_empty' => false]);
@@ -146,47 +151,47 @@ function render_submit_job_block($attributes, $content)
             </select>
         </div>
         <div class="form-group col-md-6">
-            <label><?php esc_html_e('Job Type *', 'your-text-domain'); ?></label>
+            <label><?php esc_html_e('Job Type *', 'wp-remote-jobs'); ?></label>
             <div class="radio-group">
                 <label><input type="radio" name="employment_type" value="full-time" required>
-                    <?php esc_html_e('Full-Time', 'your-text-domain'); ?></label>
+                    <?php esc_html_e('Full-Time', 'wp-remote-jobs'); ?></label>
                 <label><input type="radio" name="employment_type" value="contract" required>
-                    <?php esc_html_e('Contract', 'your-text-domain'); ?></label>
+                    <?php esc_html_e('Contract', 'wp-remote-jobs'); ?></label>
             </div>
         </div>
     </div>
 
     <div class="form-group">
         <label
-            for="application_link"><?php esc_html_e('Application Link or Email *', 'your-text-domain'); ?></label>
+            for="application_link"><?php esc_html_e('Application Link or Email *', 'wp-remote-jobs'); ?></label>
         <input type="text" id="application_link" name="application_link" required>
-        <small><?php esc_html_e('Link to Application page or Email address.', 'your-text-domain'); ?></small>
+        <small><?php esc_html_e('Link to Application page or Email address.', 'wp-remote-jobs'); ?></small>
     </div>
 
     <div class="form-group">
         <label
-            for="job_description"><?php esc_html_e('Job Description *', 'your-text-domain'); ?></label>
+            for="job_description"><?php esc_html_e('Job Description *', 'wp-remote-jobs'); ?></label>
         <?php
             wp_editor(
                 $_SESSION['job_form_data']['job_description'] ?? '',
                 'job_description',
                 array(
-                                                                                'textarea_name' => 'job_description',
-                                                                                'media_buttons' => false,
-                                                                                'textarea_rows' => 10,
-                                                                                'teeny' => true,
-                                                                                'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                                                                                'tinymce' => array(
-                                                                            'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                                                                            'toolbar2' => '',
-                                                                                ),
-                                                                            )
+                                                                        'textarea_name' => 'job_description',
+                                                                        'media_buttons' => false,
+                                                                        'textarea_rows' => 50,
+                                                                        'teeny' => true,
+                                                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                                                        'tinymce' => array(
+                                                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                                                    'toolbar2' => '',
+                                                                        ),
+                                                                    )
             );
     ?>
     </div>
 
     <input type="submit"
-        value="<?php esc_attr_e('Submit Job', 'your-text-domain'); ?>">
+        value="<?php esc_attr_e('Submit Job', 'wp-remote-jobs'); ?>">
 
     <?php wp_nonce_field('submit_job', 'job_nonce'); ?>
 </form>
@@ -221,7 +226,27 @@ function handle_job_submission()
                 }
 
                 if (isset($_POST['job_skills']) && is_array($_POST['job_skills'])) {
-                    wp_set_object_terms($job_id, array_map('intval', $_POST['job_skills']), 'job_skills');
+                    $skill_terms = [];
+
+                    foreach ($_POST['job_skills'] as $skill) {
+                        // If the skill is numeric, it's an existing term ID
+                        if (is_numeric($skill)) {
+                            $skill_terms[] = intval($skill);
+                        } else {
+                            // If it's not numeric, it's a new skill to create
+                            $new_skill = wp_insert_term(
+                                sanitize_text_field($skill),
+                                'job_skills'
+                            );
+                            if (!is_wp_error($new_skill)) {
+                                $skill_terms[] = $new_skill['term_id'];
+                            }
+                        }
+                    }
+
+                    if (!empty($skill_terms)) {
+                        wp_set_object_terms($job_id, $skill_terms, 'job_skills');
+                    }
                 }
 
                 if (isset($_POST['employment_type'])) {
@@ -252,6 +277,31 @@ function handle_job_submission()
 
                 if (isset($_POST['application_link'])) {
                     update_post_meta($job_id, '_application_link', sanitize_text_field($_POST['application_link']));
+                }
+
+                // Handle job tags
+                if (isset($_POST['job_tags']) && is_array($_POST['job_tags'])) {
+                    $tag_terms = [];
+
+                    foreach ($_POST['job_tags'] as $tag) {
+                        // If numeric, it's an existing term ID
+                        if (is_numeric($tag)) {
+                            $tag_terms[] = intval($tag);
+                        } else {
+                            // If not numeric, it's a new tag to create
+                            $new_tag = wp_insert_term(
+                                sanitize_text_field($tag),
+                                'job_tags'
+                            );
+                            if (!is_wp_error($new_tag)) {
+                                $tag_terms[] = $new_tag['term_id'];
+                            }
+                        }
+                    }
+
+                    if (!empty($tag_terms)) {
+                        wp_set_object_terms($job_id, $tag_terms, 'job_tags');
+                    }
                 }
 
                 // Clear the session data after successful submission

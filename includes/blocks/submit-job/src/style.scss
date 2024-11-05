@@ -1,88 +1,255 @@
-#job-submission-form {
+// Variables
+$background: #fafafa;
+$foreground: #09090b;
+$muted: #f4f4f5;
+$muted-foreground: #71717a;
+$border: #e4e4e7;
+$input: #ffffff;
+$ring: #18181b;
+$primary: #18181b;
+$primary-foreground: #ffffff;
+
+.wp-block-submit-job {
+    max-width: 800px;
     margin: 0 auto;
-    font-family: Arial, sans-serif;
+    padding: 2rem;
 }
 
-#job-submission-form h2 {
-    font-size: 24px;
-    margin-bottom: 5px;
+#job-submission-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    h2 {
+        font-size: 1.875rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        color: $foreground;
+    }
+
+    .required-fields {
+        font-size: 0.875rem;
+        color: $muted-foreground;
+        margin-top: -1rem;
+    }
 }
 
-.required-fields {
-    color: #ff0000;
-    font-size: 12px;
-    text-align: right;
-    margin-top: 0;
-}
 .form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: $foreground;
+    }
+
+    small {
+        font-size: 0.75rem;
+        color: $muted-foreground;
+        margin-top: 0.25rem;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        border: 1px solid $border;
+        border-radius: 0.5rem;
+        background-color: $input;
+        transition: all 0.2s;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+            box-shadow: 0 0 0 2px rgba($primary, 0.1);
+        }
+
+        &::placeholder {
+            color: $muted-foreground;
+        }
+    }
 }
 
 .form-row {
-    display: flex;
-    gap: 20px;
-}
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
 
-.col-md-6 {
-    flex: 1;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="text"],
-select,
-.select2-container {
-    width: 100%;
-    padding: 0px;
-    border: none;
-    border-radius: 4px;
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .radio-group {
     display: flex;
-    gap: 20px;
+    gap: 1rem;
+    margin-top: 0.5rem;
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: $muted;
+        }
+    }
+
+    input[type="radio"] {
+        appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 1px solid $border;
+        border-radius: 50%;
+        position: relative;
+
+        &:checked {
+            border-color: $primary;
+            background-color: $primary;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 0.5rem;
+                height: 0.5rem;
+                background-color: $primary-foreground;
+                border-radius: 50%;
+            }
+        }
+    }
 }
 
-small {
-    display: block;
-    color: #666;
-    font-size: 12px;
-    margin-top: 5px;
+// Select2 Customization
+.select2-container {
+    .select2-selection--single,
+    .select2-selection--multiple {
+        min-height: 2.75rem;
+        border: 1px solid $border;
+        border-radius: 0.5rem;
+        background-color: $input;
+
+        .select2-selection__rendered {
+            padding: 0.5rem 1rem;
+            line-height: 1.5;
+        }
+    }
+
+    .select2-selection--multiple {
+        .select2-selection__choice {
+            background-color: $muted;
+            border: 1px solid $border;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+        }
+
+        .select2-search__field {
+            margin-top: 0.25rem;
+        }
+    }
+
+    .select2-dropdown {
+        border-color: $border;
+        border-radius: 0.5rem;
+        background-color: $input;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .select2-results__option {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+
+        &--highlighted[aria-selected] {
+            background-color: $muted;
+            color: $foreground;
+        }
+
+        &[aria-selected=true] {
+            background-color: $primary;
+            color: $primary-foreground;
+        }
+    }
 }
 
 input[type="submit"] {
-    background-color: #0073aa;
-    color: white;
-    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $primary-foreground;
+    background-color: $primary;
     border: none;
-    border-radius: 4px;
+    border-radius: 0.5rem;
     cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+
+    &:hover {
+        opacity: 0.9;
+    }
 }
 
-input[type="submit"]:hover {
-    background-color: #005177;
+// Success Message
+.job-submission-success {
+    background-color: rgba($primary-foreground, 0.05);
+    border: 1px solid $border;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+
+    h2 {
+        font-size: 1.875rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: -0.025em;
+    }
+
+    p {
+        color: $muted-foreground;
+        margin-bottom: 1.5rem;
+    }
 }
 
-/* Style the wp_editor */
-.wp-editor-container {
-    border: 1px solid #ccc;
+.submit-another-job {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $primary;
+    background-color: $primary-foreground; 
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: darken($primary-foreground, 10%);
+    }
 }
 
-.wp-editor-tabs {
-    margin-bottom: 0;
-}
+// Responsive adjustments
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
 
-/* Style Select2 dropdowns */
-.select2-container--default .select2-selection--single,
-.select2-container--default .select2-selection--multiple {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.form-step {
-    margin-bottom: 20px;
+    .job-form {
+        padding: 1.5rem;
+    }
 }
