@@ -1,4 +1,15 @@
 <?php
+
+function submit_job_block_init()
+{
+    register_block_type(__DIR__ . '/build', array(
+        'render_callback' => 'render_submit_job_block',
+        'icon' => file_get_contents(plugin_dir_path(__FILE__) . 'src/icon.svg'),
+
+    ));
+}
+add_action('init', 'submit_job_block_init');
+
 function render_submit_job_block($attributes, $content)
 {
     if (!is_user_logged_in()) {
@@ -114,16 +125,16 @@ function render_submit_job_block($attributes, $content)
             $_SESSION['job_form_data']['job_description'] ?? '',
             'job_description',
             array(
-                                        'textarea_name' => 'job_description',
-                                        'media_buttons' => false,
-                                        'textarea_rows' => 10,
-                                        'teeny' => true,
-                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                                        'tinymce' => array(
-                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                                    'toolbar2' => '',
-                                        ),
-                                    )
+                                                        'textarea_name' => 'job_description',
+                                                        'media_buttons' => false,
+                                                        'textarea_rows' => 10,
+                                                        'teeny' => true,
+                                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                                        'tinymce' => array(
+                                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                                    'toolbar2' => '',
+                                                        ),
+                                                    )
         );
     ?>
     </div>
@@ -173,6 +184,7 @@ function handle_job_submission()
                 update_post_meta($job_id, '_worldwide', sanitize_text_field($_POST['worldwide']));
                 update_post_meta($job_id, '_salary_range', sanitize_text_field($_POST['salary_range']));
                 update_post_meta($job_id, '_how_to_apply', sanitize_textarea_field($_POST['how_to_apply']));
+                update_post_meta($job_id, '_application_link', sanitize_text_field($_POST['application_link']));
 
                 // Set salary range taxonomy
                 wp_set_object_terms($job_id, intval($_POST['salary_range']), 'salary_range');

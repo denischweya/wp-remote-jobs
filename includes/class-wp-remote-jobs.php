@@ -178,10 +178,6 @@ class Wp_Remote_Jobs
         // Add hook for registering blocks category
         $this->loader->add_filter('block_categories_all', $this, 'register_block_category', 10, 2);
 
-        // Initialize the 'Submit Job' block
-        $this->loader->add_action('init', $this, 'submit_job_block_init');
-        $this->loader->add_action('init', $this, 'registration_block_init');
-
         // Enqueue Select2 scripts and styles for the 'Submit Job' block
         $this->loader->add_action('wp_enqueue_scripts', $this, 'enqueue_select2');
 
@@ -463,18 +459,8 @@ class Wp_Remote_Jobs
             // Add more countries as needed
         );
     }
-    public function registration_block_init()
-    {
-        register_block_type(__DIR__ . '/blocks/registration/build', array(
-            'render_callback' => 'render_registration_block',
-        ));
-    }
-    public function submit_job_block_init()
-    {
-        register_block_type(__DIR__ . '/blocks/submit-job/build', array(
-            'render_callback' => 'render_submit_job_block',
-        ));
-    }
+
+
     // Function to check if the block is present on the page
     public function is_submit_job_block_present()
     {

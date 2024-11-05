@@ -14,7 +14,14 @@
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start"
 	},
+	"dependencies": {
+		"@wordpress/block-editor": "^12.0.0",
+		"@wordpress/blocks": "^12.0.0",
+		"@wordpress/components": "^25.0.0",
+		"@wordpress/i18n": "^4.0.0",
+		"react-select": "^5.8.2"
+	},
 	"devDependencies": {
-		"@wordpress/scripts": "^27.9.0"
+		"@wordpress/scripts": "^26.0.0"
 	}
 }

@@ -1,5 +1,12 @@
 <?php
 
+function registration_block_init()
+{
+    register_block_type(__DIR__ . '/build', array(
+        'render_callback' => 'render_registration_block',
+    ));
+}
+add_action('init', 'registration_block_init');
 
 function render_registration_block($attributes, $content)
 {
