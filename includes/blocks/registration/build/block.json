@@ -4,7 +4,7 @@
   "name": "wp-remote-jobs/registration",
   "version": "1.0.0",
   "title": "Registration Form",
-  "category": "widgets",
+  "category": "remote-jobs",
   "icon": "smiley",
   "description": "Example block scaffolded with Create Block tool.",
   "example": {},

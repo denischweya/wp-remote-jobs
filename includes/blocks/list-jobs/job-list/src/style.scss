@@ -115,3 +115,34 @@
     background-size: 10px;
     padding-right: 30px; /* Adjust for icon */
 }
+.job-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.job-title a:hover {
+    color: #007bff; /* Or your theme's primary color */
+    text-decoration: underline;
+}
+
+.job-tag {
+    display: inline-block;
+    padding: 0.25em 0.75em;
+    margin: 0.25em;
+    border-radius: 999px;
+    background-color: #f0f0f0;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.job-tag:hover {
+    background-color: #e0e0e0;
+    text-decoration: none;
+}
+.location-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
