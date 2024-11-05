@@ -2,19 +2,20 @@
     "name": "wp-remote-jobs",
     "version": "1.0.0",
     "description": "WordPress Remote Jobs Plugin",
+    "main": "includes/blocks/*/build/index.js",
     "scripts": {
-      "build": "wp-scripts build",
+      "build": "npm-run-all --parallel build:*",
+      "start": "npm-run-all --parallel start:*",
       "format": "wp-scripts format",
       "lint:css": "wp-scripts lint-style",
       "lint:js": "wp-scripts lint-js",
       "packages-update": "wp-scripts packages-update",
       "plugin-zip": "wp-scripts plugin-zip",
-      "start": "wp-scripts start",
-      "build:submit-job": "wp-scripts build --config blocks/submit-job/webpack.config.js",
-      "build:job-list": "wp-scripts build --config blocks/list-jobs/webpack.config.js",
-      "start:submit-job": "wp-scripts start --config blocks/submit-job/webpack.config.js",
-      "start:job-list": "wp-scripts start --config blocks/list-jobs/webpack.config.js"
-    },
+      "build:submit-job": "wp-scripts build --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build",
+      "build:job-list": "wp-scripts build --webpack-src-dir=includes/blocks/list-jobs/src --output-path=includes/blocks/list-jobs/build",
+      "start:submit-job": "wp-scripts start --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build",
+      "start:job-list": "wp-scripts start --webpack-src-dir=includes/blocks/list-jobs/src --output-path=includes/blocks/list-jobs/build"
+  },
     "author": "Denis Bosire",
     "license": "GPL-2.0-or-later",
     "devDependencies": {
@@ -22,5 +23,11 @@
     },
     "workspaces": [
       "includes/blocks/*"
-    ]
+    ],
+    "exports": {
+      "./submit-job": "./includes/blocks/submit-job/build/index.js",
+      "./job-list": "./includes/blocks/list-jobs/build/index.js",
+      "./registration": "./includes/blocks/registration/build/index.js",
+      "./job-sidebar": "./includes/blocks/job-sidebar/build/index.js"
+    }
   }

@@ -3,9 +3,8 @@
   "apiVersion": 3,
   "name": "wp-remote-jobs/registration",
   "version": "1.0.0",
-  "title": "Registration Form",
+  "title": "Jobs Registration",
   "category": "remote-jobs",
-  "icon": "smiley",
   "description": "Example block scaffolded with Create Block tool.",
   "example": {},
   "supports": {

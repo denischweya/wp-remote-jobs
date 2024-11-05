@@ -6,7 +6,6 @@
 	"version": "0.1.0",
 	"title": "Job Side Bar",
 	"category": "remote-jobs",
-	"icon": "smiley",
 	"description": "Example block scaffolded with Create Block tool.",
 	"example": {},
 	"supports": {

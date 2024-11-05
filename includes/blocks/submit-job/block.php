@@ -4,8 +4,6 @@ function submit_job_block_init()
 {
     register_block_type(__DIR__ . '/build', array(
         'render_callback' => 'render_submit_job_block',
-        'icon' => file_get_contents(plugin_dir_path(__FILE__) . 'src/icon.svg'),
-
     ));
 }
 add_action('init', 'submit_job_block_init');
@@ -125,16 +123,16 @@ function render_submit_job_block($attributes, $content)
             $_SESSION['job_form_data']['job_description'] ?? '',
             'job_description',
             array(
-                                                        'textarea_name' => 'job_description',
-                                                        'media_buttons' => false,
-                                                        'textarea_rows' => 10,
-                                                        'teeny' => true,
-                                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                                                        'tinymce' => array(
-                                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                                                    'toolbar2' => '',
-                                                        ),
-                                                    )
+                                                            'textarea_name' => 'job_description',
+                                                            'media_buttons' => false,
+                                                            'textarea_rows' => 10,
+                                                            'teeny' => true,
+                                                            'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                                            'tinymce' => array(
+                                                        'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                                        'toolbar2' => '',
+                                                            ),
+                                                        )
         );
     ?>
     </div>

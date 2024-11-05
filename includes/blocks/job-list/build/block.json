@@ -3,9 +3,8 @@
   "apiVersion": 3,
   "name": "wp-remote-jobs/job-list",
   "version": "0.1.0",
-  "title": "Job List",
+  "title": "List Jobs",
   "category": "remote-jobs",
-  "icon": "dashicons-editor-ul",
   "description": "Display a list of job postings.",
   "example": {},
   "supports": {
