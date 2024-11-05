@@ -20,10 +20,58 @@ function render_submit_job_block($attributes, $content)
         session_start();
     }
 
-    wp_enqueue_script('submit-job-form', plugin_dir_url(__FILE__) . 'submit-job-form.js', array('jquery'), '1.0', true);
-    wp_enqueue_style('submit-job-form', plugin_dir_url(__FILE__) . 'submit-job-form.css', array(), '1.0');
-
     ob_start();
+
+    // Check if we have a successful submission
+    if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success') {
+        ?>
+<div class="job-submission-success">
+    <h2><?php esc_html_e('Job Submitted Successfully!', 'your-text-domain'); ?>
+    </h2>
+    <p><?php esc_html_e('Thank you for submitting your job listing. It will be reviewed by our team and published soon.', 'your-text-domain'); ?>
+    </p>
+    <p>
+        <a href="<?php echo esc_url(remove_query_arg('job_submitted')); ?>"
+            class="button submit-another-job">
+            <?php esc_html_e('Submit Another Job', 'your-text-domain'); ?>
+        </a>
+    </p>
+</div>
+<style>
+    .job-submission-success {
+        background: #f0f9ff;
+        border: 1px solid #3262f9;
+        border-radius: 4px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .job-submission-success h2 {
+        color: #3262f9;
+        margin-top: 0;
+    }
+
+    .submit-another-job {
+        display: inline-block;
+        background: #3262f9;
+        color: #fff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 15px;
+    }
+
+    .submit-another-job:hover {
+        background: #2451d1;
+        color: #fff;
+    }
+</style>
+<?php
+        return ob_get_clean();
+    }
+
+    // If no successful submission, show the form
     ?>
 <form id="job-submission-form" method="post">
     <h2><?php esc_html_e('Submit a New Job', 'your-text-domain'); ?>
@@ -49,7 +97,7 @@ function render_submit_job_block($attributes, $content)
                     <?php esc_html_e('Select a category', 'your-text-domain'); ?>
                 </option>
                 <?php
-                $categories = get_terms(['taxonomy' => 'job_category', 'hide_empty' => false]);
+                    $categories = get_terms(['taxonomy' => 'job_category', 'hide_empty' => false]);
     foreach ($categories as $category) {
         echo '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . '</option>';
     }
@@ -119,21 +167,21 @@ function render_submit_job_block($attributes, $content)
         <label
             for="job_description"><?php esc_html_e('Job Description *', 'your-text-domain'); ?></label>
         <?php
-        wp_editor(
-            $_SESSION['job_form_data']['job_description'] ?? '',
-            'job_description',
-            array(
-                                                            'textarea_name' => 'job_description',
-                                                            'media_buttons' => false,
-                                                            'textarea_rows' => 10,
-                                                            'teeny' => true,
-                                                            'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                                                            'tinymce' => array(
-                                                        'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                                                        'toolbar2' => '',
-                                                            ),
-                                                        )
-        );
+            wp_editor(
+                $_SESSION['job_form_data']['job_description'] ?? '',
+                'job_description',
+                array(
+                                                                                'textarea_name' => 'job_description',
+                                                                                'media_buttons' => false,
+                                                                                'textarea_rows' => 10,
+                                                                                'teeny' => true,
+                                                                                'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                                                                'tinymce' => array(
+                                                                            'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                                                            'toolbar2' => '',
+                                                                                ),
+                                                                            )
+            );
     ?>
     </div>
 
@@ -168,29 +216,50 @@ function handle_job_submission()
 
             if ($job_id) {
                 // Set taxonomies
-                wp_set_object_terms($job_id, intval($_POST['job_category']), 'job_category');
-                wp_set_object_terms($job_id, array_map('intval', $_POST['job_skills']), 'job_skills');
-                wp_set_object_terms($job_id, intval($_POST['employment_type']), 'employment_type');
-                wp_set_object_terms($job_id, array_map('intval', $_POST['benefits']), 'benefits');
+                if (isset($_POST['job_category'])) {
+                    wp_set_object_terms($job_id, intval($_POST['job_category']), 'job_category');
+                }
 
-                if ($_POST['worldwide'] === 'no') {
+                if (isset($_POST['job_skills']) && is_array($_POST['job_skills'])) {
+                    wp_set_object_terms($job_id, array_map('intval', $_POST['job_skills']), 'job_skills');
+                }
+
+                if (isset($_POST['employment_type'])) {
+                    wp_set_object_terms($job_id, sanitize_text_field($_POST['employment_type']), 'employment_type');
+                }
+
+                // Only set job_benefits if it exists
+                if (isset($_POST['job_benefits']) && is_array($_POST['job_benefits'])) {
+                    wp_set_object_terms($job_id, array_map('intval', $_POST['job_benefits']), 'job_benefits');
+                }
+
+                if (isset($_POST['worldwide']) && $_POST['worldwide'] === 'no' && isset($_POST['job_location'])) {
                     $job_location = intval($_POST['job_location']);
                     wp_set_object_terms($job_id, $job_location, 'job_location');
                 }
 
                 // Set custom fields
                 update_post_meta($job_id, '_worldwide', sanitize_text_field($_POST['worldwide']));
-                update_post_meta($job_id, '_salary_range', sanitize_text_field($_POST['salary_range']));
-                update_post_meta($job_id, '_how_to_apply', sanitize_textarea_field($_POST['how_to_apply']));
-                update_post_meta($job_id, '_application_link', sanitize_text_field($_POST['application_link']));
 
-                // Set salary range taxonomy
-                wp_set_object_terms($job_id, intval($_POST['salary_range']), 'salary_range');
+                if (isset($_POST['salary_range'])) {
+                    update_post_meta($job_id, '_salary_range', sanitize_text_field($_POST['salary_range']));
+                    wp_set_object_terms($job_id, intval($_POST['salary_range']), 'salary_range');
+                }
+
+                if (isset($_POST['how_to_apply'])) {
+                    update_post_meta($job_id, '_how_to_apply', sanitize_textarea_field($_POST['how_to_apply']));
+                }
+
+                if (isset($_POST['application_link'])) {
+                    update_post_meta($job_id, '_application_link', sanitize_text_field($_POST['application_link']));
+                }
 
                 // Clear the session data after successful submission
                 unset($_SESSION['job_form_data']);
 
-                wp_redirect(add_query_arg('job_submitted', 'success', wp_get_referer()));
+                // Redirect with success parameter
+                $redirect_url = add_query_arg('job_submitted', 'success', wp_get_referer());
+                wp_redirect($redirect_url);
                 exit;
             }
         }
@@ -209,4 +278,17 @@ function clear_job_session_data()
     }
 }
 add_action('template_redirect', 'clear_job_session_data');
+
+// Optional: Add JavaScript to prevent form resubmission on page refresh
+function add_form_submission_script()
+{
+    ?>
+<script>
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+<?php
+}
+add_action('wp_footer', 'add_form_submission_script');
 ?>
