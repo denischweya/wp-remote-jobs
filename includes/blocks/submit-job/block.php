@@ -109,7 +109,7 @@ function render_submit_job_block($attributes, $content)
                         <?php esc_html_e('Select Location', 'wp-remote-jobs'); ?>
                     </option>
                     <?php
-        $locations = get_terms(['taxonomy' => 'job_location', 'hide_empty' => false]);
+                    $locations = get_terms(['taxonomy' => 'job_location', 'hide_empty' => false]);
     foreach ($locations as $location) {
         echo '<option value="' . esc_attr($location->term_id) . '">' . esc_html($location->name) . '</option>';
     }
@@ -165,7 +165,7 @@ function render_submit_job_block($attributes, $content)
         <label
             for="application_link"><?php esc_html_e('Application Link or Email *', 'wp-remote-jobs'); ?></label>
         <input type="text" id="application_link" name="application_link" required>
-        <small><?php esc_html_e('Link to Application page or Email address.', 'wp-remote-jobs'); ?></small>
+        <small><?php esc_html_e('Link to Application page or Email address. (e.g mailto:example@example.com)', 'wp-remote-jobs'); ?></small>
     </div>
 
     <div class="form-group">
@@ -176,16 +176,16 @@ function render_submit_job_block($attributes, $content)
                 $_SESSION['job_form_data']['job_description'] ?? '',
                 'job_description',
                 array(
-                                                                        'textarea_name' => 'job_description',
-                                                                        'media_buttons' => false,
-                                                                        'textarea_rows' => 50,
-                                                                        'teeny' => true,
-                                                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
-                                                                        'tinymce' => array(
-                                                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
-                                                                    'toolbar2' => '',
-                                                                        ),
-                                                                    )
+                                                                                        'textarea_name' => 'job_description',
+                                                                                        'media_buttons' => false,
+                                                                                        'textarea_rows' => 50,
+                                                                                        'teeny' => true,
+                                                                                        'quicktags' => array('buttons' => 'strong,em,link,ul,ol,li'),
+                                                                                        'tinymce' => array(
+                                                                                    'toolbar1' => 'bold,italic,underline,bullist,numlist,link,unlink',
+                                                                                    'toolbar2' => '',
+                                                                                        ),
+                                                                                    )
             );
     ?>
     </div>
