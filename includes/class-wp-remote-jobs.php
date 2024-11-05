@@ -130,6 +130,8 @@ class Wp_Remote_Jobs
 
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/registration/registration.php';
 
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/blocks/job-sidebar/job-sidebar.php';
+
         $this->loader = new Wp_Remote_Jobs_Loader();
 
     }
@@ -383,6 +385,7 @@ class Wp_Remote_Jobs
 
         $worldwide = get_post_meta($post->ID, '_worldwide', true);
         $job_location = get_post_meta($post->ID, '_job_location', true);
+        $application_link = get_post_meta($post->ID, '_application_link', true);
 
         echo '<p><label>' . __('Is position open worldwide?', 'wp-remote-jobs') . '</label><br>';
         echo '<input type="radio" id="worldwide_yes" name="worldwide" value="yes" ' . checked($worldwide, 'yes', false) . '>';
@@ -398,6 +401,11 @@ class Wp_Remote_Jobs
             echo '<option value="' . esc_attr($code) . '" ' . selected($job_location, $code, false) . '>' . esc_html($name) . '</option>';
         }
         echo '</select></p>';
+
+        // Add Application Link field
+        echo '<p><label for="application_link">' . __('Application Link', 'wp-remote-jobs') . '</label><br>';
+        echo '<input type="url" id="application_link" name="application_link" value="' . esc_attr($application_link) . '" style="width: 100%;" placeholder="https://example.com/apply">';
+        echo '</p>';
 
         // Enqueue Select2 scripts and styles
         wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'), '4.0.13', true);
@@ -431,6 +439,7 @@ class Wp_Remote_Jobs
         $fields = array(
             'worldwide',
             'job_location',
+            'application_link',
         );
 
         foreach ($fields as $field) {

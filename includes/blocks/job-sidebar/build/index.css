@@ -1,0 +1,114 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../../node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!../../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!../../../node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/editor.scss ***!
+  \*************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.job-sidebar {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+.job-sidebar .company-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.job-sidebar .company-header .company-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.job-sidebar .company-header .company-name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+.job-sidebar .job-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.job-sidebar .job-details .detail-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.job-sidebar .job-details .detail-item .icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+.job-sidebar .job-details .detail-item strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #374151;
+  margin-bottom: 4px;
+}
+.job-sidebar .job-details .detail-item p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+.job-sidebar .skills-section {
+  margin-bottom: 24px;
+}
+.job-sidebar .skills-section strong {
+  display: block;
+  margin-bottom: 12px;
+  color: #374151;
+}
+.job-sidebar .skills-section .skills-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.job-sidebar .skills-section .skills-pills .skill-pill {
+  background: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  color: #374151;
+}
+.job-sidebar .company-website {
+  display: block;
+  text-align: center;
+  padding: 8px 16px;
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+.job-sidebar .company-website:hover {
+  background: #e5e7eb;
+}
+.job-sidebar .apply-button {
+  width: 100%;
+  padding: 12px 20px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.job-sidebar .apply-button:hover {
+  background: #4338ca;
+}
+
+/*# sourceMappingURL=index.css.map*/
