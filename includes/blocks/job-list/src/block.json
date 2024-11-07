@@ -10,7 +10,7 @@
 	"supports": {
 		"html": false
 	},
-	"textdomain": "list-job",
+	"textdomain": "remote-jobs",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",

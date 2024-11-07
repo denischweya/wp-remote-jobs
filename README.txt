@@ -1,41 +1,35 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
-Donate link: https://https://denis.swishfolio.com//
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+=== WP Remote Jobs Board ===
+Contributors: fortisthemes
+Donate link: https://denis.swishfolio.com/
+Tags: jobs, remote jobs, job board, careers, employment, gutenberg blocks, recruitment
+Requires at least: 6.0
+Tested up to: 6.4.3
+Stable tag: 1.0.0
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Create a powerful remote jobs board on your WordPress site with 4 customizable Gutenberg blocks for job listings, search, categories, and application forms.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Transform your WordPress website into a fully-featured remote jobs board with WP Remote Jobs Board. This plugin provides four essential Gutenberg blocks designed to create a seamless job listing and application experience:
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+**Key Features:**
 
-A few notes about the sections above:
+* **Jobs Grid Block:** Display job listings in a responsive grid layout with filtering options for categories, experience levels, and job types
+* **Job Search Block:** Advanced search functionality with auto-complete and filters for location, salary range, and employment type
+* **Job Categories Block:** Showcase job categories in an intuitive interface with category icons and post counts
+* **Job Application Block:** Custom application form with resume upload, cover letter, and automated email notifications
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+Perfect for:
+* Career websites
+* Company recruitment pages
+* Niche job boards
+* Remote work communities
+* Professional associations
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+The plugin integrates seamlessly with WordPress's block editor while maintaining excellent performance and SEO optimization out of the box.
 
 == Installation ==
 

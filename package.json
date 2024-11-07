@@ -14,8 +14,10 @@
       "build:submit-job": "wp-scripts build --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build",
       "build:job-list": "wp-scripts build --webpack-src-dir=includes/blocks/list-jobs/src --output-path=includes/blocks/list-jobs/build",
       "start:submit-job": "wp-scripts start --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build",
-      "start:job-list": "wp-scripts start --webpack-src-dir=includes/blocks/list-jobs/src --output-path=includes/blocks/list-jobs/build"
-  },
+      "start:job-list": "wp-scripts start --webpack-src-dir=includes/blocks/list-jobs/src --output-path=includes/blocks/list-jobs/build",
+      "makepot": "wp i18n make-pot . languages/remote-jobs.pot --exclude=\"node_modules/,vendor/\""
+
+    },
     "author": "Denis Bosire",
     "license": "GPL-2.0-or-later",
     "devDependencies": {

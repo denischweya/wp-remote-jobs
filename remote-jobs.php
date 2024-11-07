@@ -10,18 +10,20 @@
  *
  * @link              https://https://denis.swishfolio.com/
  * @since             1.0.0
- * @package           Wp_Remote_Jobs
+ * @package           Remote_Jobs
  *
  * @wordpress-plugin
- * Plugin Name:       WP remote jobs
- * Plugin URI:        https://https://denis.swishfolio.com/
+ * Plugin Name:       Remote Jobs
+ * Plugin URI:        https://denis.swishfolio.com/
  * Description:       A simple job board plugin for WordPress
  * Version:           1.0.0
- * Author:            Denis Bosire
- * Author URI:        https://https://denis.swishfolio.com//
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       wp-remote-jobs
+ * Requires at least: 5.8
+ * Requires PHP:      7.4
+ * Author:            Fortisthemes
+ * Author URI:        https://denis.swishfolio.com/
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       remote-jobs
  * Domain Path:       /languages
  */
 

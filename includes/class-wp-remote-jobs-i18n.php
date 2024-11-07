@@ -35,7 +35,7 @@ class Wp_Remote_Jobs_i18n {
 	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'wp-remote-jobs',
+			'remote-jobs',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

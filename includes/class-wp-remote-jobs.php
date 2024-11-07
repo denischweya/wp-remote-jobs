@@ -73,7 +73,7 @@ class Wp_Remote_Jobs
         } else {
             $this->version = '1.0.0';
         }
-        $this->plugin_name = 'wp-remote-jobs';
+        $this->plugin_name = 'remote-jobs';
 
         $this->load_dependencies();
         $this->set_locale();
@@ -194,20 +194,20 @@ class Wp_Remote_Jobs
     public function register_jobs_post_type()
     {
         $labels = array(
-            'name'               => _x('Jobs', 'post type general name', 'wp-remote-jobs'),
-            'singular_name'      => _x('Job', 'post type singular name', 'wp-remote-jobs'),
-            'menu_name'          => _x('Jobs', 'admin menu', 'wp-remote-jobs'),
-            'name_admin_bar'     => _x('Job', 'add new on admin bar', 'wp-remote-jobs'),
-            'add_new'            => _x('Add New', 'job', 'wp-remote-jobs'),
-            'add_new_item'       => __('Add New Job', 'wp-remote-jobs'),
-            'new_item'           => __('New Job', 'wp-remote-jobs'),
-            'edit_item'          => __('Edit Job', 'wp-remote-jobs'),
-            'view_item'          => __('View Job', 'wp-remote-jobs'),
-            'all_items'          => __('All Jobs', 'wp-remote-jobs'),
-            'search_items'       => __('Search Jobs', 'wp-remote-jobs'),
-            'parent_item_colon'  => __('Parent Jobs:', 'wp-remote-jobs'),
-            'not_found'          => __('No jobs found.', 'wp-remote-jobs'),
-            'not_found_in_trash' => __('No jobs found in Trash.', 'wp-remote-jobs')
+            'name'               => _x('Jobs', 'post type general name', 'remote-jobs'),
+            'singular_name'      => _x('Job', 'post type singular name', 'remote-jobs'),
+            'menu_name'          => _x('Jobs', 'admin menu', 'remote-jobs'),
+            'name_admin_bar'     => _x('Job', 'add new on admin bar', 'remote-jobs'),
+            'add_new'            => _x('Add New', 'job', 'remote-jobs'),
+            'add_new_item'       => __('Add New Job', 'remote-jobs'),
+            'new_item'           => __('New Job', 'remote-jobs'),
+            'edit_item'          => __('Edit Job', 'remote-jobs'),
+            'view_item'          => __('View Job', 'remote-jobs'),
+            'all_items'          => __('All Jobs', 'remote-jobs'),
+            'search_items'       => __('Search Jobs', 'remote-jobs'),
+            'parent_item_colon'  => __('Parent Jobs:', 'remote-jobs'),
+            'not_found'          => __('No jobs found.', 'remote-jobs'),
+            'not_found_in_trash' => __('No jobs found in Trash.', 'remote-jobs')
         );
 
         $args = array(
@@ -255,8 +255,8 @@ class Wp_Remote_Jobs
         register_taxonomy('job_category', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Job Categories', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Job Category', 'taxonomy singular name', 'wp-remote-jobs'),
+                'name' => _x('Job Categories', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Job Category', 'taxonomy singular name', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -269,8 +269,8 @@ class Wp_Remote_Jobs
         register_taxonomy('job_skills', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Skills', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Skill', 'taxonomy singular name', 'wp-remote-jobs'),
+                'name' => _x('Skills', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Skill', 'taxonomy singular name', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -283,17 +283,17 @@ class Wp_Remote_Jobs
         register_taxonomy('job_location', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Locations', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Location', 'taxonomy singular name', 'wp-remote-jobs'),
-                'search_items' => __('Search Location', 'wp-remote-jobs'),
-                'all_items' => __('All Location', 'wp-remote-jobs'),
-                'parent_item' => __('Parent Location', 'wp-remote-jobs'),
-                'parent_item_colon' => __('Parent Location:', 'wp-remote-jobs'),
-                'edit_item' => __('Edit Location', 'wp-remote-jobs'),
-                'update_item' => __('Update Location', 'wp-remote-jobs'),
-                'add_new_item' => __('Add New Location', 'wp-remote-jobs'),
-                'new_item_name' => __('New Location Name', 'wp-remote-jobs'),
-                'menu_name' => __('Location', 'wp-remote-jobs'),
+                'name' => _x('Locations', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Location', 'taxonomy singular name', 'remote-jobs'),
+                'search_items' => __('Search Location', 'remote-jobs'),
+                'all_items' => __('All Location', 'remote-jobs'),
+                'parent_item' => __('Parent Location', 'remote-jobs'),
+                'parent_item_colon' => __('Parent Location:', 'remote-jobs'),
+                'edit_item' => __('Edit Location', 'remote-jobs'),
+                'update_item' => __('Update Location', 'remote-jobs'),
+                'add_new_item' => __('Add New Location', 'remote-jobs'),
+                'new_item_name' => __('New Location Name', 'remote-jobs'),
+                'menu_name' => __('Location', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -305,8 +305,8 @@ class Wp_Remote_Jobs
         register_taxonomy('employment_type', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Employment Types', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Employment Type', 'taxonomy singular name', 'wp-remote-jobs'),
+                'name' => _x('Employment Types', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Employment Type', 'taxonomy singular name', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -319,8 +319,8 @@ class Wp_Remote_Jobs
         register_taxonomy('job_benefits', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Benefits', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Benefit', 'taxonomy singular name', 'wp-remote-jobs'),
+                'name' => _x('Benefits', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Benefit', 'taxonomy singular name', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -333,17 +333,17 @@ class Wp_Remote_Jobs
         register_taxonomy('salary_range', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Salary Ranges', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Salary Range', 'taxonomy singular name', 'wp-remote-jobs'),
-                'search_items' => __('Search Salary Ranges', 'wp-remote-jobs'),
-                'all_items' => __('All Salary Ranges', 'wp-remote-jobs'),
-                'parent_item' => __('Parent Salary Range', 'wp-remote-jobs'),
-                'parent_item_colon' => __('Parent Salary Range:', 'wp-remote-jobs'),
-                'edit_item' => __('Edit Salary Range', 'wp-remote-jobs'),
-                'update_item' => __('Update Salary Range', 'wp-remote-jobs'),
-                'add_new_item' => __('Add New Salary Range', 'wp-remote-jobs'),
-                'new_item_name' => __('New Salary Range Name', 'wp-remote-jobs'),
-                'menu_name' => __('Salary Range', 'wp-remote-jobs'),
+                'name' => _x('Salary Ranges', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Salary Range', 'taxonomy singular name', 'remote-jobs'),
+                'search_items' => __('Search Salary Ranges', 'remote-jobs'),
+                'all_items' => __('All Salary Ranges', 'remote-jobs'),
+                'parent_item' => __('Parent Salary Range', 'remote-jobs'),
+                'parent_item_colon' => __('Parent Salary Range:', 'remote-jobs'),
+                'edit_item' => __('Edit Salary Range', 'remote-jobs'),
+                'update_item' => __('Update Salary Range', 'remote-jobs'),
+                'add_new_item' => __('Add New Salary Range', 'remote-jobs'),
+                'new_item_name' => __('New Salary Range Name', 'remote-jobs'),
+                'menu_name' => __('Salary Range', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -356,17 +356,17 @@ class Wp_Remote_Jobs
         register_taxonomy('job_tags', 'jobs', array(
             'hierarchical' => true,
             'labels' => array(
-                'name' => _x('Job Tags', 'taxonomy general name', 'wp-remote-jobs'),
-                'singular_name' => _x('Job Tag', 'taxonomy singular name', 'wp-remote-jobs'),
-                'search_items' => __('Search Job Tags', 'wp-remote-jobs'),
-                'all_items' => __('All Job Tags', 'wp-remote-jobs'),
-                'parent_item' => __('Parent Job Tag', 'wp-remote-jobs'),
-                'parent_item_colon' => __('Parent Job Tag:', 'wp-remote-jobs'),
-                'edit_item' => __('Edit Job Tag', 'wp-remote-jobs'),
-                'update_item' => __('Update Job Tag', 'wp-remote-jobs'),
-                'add_new_item' => __('Add New Job Tag', 'wp-remote-jobs'),
-                'new_item_name' => __('New Job Tag Name', 'wp-remote-jobs'),
-                'menu_name' => __('Job Tags', 'wp-remote-jobs'),
+                'name' => _x('Job Tags', 'taxonomy general name', 'remote-jobs'),
+                'singular_name' => _x('Job Tag', 'taxonomy singular name', 'remote-jobs'),
+                'search_items' => __('Search Job Tags', 'remote-jobs'),
+                'all_items' => __('All Job Tags', 'remote-jobs'),
+                'parent_item' => __('Parent Job Tag', 'remote-jobs'),
+                'parent_item_colon' => __('Parent Job Tag:', 'remote-jobs'),
+                'edit_item' => __('Edit Job Tag', 'remote-jobs'),
+                'update_item' => __('Update Job Tag', 'remote-jobs'),
+                'add_new_item' => __('Add New Job Tag', 'remote-jobs'),
+                'new_item_name' => __('New Job Tag Name', 'remote-jobs'),
+                'menu_name' => __('Job Tags', 'remote-jobs'),
             ),
             'show_ui' => true,
             'show_admin_column' => true,
@@ -387,7 +387,7 @@ class Wp_Remote_Jobs
     {
         add_meta_box(
             'job_details',
-            __('Job Details', 'wp-remote-jobs'),
+            __('Job Details', 'remote-jobs'),
             array($this, 'render_job_meta_box'),
             'jobs',
             'normal',
@@ -406,24 +406,35 @@ class Wp_Remote_Jobs
         $job_location = get_post_meta($post->ID, '_job_location', true);
         $application_link = get_post_meta($post->ID, '_application_link', true);
 
-        echo '<p><label>' . __('Is position open worldwide?', 'wp-remote-jobs') . '</label><br>';
+        // Escape HTML output
+        echo '<p><label>' . esc_html__('Is position open worldwide?', 'remote-jobs') . '</label><br>';
         echo '<input type="radio" id="worldwide_yes" name="worldwide" value="yes" ' . checked($worldwide, 'yes', false) . '>';
-        echo '<label for="worldwide_yes">Yes</label>';
+        echo '<label for="worldwide_yes">' . esc_html__('Yes', 'remote-jobs') . '</label>';
         echo '<input type="radio" id="worldwide_no" name="worldwide" value="no" ' . checked($worldwide, 'no', false) . '>';
-        echo '<label for="worldwide_no">No</label></p>';
+        echo '<label for="worldwide_no">' . esc_html__('No', 'remote-jobs') . '</label></p>';
 
-        echo '<p><label for="job_location">' . __('Job Location', 'wp-remote-jobs') . '</label><br>';
+        echo '<p><label for="job_location">' . esc_html__('Job Location', 'remote-jobs') . '</label><br>';
         echo '<select id="job_location" name="job_location" class="select2-country">';
-        echo '<option value="">' . __('Select a country', 'wp-remote-jobs') . '</option>';
+        echo '<option value="">' . esc_html__('Select a country', 'remote-jobs') . '</option>';
+
         $countries = $this->get_countries_list();
         foreach ($countries as $code => $name) {
-            echo '<option value="' . esc_attr($code) . '" ' . selected($job_location, $code, false) . '>' . esc_html($name) . '</option>';
+            printf(
+                '<option value="%s" %s>%s</option>',
+                esc_attr($code),
+                selected($job_location, $code, false),
+                esc_html($name)
+            );
         }
         echo '</select></p>';
 
-        // Add Application Link field
-        echo '<p><label for="application_link">' . __('Application Link', 'wp-remote-jobs') . '</label><br>';
-        echo '<input type="url" id="application_link" name="application_link" value="' . esc_attr($application_link) . '" style="width: 100%;" placeholder="https://example.com/apply">';
+        // Application Link field
+        echo '<p><label for="application_link">' . esc_html__('Application Link', 'remote-jobs') . '</label><br>';
+        printf(
+            '<input type="url" id="application_link" name="application_link" value="%s" style="width: 100%;" placeholder="%s">',
+            esc_attr($application_link),
+            esc_attr__('https://example.com/apply', 'remote-jobs')
+        );
         echo '</p>';
 
         // Enqueue Select2 scripts and styles
@@ -443,7 +454,8 @@ class Wp_Remote_Jobs
      */
     public function save_job_meta($post_id)
     {
-        if (!isset($_POST['job_meta_box_nonce']) || !wp_verify_nonce($_POST['job_meta_box_nonce'], 'job_meta_box')) {
+        if (!isset($_POST['job_meta_box_nonce']) ||
+            !wp_verify_nonce(wp_unslash($_POST['job_meta_box_nonce']), 'job_meta_box')) {
             return;
         }
 
@@ -463,7 +475,12 @@ class Wp_Remote_Jobs
 
         foreach ($fields as $field) {
             if (isset($_POST[$field])) {
-                update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
+                // Unslash before sanitizing
+                update_post_meta(
+                    $post_id,
+                    '_' . $field,
+                    sanitize_text_field(wp_unslash($_POST[$field]))
+                );
             }
         }
     }
@@ -643,14 +660,37 @@ class Wp_Remote_Jobs
         $remote_jobs_category = array(
             array(
                 'slug' => 'remote-jobs',
-                'title' => __('Remote Jobs', 'my-block'),
-                'icon' => '<svg enable-background="new 0 0 130 130" height="20" width="20" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg"><line fill="none" stroke="#3B64F3" stroke-miterlimit="10" stroke-width="2" x1="29.4" x2="52.588" y1="82.311" y2="82.311"/><line fill="none" stroke="#3B64F3" stroke-miterlimit="10" stroke-width="2" x1="29.4" x2="52.588" y1="63.641" y2="63.641"/><line fill="none" stroke="#3B64F3" stroke-miterlimit="10" stroke-width="2" x1="29.4" x2="52.588" y1="43.756" y2="43.756"/><path d="M92.926,56.384v51.298c0,2.569-2.081,4.66-4.639,4.66H23.564c-2.558,0-4.639-2.091-4.639-4.66v-86.18  c0-2.57,2.081-4.66,4.639-4.66h64.723c2.558,0,4.639,2.09,4.639,4.66v17.131l2-2.002V21.502c0-3.678-2.973-6.66-6.639-6.66H23.564  c-3.666,0-6.639,2.982-6.639,6.66v86.18c0,3.678,2.973,6.66,6.639,6.66h64.723c3.666,0,6.639-2.982,6.639-6.66v-53.3L92.926,56.384z  " fill="#3F65F0"/><path d="M120.463,25.534c-0.557-0.898-1.405-1.936-2.393-2.923c-1.194-1.195-3.462-3.199-5.224-3.199  c-0.649,0-1.247,0.242-1.681,0.677l-7.667,7.666L66.504,64.834c-0.802,0.802-1.354,1.759-1.662,2.775L56.718,83.41l16.313-7.45  c1.085-0.305,2.081-0.879,2.9-1.698l37.688-37.771l6.975-6.975C121.251,28.858,121.762,27.634,120.463,25.534z M64.922,71.716  c0.318,0.93,0.841,1.805,1.582,2.546c0.652,0.653,1.419,1.15,2.252,1.48l-8.193,4.07L64.922,71.716z M74.518,72.848  c-0.882,0.881-2.054,1.366-3.301,1.366c-1.246,0-2.418-0.485-3.299-1.366c-0.879-0.88-1.363-2.052-1.363-3.3  c0-1.249,0.484-2.421,1.363-3.3l34.402-34.4c0.484,1.073,1.402,2.305,2.805,3.709c0.894,0.894,2.387,2.239,3.82,2.861L74.518,72.848  z M119.18,28.102l-8.564,8.564c-0.075,0.075-0.186,0.09-0.266,0.09c-0.414,0-1.743-0.546-3.811-2.614  c-2.402-2.405-2.823-3.776-2.523-4.076l8.564-8.563c0.079-0.08,0.201-0.091,0.267-0.091c0.414,0,1.743,0.546,3.81,2.613  c0.867,0.867,1.635,1.8,2.106,2.562C118.838,26.708,119.491,27.79,119.18,28.102z" fill="#3F65F0"/></svg>',
+                'title' => esc_html__('Remote Jobs', 'remote-jobs'),
+                'icon' => wp_kses(
+                    '<svg enable-background="new 0 0 130 130" height="20" width="20" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">...</svg>',
+                    array(
+                        'svg' => array(
+                            'enable-background' => true,
+                            'height' => true,
+                            'width' => true,
+                            'viewBox' => true,
+                            'xmlns' => true
+                        ),
+                        'line' => array(
+                            'fill' => true,
+                            'stroke' => true,
+                            'stroke-miterlimit' => true,
+                            'stroke-width' => true,
+                            'x1' => true,
+                            'x2' => true,
+                            'y1' => true,
+                            'y2' => true
+                        ),
+                        'path' => array(
+                            'd' => true,
+                            'fill' => true
+                        )
+                    )
+                )
             )
         );
 
-        // Add the Remote Jobs category to the beginning of the list
         array_unshift($categories, $remote_jobs_category[0]);
-
         return $categories;
     }
 

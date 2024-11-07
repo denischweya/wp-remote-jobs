@@ -45,6 +45,7 @@ function render_job_listings_block($attributes)
     ?>
 <div class="job-search-form"
 	data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>">
+	<?php wp_nonce_field('filter_jobs_nonce', 'jobs_filter_nonce'); ?>
 	<input type="text" id="job-search" placeholder="Search" />
 	<select id="job-category">
 		<option value="">All Job Categories</option>
@@ -106,7 +107,7 @@ function render_job_listings_block($attributes)
 				</p>
 			</div>
 			<div class="job-date">
-				<span><?php echo human_time_diff(get_the_time('U'), current_time('timestamp')) . ' ago'; ?></span>
+				<span><?php echo esc_html(human_time_diff(get_the_time('U'), current_time('timestamp')) . ' ago'); ?></span>
 			</div>
 		</div>
 		<div class="job-details">
@@ -169,8 +170,7 @@ function render_job_listings_block($attributes)
 	<?php endwhile; ?>
 	<?php wp_reset_postdata(); ?>
 	<?php else : ?>
-	<p><?php _e('No jobs found', 'wp-remote-jobs'); ?>
-	</p>
+	<p><?php esc_html_e('No jobs found', 'remote-jobs'); ?></p>
 	<?php endif; ?>
 </div>
 <?php
@@ -194,10 +194,17 @@ add_action('wp_enqueue_scripts', 'enqueue_job_filter_script');
 
 function filter_jobs_ajax()
 {
-    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
-    $type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
-    $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+    // Verify nonce - with proper unslashing
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash($_POST['nonce']), 'filter_jobs_nonce')) {
+        wp_send_json_error('Invalid security token');
+        return;
+    }
+
+    // Unslash and sanitize POST data
+    $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
+    $category = isset($_POST['category']) ? sanitize_text_field(wp_unslash($_POST['category'])) : '';
+    $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
+    $location = isset($_POST['location']) ? sanitize_text_field(wp_unslash($_POST['location'])) : '';
 
     $tax_query = array('relation' => 'AND');
 
@@ -261,7 +268,7 @@ function filter_jobs_ajax()
 			</p>
 		</div>
 		<div class="job-date">
-			<span><?php echo human_time_diff(get_the_time('U'), current_time('timestamp')) . ' ago'; ?></span>
+			<span><?php echo esc_html(human_time_diff(get_the_time('U'), current_time('timestamp')) . ' ago'); ?></span>
 		</div>
 	</div>
 	<div class="job-details">
