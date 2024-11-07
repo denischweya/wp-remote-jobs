@@ -18,8 +18,9 @@ function render_registration_block($attributes, $content)
     $description = isset($attributes['description']) ? wp_kses_post($attributes['description']) : '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Add nonce verification
-        if (!isset($_POST['registration_nonce']) || !wp_verify_nonce($_POST['registration_nonce'], 'company_registration_action')) {
+        // Sanitize and verify nonce
+        $registration_nonce = isset($_POST['registration_nonce']) ? wp_unslash($_POST['registration_nonce']) : '';
+        if (!wp_verify_nonce($registration_nonce, 'company_registration_action')) {
             wp_die(__('Security check failed. Please try again.', 'remote-jobs'));
         }
 
@@ -36,15 +37,22 @@ function render_registration_block($attributes, $content)
             }
         }
 
-        // Process form submission
-        $user_id = wp_create_user($_POST['email'], wp_generate_password(), $_POST['email']);
+        // Sanitize form data
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        $company_name = isset($_POST['company_name']) ? sanitize_text_field(wp_unslash($_POST['company_name'])) : '';
+        $company_hq = isset($_POST['company_hq']) ? sanitize_text_field(wp_unslash($_POST['company_hq'])) : '';
+        $website_url = isset($_POST['website_url']) ? esc_url_raw(wp_unslash($_POST['website_url'])) : '';
+        $description = isset($_POST['description']) ? wp_kses_post(wp_unslash($_POST['description'])) : '';
+
+        // Create user with sanitized data
+        $user_id = wp_create_user($email, wp_generate_password(), $email);
 
         if (!is_wp_error($user_id)) {
-            update_user_meta($user_id, 'company_name', sanitize_text_field($_POST['company_name']));
-            update_user_meta($user_id, 'company_hq', sanitize_text_field($_POST['company_hq']));
+            update_user_meta($user_id, 'company_name', $company_name);
+            update_user_meta($user_id, 'company_hq', $company_hq);
             update_user_meta($user_id, 'company_logo', esc_url_raw($logo_url));
-            update_user_meta($user_id, 'company_website', esc_url_raw($_POST['website_url']));
-            update_user_meta($user_id, 'company_description', wp_kses_post($_POST['description']));
+            update_user_meta($user_id, 'company_website', $website_url);
+            update_user_meta($user_id, 'company_description', $description);
 
             // Send notification email to user with their password
             wp_new_user_notification($user_id, null, 'user');
@@ -186,16 +194,18 @@ function save_company_details_fields($user_id)
         return false;
     }
 
-    // Add nonce verification for profile updates
-    if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'update-user_' . $user_id)) {
+    // Sanitize and verify nonce
+    $wpnonce = isset($_POST['_wpnonce']) ? wp_unslash($_POST['_wpnonce']) : '';
+    if (!wp_verify_nonce($wpnonce, 'update-user_' . $user_id)) {
         return false;
     }
 
-    update_user_meta($user_id, 'company_name', sanitize_text_field($_POST['company_name']));
-    update_user_meta($user_id, 'company_hq', sanitize_text_field($_POST['company_hq']));
-    update_user_meta($user_id, 'company_logo', esc_url_raw($_POST['company_logo']));
-    update_user_meta($user_id, 'company_website', esc_url_raw($_POST['company_website']));
-    update_user_meta($user_id, 'company_description', wp_kses_post($_POST['company_description']));
+    // Sanitize and update user meta
+    update_user_meta($user_id, 'company_name', sanitize_text_field(wp_unslash($_POST['company_name'])));
+    update_user_meta($user_id, 'company_hq', sanitize_text_field(wp_unslash($_POST['company_hq'])));
+    update_user_meta($user_id, 'company_logo', esc_url_raw(wp_unslash($_POST['company_logo'])));
+    update_user_meta($user_id, 'company_website', esc_url_raw(wp_unslash($_POST['company_website'])));
+    update_user_meta($user_id, 'company_description', wp_kses_post(wp_unslash($_POST['company_description'])));
 }
 
 // Add hooks to display and save the custom fields
