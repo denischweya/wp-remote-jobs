@@ -194,11 +194,8 @@ add_action('wp_enqueue_scripts', 'enqueue_job_filter_script');
 
 function filter_jobs_ajax()
 {
-    // Verify nonce - with proper unslashing
-    if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash($_POST['nonce']), 'filter_jobs_nonce')) {
-        wp_send_json_error('Invalid security token');
-        return;
-    }
+    // Verify nonce with proper sanitization
+    check_ajax_referer('filter_jobs_nonce', 'nonce');
 
     // Unslash and sanitize POST data
     $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';

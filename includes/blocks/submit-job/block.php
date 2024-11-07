@@ -55,13 +55,13 @@ function render_submit_job_block($attributes, $content)
         <label
             for="job_title"><?php esc_html_e('Job Title *', 'remote-jobs'); ?></label>
         <?php
-            // Sanitize session data before output
+            // Sanitize and escape session data before output
             $job_title = isset($_SESSION['job_form_data']['job_title'])
                 ? esc_attr(sanitize_text_field($_SESSION['job_form_data']['job_title']))
                 : '';
     ?>
         <input type="text" id="job_title" name="job_title" required
-            value="<?php echo $job_title; ?>">
+            value="<?php echo esc_attr($job_title); ?>">
         <small><?php esc_html_e('Example: "Senior Designer". Titles must describe one position.', 'remote-jobs'); ?></small>
     </div>
 
@@ -221,7 +221,10 @@ function handle_job_submission()
     // Add nonce verification with sanitized nonce
     $nonce = isset($_POST['submit_job_nonce']) ? sanitize_text_field(wp_unslash($_POST['submit_job_nonce'])) : '';
     if (!wp_verify_nonce($nonce, 'submit_job_action')) {
-        wp_die(__('Security check failed. Please try again.', 'remote-jobs'), __('Security Error', 'remote-jobs'));
+        wp_die(
+            esc_html__('Security check failed. Please try again.', 'remote-jobs'),
+            esc_html__('Security Error', 'remote-jobs')
+        );
         return;
     }
 
@@ -268,9 +271,11 @@ function handle_job_submission()
         // Handle job skills with proper sanitization
         $job_skills = isset($_POST['job_skills']) ? (array) wp_unslash($_POST['job_skills']) : array();
         $sanitized_skills = array_map(function ($skill) {
+            // For existing terms (numeric IDs)
             if (is_numeric($skill)) {
                 return intval($skill);
             }
+            // For new terms (text input)
             return sanitize_text_field($skill);
         }, $job_skills);
 

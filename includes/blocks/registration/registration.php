@@ -21,7 +21,7 @@ function render_registration_block($attributes, $content)
         // Sanitize and verify nonce
         $registration_nonce = isset($_POST['registration_nonce']) ? wp_unslash($_POST['registration_nonce']) : '';
         if (!wp_verify_nonce($registration_nonce, 'company_registration_action')) {
-            wp_die(__('Security check failed. Please try again.', 'remote-jobs'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'remote-jobs'));
         }
 
         // Handle file upload
@@ -61,7 +61,7 @@ function render_registration_block($attributes, $content)
             wp_safe_redirect(wp_login_url() . '?registration=success');
             exit;
         } else {
-            echo '<p class="error">' . __('Registration failed. Please try again.', 'remote-jobs') . '</p>';
+            echo wp_kses_post('<p class="error">' . esc_html__('Registration failed. Please try again.', 'remote-jobs') . '</p>');
         }
     }
 
@@ -70,13 +70,13 @@ function render_registration_block($attributes, $content)
 <div class="wp-block-wp-remote-jobs-registration">
 	<div class="registration-container">
 		<h2 class="registration-title">
-			<?php esc_html_e('Company Registration', 'remote-jobs'); ?>
+			<?php echo esc_html__('Company Registration', 'remote-jobs'); ?>
 		</h2>
 		<form id="registration-form" method="post" class="registration-form" enctype="multipart/form-data">
 			<?php wp_nonce_field('company_registration_action', 'registration_nonce'); ?>
 			<div class="form-group">
 				<label
-					for="company-name"><?php esc_html_e('Company Name', 'remote-jobs'); ?></label>
+					for="company-name"><?php echo esc_html__('Company Name', 'remote-jobs'); ?></label>
 				<input type="text" id="company-name" name="company_name"
 					value="<?php echo esc_attr($company_name); ?>" required>
 			</div>
@@ -84,13 +84,13 @@ function render_registration_block($attributes, $content)
 			<div class="form-row">
 				<div class="form-group">
 					<label
-						for="company-hq"><?php esc_html_e('Company HQ (Address)', 'remote-jobs'); ?></label>
+						for="company-hq"><?php echo esc_html__('Company HQ (Address)', 'remote-jobs'); ?></label>
 					<input type="text" id="company-hq" name="company_hq"
 						value="<?php echo esc_attr($company_hq); ?>" required>
 				</div>
 				<div class="form-group">
 					<label
-						for="website-url"><?php esc_html_e('Company Website URL', 'remote-jobs'); ?></label>
+						for="website-url"><?php echo esc_html__('Company Website URL', 'remote-jobs'); ?></label>
 					<input type="url" id="website-url" name="website_url"
 						value="<?php echo esc_attr($website_url); ?>" required>
 				</div>
@@ -99,21 +99,21 @@ function render_registration_block($attributes, $content)
 			<div class="form-row">
 				<div class="form-group">
 					<label
-						for="email"><?php esc_html_e('Email Address', 'remote-jobs'); ?></label>
+						for="email"><?php echo esc_html__('Email Address', 'remote-jobs'); ?></label>
 					<input type="email" id="email" name="email"
 						value="<?php echo esc_attr($email); ?>" required>
 				</div>
 				<div class="form-group">
 					<label
-						for="logo"><?php esc_html_e('Company Logo', 'remote-jobs'); ?></label>
+						for="logo"><?php echo esc_html__('Company Logo', 'remote-jobs'); ?></label>
 					<div class="logo-upload-container">
 						<input type="file" id="logo" name="logo" accept="image/*" class="file-upload">
 						<?php if ($logo): ?>
 						<div class="logo-preview">
 							<img src="<?php echo esc_url($logo); ?>"
-								alt="<?php esc_attr_e('Company Logo Preview', 'remote-jobs'); ?>">
+								alt="<?php echo esc_attr__('Company Logo Preview', 'remote-jobs'); ?>">
 							<button type="button" class="button remove-logo-button">
-								<?php esc_html_e('Remove Logo', 'remote-jobs'); ?>
+								<?php echo esc_html__('Remove Logo', 'remote-jobs'); ?>
 							</button>
 						</div>
 						<?php endif; ?>
@@ -123,13 +123,13 @@ function render_registration_block($attributes, $content)
 
 			<div class="form-group">
 				<label
-					for="description"><?php esc_html_e('Company Description', 'remote-jobs'); ?></label>
+					for="description"><?php echo esc_html__('Company Description', 'remote-jobs'); ?></label>
 				<textarea id="description" name="description" rows="4"
 					required><?php echo esc_textarea($description); ?></textarea>
 			</div>
 
 			<button type="submit" class="submit-button">
-				<?php esc_html_e('Complete Registration', 'remote-jobs'); ?>
+				<?php echo esc_html__('Complete Registration', 'remote-jobs'); ?>
 			</button>
 		</form>
 	</div>
@@ -142,10 +142,10 @@ function render_registration_block($attributes, $content)
 function add_company_details_fields($user)
 {
     ?>
-<h3><?php esc_html_e('Company Details', 'remote-jobs'); ?></h3>
+<h3><?php echo esc_html__('Company Details', 'remote-jobs'); ?></h3>
 <table class="form-table">
     <tr>
-        <th><label for="company_name"><?php esc_html_e('Company Name', 'remote-jobs'); ?></label></th>
+        <th><label for="company_name"><?php echo esc_html__('Company Name', 'remote-jobs'); ?></label></th>
         <td>
             <input type="text" name="company_name" id="company_name"
                 value="<?php echo esc_attr(get_user_meta($user->ID, 'company_name', true)); ?>"
@@ -153,7 +153,7 @@ function add_company_details_fields($user)
         </td>
     </tr>
     <tr>
-        <th><label for="company_hq"><?php esc_html_e('Company HQ', 'remote-jobs'); ?></label></th>
+        <th><label for="company_hq"><?php echo esc_html__('Company HQ', 'remote-jobs'); ?></label></th>
         <td>
             <input type="text" name="company_hq" id="company_hq"
                 value="<?php echo esc_attr(get_user_meta($user->ID, 'company_hq', true)); ?>"
@@ -161,7 +161,7 @@ function add_company_details_fields($user)
         </td>
     </tr>
     <tr>
-        <th><label for="company_logo"><?php esc_html_e('Logo URL', 'remote-jobs'); ?></label></th>
+        <th><label for="company_logo"><?php echo esc_html__('Logo URL', 'remote-jobs'); ?></label></th>
         <td>
             <input type="url" name="company_logo" id="company_logo"
                 value="<?php echo esc_url(get_user_meta($user->ID, 'company_logo', true)); ?>"
@@ -169,7 +169,7 @@ function add_company_details_fields($user)
         </td>
     </tr>
     <tr>
-        <th><label for="company_website"><?php esc_html_e('Company Website URL', 'remote-jobs'); ?></label></th>
+        <th><label for="company_website"><?php echo esc_html__('Company Website URL', 'remote-jobs'); ?></label></th>
         <td>
             <input type="url" name="company_website" id="company_website"
                 value="<?php echo esc_url(get_user_meta($user->ID, 'company_website', true)); ?>"
@@ -177,7 +177,7 @@ function add_company_details_fields($user)
         </td>
     </tr>
     <tr>
-        <th><label for="company_description"><?php esc_html_e('Company Description', 'remote-jobs'); ?></label></th>
+        <th><label for="company_description"><?php echo esc_html__('Company Description', 'remote-jobs'); ?></label></th>
         <td>
             <textarea name="company_description" id="company_description" rows="5"
                 cols="30"><?php echo esc_textarea(get_user_meta($user->ID, 'company_description', true)); ?></textarea>
