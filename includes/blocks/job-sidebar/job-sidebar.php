@@ -125,7 +125,8 @@ function render_job_sidebar_block($attributes, $content, $block)
 			<?php echo wp_kses($employment_icon, $allowed_svg); ?>
 			<div>
 				<strong><?php esc_html_e('Employment Type', 'remote-jobs'); ?></strong>
-				<p><?php echo esc_html($employment_type[0]->name); ?></p>
+				<p><?php //echo esc_html($employment_type[0]->name);?>
+				</p>
 			</div>
 		</div>
 		<?php endif; ?>
@@ -135,7 +136,8 @@ function render_job_sidebar_block($attributes, $content, $block)
 			<?php echo wp_kses($salary_icon, $allowed_svg); ?>
 			<div>
 				<strong><?php esc_html_e('Salary Range', 'remote-jobs'); ?></strong>
-				<p><?php echo esc_html($salary_range[0]->name); ?></p>
+				<p><?php echo esc_html($salary_range[0]->name); ?>
+				</p>
 			</div>
 		</div>
 		<?php endif; ?>
@@ -145,7 +147,8 @@ function render_job_sidebar_block($attributes, $content, $block)
 			<?php echo wp_kses($category_icon, $allowed_svg); ?>
 			<div>
 				<strong><?php esc_html_e('Category', 'remote-jobs'); ?></strong>
-				<p><?php echo esc_html($job_category[0]->name); ?></p>
+				<p><?php echo esc_html($job_category[0]->name); ?>
+				</p>
 			</div>
 		</div>
 		<?php endif; ?>
@@ -181,4 +184,18 @@ function render_job_sidebar_block($attributes, $content, $block)
 <?php
     return ob_get_clean();
 }
+
+function enqueue_block_assets()
+{
+    $asset_file = include(plugin_dir_path(__FILE__) . 'build/index.asset.php');
+
+    // Enqueue front-end and editor styles
+    wp_enqueue_style(
+        'job-sidebar-style',
+        plugins_url('build/style-index.css', __FILE__),
+        [],
+        $asset_file['version']
+    );
+}
+add_action('init', 'enqueue_block_assets');
 ?>

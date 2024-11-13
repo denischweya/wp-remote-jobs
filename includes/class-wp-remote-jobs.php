@@ -209,21 +209,20 @@ class Wp_Remote_Jobs
             'not_found'          => __('No jobs found.', 'remote-jobs'),
             'not_found_in_trash' => __('No jobs found in Trash.', 'remote-jobs')
         );
-        // Define the block template
-        $template = [
-            ['core/columns', [], [
-                ['core/column', ['width' => '66.66%'], [
-                    ['core/paragraph', ['placeholder' => 'Add your job description here']],
-                ]],
-                ['core/column', ['width' => '33.33%'], [
-                    ['wp-remote-jobs/job-side-bar'],
-                ]],
-            ]],
-        ];
+        // // Define the block template
+        // $template = [
+        //     ['core/columns', [], [
+        //         ['core/column', ['width' => '66.66%'], [
+        //             ['core/paragraph', ['placeholder' => 'Add your job description here']],
+        //         ]],
+        //         ['core/column', ['width' => '33.33%'], [
+        //             ['wp-remote-jobs/job-side-bar'],
+        //         ]],
+        //     ]],
+        // ];
         $args = array(
             'labels'             => $labels,
             'public'             => true,
-            'template'           => $template,
             'publicly_queryable' => true,
             'show_ui'            => true,
             'show_in_menu'       => true,

@@ -24,62 +24,61 @@
 console.log( 'Hello World! (from create-block-submit-job block)' );
 /* eslint-enable no-console */
 
+jQuery( document ).ready( function ( $ ) {
+	$( '.select-skills' ).select2( {
+		tags: true,
+		tokenSeparators: [ ',' ],
+		placeholder: 'Select or type skills',
+		allowClear: true,
+	} );
+	$( '.select-tags' ).select2( {
+		tags: true,
+		tokenSeparators: [ ',' ],
+		placeholder: 'Select or type tags',
+		allowClear: true,
+	} );
+	$( '.select-benefits' ).select2( {
+		placeholder: 'Select Benefits',
+		allowClear: true,
+	} );
 
-jQuery(document).ready(function($) {
-    $('.select-skills').select2({
-        tags: true,
-        tokenSeparators: [','],
-        placeholder: 'Select or type skills',
-        allowClear: true
-    });
-    $('.select-tags').select2({
-        tags: true,
-        tokenSeparators: [','],
-        placeholder: 'Select or type tags',
-        allowClear: true
-    });
-    $('.select-benefits').select2({
-        placeholder: "Select Benefits",
-        allowClear: true
-    });
+	$( '.select-country' ).select2( {
+		placeholder: 'Select Skills',
+		allowClear: true,
+	} );
+	$( 'input[name="worldwide"]' ).on( 'change', function () {
+		$( 'select[name="job_location"]' ).toggle( this.value === 'no' );
+	} );
+} );
 
-    $('.select-country').select2({
-        placeholder: "Select Skills",
-        allowClear: true
-    });
-    $('input[name="worldwide"]').on('change', function() {
-        $('select[name="job_location"]').toggle(this.value === 'no');
-    });
-});
+jQuery( document ).ready( function ( $ ) {
+	$( '.next-step' ).click( function () {
+		$( '#step1' ).hide();
+		$( '#step2' ).show();
+	} );
 
-jQuery(document).ready(function($) {
-    $('.next-step').click(function() {
-        $('#step1').hide();
-        $('#step2').show();
-    });
+	$( '.prev-step' ).click( function () {
+		$( '#step2' ).hide();
+		$( '#step1' ).show();
+	} );
+} );
 
-    $('.prev-step').click(function() {
-        $('#step2').hide();
-        $('#step1').show();
-    });
-});
-
-if (window.history.replaceState) {
-    window.history.replaceState(null, null, window.location.href);
+if ( window.history.replaceState ) {
+	window.history.replaceState( null, null, window.location.href );
 }
 
 // Initialize Select2
-jQuery(document).ready(function($) {
-    $('.select2-single').select2();
-    
-    // Handle worldwide radio button changes
-    $('input[name="worldwide"]').change(function() {
-        if ($(this).val() === 'no') {
-            $('.location-select').show();
-            $('#job_location').prop('required', true);
-        } else {
-            $('.location-select').hide();
-            $('#job_location').prop('required', false);
-        }
-    });
-});
+jQuery( document ).ready( function ( $ ) {
+	$( '.select2-single' ).select2();
+
+	// Handle worldwide radio button changes
+	$( 'input[name="worldwide"]' ).change( function () {
+		if ( $( this ).val() === 'no' ) {
+			$( '.location-select' ).show();
+			$( '#job_location' ).prop( 'required', true );
+		} else {
+			$( '.location-select' ).hide();
+			$( '#job_location' ).prop( 'required', false );
+		}
+	} );
+} );

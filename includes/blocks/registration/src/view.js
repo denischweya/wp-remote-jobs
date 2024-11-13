@@ -20,39 +20,41 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-jQuery(document).ready(function($) {
-    var frame;
-    
-    $('.upload-logo-button').on('click', function(e) {
-        e.preventDefault();
-        
-        if (frame) {
-            frame.open();
-            return;
-        }
-        
-        frame = wp.media({
-            title: 'Select or Upload Company Logo',
-            button: {
-                text: 'Use this image'
-            },
-            multiple: false
-        });
-        
-        frame.on('select', function() {
-            var attachment = frame.state().get('selection').first().toJSON();
-            $('#logo').val(attachment.url);
-            $('.logo-preview').html('<img src="' + attachment.url + '" alt="Company Logo Preview">');
-            $('.remove-logo-button').show();
-        });
-        
-        frame.open();
-    });
-    
-    $('.remove-logo-button').on('click', function(e) {
-        e.preventDefault();
-        $('#logo').val('');
-        $('.logo-preview').empty();
-        $(this).hide();
-    });
-});
+jQuery( document ).ready( function ( $ ) {
+	var frame;
+
+	$( '.upload-logo-button' ).on( 'click', function ( e ) {
+		e.preventDefault();
+
+		if ( frame ) {
+			frame.open();
+			return;
+		}
+
+		frame = wp.media( {
+			title: 'Select or Upload Company Logo',
+			button: {
+				text: 'Use this image',
+			},
+			multiple: false,
+		} );
+
+		frame.on( 'select', function () {
+			var attachment = frame.state().get( 'selection' ).first().toJSON();
+			$( '#logo' ).val( attachment.url );
+			$( '.logo-preview' ).html(
+				'<img src="' + attachment.url + '" alt="Company Logo Preview">'
+			);
+			$( '.remove-logo-button' ).show();
+		} );
+
+		frame.open();
+	} );
+
+	$( '.remove-logo-button' ).on( 'click', function ( e ) {
+		e.preventDefault();
+		$( '#logo' ).val( '' );
+		$( '.logo-preview' ).empty();
+		$( this ).hide();
+	} );
+} );

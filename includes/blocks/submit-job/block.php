@@ -218,7 +218,7 @@ function handle_job_submission()
         return;
     }
 
-    // Add nonce verification with sanitized nonce
+    // Verify nonce
     $nonce = isset($_POST['submit_job_nonce']) ? sanitize_text_field(wp_unslash($_POST['submit_job_nonce'])) : '';
     if (!wp_verify_nonce($nonce, 'submit_job_action')) {
         wp_die(
@@ -228,67 +228,67 @@ function handle_job_submission()
         return;
     }
 
-    // Continue with form processing only if nonce is verified
-    $post_data = array(
-        'job_title' => sanitize_text_field(wp_unslash($_POST['job_title'] ?? '')),
-        'job_description' => wp_kses_post(wp_unslash($_POST['job_description'] ?? '')),
-        'application_link' => sanitize_text_field(wp_unslash($_POST['application_link'] ?? '')),
-        'worldwide' => sanitize_text_field(wp_unslash($_POST['worldwide'] ?? '')),
-        'employment_type' => sanitize_text_field(wp_unslash($_POST['employment_type'] ?? '')),
-        'salary_range' => sanitize_text_field(wp_unslash($_POST['salary_range'] ?? '')),
-        // Add any other fields that need processing
+    // Sanitize form data
+    $job_title = sanitize_text_field(wp_unslash($_POST['job_title'] ?? ''));
+    $job_description = wp_kses_post(wp_unslash($_POST['job_description'] ?? ''));
+    $application_link = sanitize_text_field(wp_unslash($_POST['application_link'] ?? ''));
+    $worldwide = sanitize_text_field(wp_unslash($_POST['worldwide'] ?? ''));
+    $employment_type = sanitize_text_field(wp_unslash($_POST['employment_type'] ?? ''));
 
-        // Company fields
-        'company_hq' => sanitize_text_field(wp_unslash($_POST['company_hq'] ?? '')),
-        'company_logo' => sanitize_text_field(wp_unslash($_POST['company_logo'] ?? '')),
-        'company_website' => esc_url_raw(wp_unslash($_POST['company_website'] ?? '')),
-        'company_description' => wp_kses_post(wp_unslash($_POST['company_description'] ?? '')),
+    // Create block template content
+    $template_content = sprintf(
+        '<!-- wp:columns -->
+        <div class="wp-block-columns">
+            <!-- wp:column {"width":"66.66%%"} -->
+            <div class="wp-block-column" style="flex-basis:66.66%%">
+                <div class="wp-block-group job-description">
+                    <!-- wp:paragraph -->
+                    <p>%s</p>
+                    <!-- /wp:paragraph -->
+                </div>
+              
+            </div>
+            <!-- /wp:column -->
+
+            <!-- wp:column {"width":"33.33%%"} -->
+            <div class="wp-block-column" style="flex-basis:33.33%%">
+                <!-- wp:wp-remote-jobs/job-side-bar /-->
+            </div>
+            <!-- /wp:column -->
+        </div>
+        <!-- /wp:columns -->',
+        wp_kses_post($job_description)
     );
 
-    // Store sanitized data in session
-    $_SESSION['job_form_data'] = $post_data;
-
-    // Create job post with sanitized data
+    // Create job post
     $job_id = wp_insert_post(array(
-        'post_title'   => $post_data['job_title'],
-        'post_content' => $post_data['job_description'],
+        'post_title'   => $job_title,
+        'post_content' => $template_content,
         'post_status'  => 'pending',
         'post_type'    => 'jobs',
         'post_author'  => get_current_user_id(),
     ));
 
     if ($job_id) {
-        // Set taxonomies using sanitized data
+        // Set taxonomies and meta fields
         if (isset($_POST['job_category'])) {
             wp_set_object_terms($job_id, intval(wp_unslash($_POST['job_category'])), 'job_category');
         }
 
-        // Update meta fields with sanitized data
-        update_post_meta($job_id, '_worldwide', $post_data['worldwide']);
-        update_post_meta($job_id, '_application_link', $post_data['application_link']);
-        update_post_meta($job_id, '_salary_range', $post_data['salary_range']);
-
-        // Handle job skills with proper sanitization
+        // Handle job skills
         $job_skills = isset($_POST['job_skills']) ? (array) wp_unslash($_POST['job_skills']) : array();
         $sanitized_skills = array_map(function ($skill) {
-            // For existing terms (numeric IDs)
-            if (is_numeric($skill)) {
-                return intval($skill);
-            }
-            // For new terms (text input)
-            return sanitize_text_field($skill);
+            return is_numeric($skill) ? intval($skill) : sanitize_text_field($skill);
         }, $job_skills);
 
-        // Process skills with sanitized data
         if (!empty($sanitized_skills)) {
             wp_set_object_terms($job_id, $sanitized_skills, 'job_skills');
         }
 
-        // Update company meta fields
-        update_post_meta($job_id, '_company_hq', $post_data['company_hq']);
-        update_post_meta($job_id, '_company_logo', $post_data['company_logo']);
-        update_post_meta($job_id, '_company_website', $post_data['company_website']);
-        update_post_meta($job_id, '_company_description', $post_data['company_description']);
+        // Update meta fields
+        update_post_meta($job_id, '_worldwide', $worldwide);
+        update_post_meta($job_id, '_application_link', $application_link);
+        update_post_meta($job_id, '_employment_type', $employment_type);
 
         // Clear session and redirect
         unset($_SESSION['job_form_data']);

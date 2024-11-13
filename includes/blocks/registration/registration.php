@@ -17,23 +17,31 @@ function render_registration_block($attributes, $content)
     $email = isset($attributes['email']) ? sanitize_email($attributes['email']) : '';
     $description = isset($attributes['description']) ? wp_kses_post($attributes['description']) : '';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $request_method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
+    if ($request_method === 'POST') {
         // Sanitize and verify nonce
-        $registration_nonce = isset($_POST['registration_nonce']) ? wp_unslash($_POST['registration_nonce']) : '';
+        $registration_nonce = isset($_POST['registration_nonce']) ? sanitize_text_field(wp_unslash($_POST['registration_nonce'])) : '';
         if (!wp_verify_nonce($registration_nonce, 'company_registration_action')) {
             wp_die(esc_html__('Security check failed. Please try again.', 'remote-jobs'));
         }
 
-        // Handle file upload
+        // Handle file upload with proper sanitization
         $logo_url = '';
-        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = wp_upload_dir();
-            $file_name = sanitize_file_name($_FILES['logo']['name']);
-            $file_path = $upload_dir['path'] . '/' . $file_name;
+        if (isset($_FILES['logo']) && isset($_FILES['logo']['error']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+            if (isset($_FILES['logo']['tmp_name']) && isset($_FILES['logo']['name'])) {
+                $upload_dir = wp_upload_dir();
+                $file_name = sanitize_file_name(wp_unslash($_FILES['logo']['name']));
+                $tmp_name = sanitize_text_field(wp_unslash($_FILES['logo']['tmp_name']));
+                $file_path = $upload_dir['path'] . '/' . $file_name;
 
-            // Move uploaded file
-            if (move_uploaded_file($_FILES['logo']['tmp_name'], $file_path)) {
-                $logo_url = $upload_dir['url'] . '/' . $file_name;
+                // Verify file is actually an image
+                $file_type = wp_check_filetype($file_name);
+                if (!empty($file_type['ext']) && in_array($file_type['ext'], ['jpg', 'jpeg', 'png', 'gif'], true)) {
+                    // Move uploaded file
+                    if (move_uploaded_file($tmp_name, $file_path)) {
+                        $logo_url = $upload_dir['url'] . '/' . $file_name;
+                    }
+                }
             }
         }
 
@@ -200,12 +208,26 @@ function save_company_details_fields($user_id)
         return false;
     }
 
-    // Sanitize and update user meta
-    update_user_meta($user_id, 'company_name', sanitize_text_field(wp_unslash($_POST['company_name'])));
-    update_user_meta($user_id, 'company_hq', sanitize_text_field(wp_unslash($_POST['company_hq'])));
-    update_user_meta($user_id, 'company_logo', esc_url_raw(wp_unslash($_POST['company_logo'])));
-    update_user_meta($user_id, 'company_website', esc_url_raw(wp_unslash($_POST['company_website'])));
-    update_user_meta($user_id, 'company_description', wp_kses_post(wp_unslash($_POST['company_description'])));
+    // Sanitize and update user meta with proper checks
+    if (isset($_POST['company_name'])) {
+        update_user_meta($user_id, 'company_name', sanitize_text_field(wp_unslash($_POST['company_name'])));
+    }
+
+    if (isset($_POST['company_hq'])) {
+        update_user_meta($user_id, 'company_hq', sanitize_text_field(wp_unslash($_POST['company_hq'])));
+    }
+
+    if (isset($_POST['company_logo'])) {
+        update_user_meta($user_id, 'company_logo', esc_url_raw(wp_unslash($_POST['company_logo'])));
+    }
+
+    if (isset($_POST['company_website'])) {
+        update_user_meta($user_id, 'company_website', esc_url_raw(wp_unslash($_POST['company_website'])));
+    }
+
+    if (isset($_POST['company_description'])) {
+        update_user_meta($user_id, 'company_description', wp_kses_post(wp_unslash($_POST['company_description'])));
+    }
 }
 
 // Add hooks to display and save the custom fields

@@ -17,7 +17,7 @@ import { useBlockProps } from '@wordpress/block-editor';
  */
 export default function save() {
 	return (
-        // Returning null means the block’s output will be generated dynamically on the server-side (in PHP)
-         null
+		// Returning null means the block’s output will be generated dynamically on the server-side (in PHP)
+		null
 	);
 }
