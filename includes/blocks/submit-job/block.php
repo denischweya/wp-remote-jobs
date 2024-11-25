@@ -23,7 +23,8 @@ function render_submit_job_block($attributes, $content)
     ob_start();
 
     // Check if we have a successful submission
-    if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success') {
+    $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+    if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success' && wp_verify_nonce($nonce, 'job_submission')) {
         ?>
 <div class="job-submission-success">
     <h2><?php esc_html_e('Job Submitted Successfully!', 'remote-jobs'); ?>
@@ -214,7 +215,13 @@ function handle_job_submission()
         session_start();
     }
 
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // Properly check and sanitize REQUEST_METHOD
+    $request_method = '';
+    if (isset($_SERVER['REQUEST_METHOD'])) {
+        $request_method = sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD']));
+    }
+
+    if ($request_method !== 'POST') {
         return;
     }
 
@@ -275,14 +282,22 @@ function handle_job_submission()
             wp_set_object_terms($job_id, intval(wp_unslash($_POST['job_category'])), 'job_category');
         }
 
-        // Handle job skills
-        $job_skills = isset($_POST['job_skills']) ? (array) wp_unslash($_POST['job_skills']) : array();
-        $sanitized_skills = array_map(function ($skill) {
-            return is_numeric($skill) ? intval($skill) : sanitize_text_field($skill);
-        }, $job_skills);
+        // Handle job skills with proper sanitization
+        $job_skills = array();
+        if (isset($_POST['job_skills']) && is_array($_POST['job_skills'])) {
+            $raw_skills = array_map('sanitize_text_field', wp_unslash($_POST['job_skills'])); // Sanitize and unslash array
+            $job_skills = array_map(function ($skill) {
+                // If it's a numeric ID (existing term)
+                if (is_numeric($skill)) {
+                    return intval($skill);
+                }
+                // If it's a new skill (text)
+                return sanitize_text_field($skill); // No need to unslash again here
+            }, $raw_skills);
+        }
 
-        if (!empty($sanitized_skills)) {
-            wp_set_object_terms($job_id, $sanitized_skills, 'job_skills');
+        if (!empty($job_skills)) {
+            wp_set_object_terms($job_id, $job_skills, 'job_skills');
         }
 
         // Update meta fields
@@ -290,9 +305,16 @@ function handle_job_submission()
         update_post_meta($job_id, '_application_link', $application_link);
         update_post_meta($job_id, '_employment_type', $employment_type);
 
-        // Clear session and redirect
+        // Clear session and redirect with nonce
         unset($_SESSION['job_form_data']);
-        wp_redirect(add_query_arg('job_submitted', 'success', wp_get_referer()));
+        $redirect_url = add_query_arg(
+            array(
+                'job_submitted' => 'success',
+                '_wpnonce' => wp_create_nonce('job_submission')
+            ),
+            wp_get_referer()
+        );
+        wp_redirect($redirect_url);
         exit;
     }
 }
@@ -301,7 +323,12 @@ add_action('template_redirect', 'handle_job_submission');
 // Add a function to clear session data when the job is successfully submitted
 function clear_job_session_data()
 {
-    if (isset($_GET['job_submitted']) && $_GET['job_submitted'] === 'success') {
+    $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+    if (isset($_GET['job_submitted']) &&
+        $_GET['job_submitted'] === 'success' &&
+        wp_verify_nonce($nonce, 'job_submission')) {
+
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }

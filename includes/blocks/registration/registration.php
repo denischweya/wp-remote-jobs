@@ -17,7 +17,11 @@ function render_registration_block($attributes, $content)
     $email = isset($attributes['email']) ? sanitize_email($attributes['email']) : '';
     $description = isset($attributes['description']) ? wp_kses_post($attributes['description']) : '';
 
-    $request_method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
+    $request_method = '';
+    if (isset($_SERVER['REQUEST_METHOD'])) {
+        $request_method = sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD']));
+    }
+
     if ($request_method === 'POST') {
         // Sanitize and verify nonce
         $registration_nonce = isset($_POST['registration_nonce']) ? sanitize_text_field(wp_unslash($_POST['registration_nonce'])) : '';
@@ -28,20 +32,21 @@ function render_registration_block($attributes, $content)
         // Handle file upload with proper sanitization
         $logo_url = '';
         if (isset($_FILES['logo']) && isset($_FILES['logo']['error']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            if (isset($_FILES['logo']['tmp_name']) && isset($_FILES['logo']['name'])) {
-                $upload_dir = wp_upload_dir();
-                $file_name = sanitize_file_name(wp_unslash($_FILES['logo']['name']));
-                $tmp_name = sanitize_text_field(wp_unslash($_FILES['logo']['tmp_name']));
-                $file_path = $upload_dir['path'] . '/' . $file_name;
+            // Set up upload overrides
+            $upload_overrides = array(
+                'test_form' => false,
+                'mimes' => array(
+                    'jpg|jpeg' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'gif' => 'image/gif'
+                )
+            );
 
-                // Verify file is actually an image
-                $file_type = wp_check_filetype($file_name);
-                if (!empty($file_type['ext']) && in_array($file_type['ext'], ['jpg', 'jpeg', 'png', 'gif'], true)) {
-                    // Move uploaded file
-                    if (move_uploaded_file($tmp_name, $file_path)) {
-                        $logo_url = $upload_dir['url'] . '/' . $file_name;
-                    }
-                }
+            // Handle the upload using WordPress functions
+            $movefile = wp_handle_upload($_FILES['logo'], $upload_overrides);
+
+            if ($movefile && !isset($movefile['error'])) {
+                $logo_url = $movefile['url'];
             }
         }
 
@@ -86,7 +91,8 @@ function render_registration_block($attributes, $content)
 				<label
 					for="company-name"><?php echo esc_html__('Company Name', 'remote-jobs'); ?></label>
 				<input type="text" id="company-name" name="company_name"
-					value="<?php echo esc_attr($company_name); ?>" required>
+					value="<?php echo esc_attr($company_name); ?>"
+					required>
 			</div>
 
 			<div class="form-row">
@@ -94,13 +100,15 @@ function render_registration_block($attributes, $content)
 					<label
 						for="company-hq"><?php echo esc_html__('Company HQ (Address)', 'remote-jobs'); ?></label>
 					<input type="text" id="company-hq" name="company_hq"
-						value="<?php echo esc_attr($company_hq); ?>" required>
+						value="<?php echo esc_attr($company_hq); ?>"
+						required>
 				</div>
 				<div class="form-group">
 					<label
 						for="website-url"><?php echo esc_html__('Company Website URL', 'remote-jobs'); ?></label>
 					<input type="url" id="website-url" name="website_url"
-						value="<?php echo esc_attr($website_url); ?>" required>
+						value="<?php echo esc_attr($website_url); ?>"
+						required>
 				</div>
 			</div>
 
@@ -109,7 +117,8 @@ function render_registration_block($attributes, $content)
 					<label
 						for="email"><?php echo esc_html__('Email Address', 'remote-jobs'); ?></label>
 					<input type="email" id="email" name="email"
-						value="<?php echo esc_attr($email); ?>" required>
+						value="<?php echo esc_attr($email); ?>"
+						required>
 				</div>
 				<div class="form-group">
 					<label
@@ -150,47 +159,58 @@ function render_registration_block($attributes, $content)
 function add_company_details_fields($user)
 {
     ?>
-<h3><?php echo esc_html__('Company Details', 'remote-jobs'); ?></h3>
+<h3><?php echo esc_html__('Company Details', 'remote-jobs'); ?>
+</h3>
 <table class="form-table">
-    <tr>
-        <th><label for="company_name"><?php echo esc_html__('Company Name', 'remote-jobs'); ?></label></th>
-        <td>
-            <input type="text" name="company_name" id="company_name"
-                value="<?php echo esc_attr(get_user_meta($user->ID, 'company_name', true)); ?>"
-                class="regular-text" />
-        </td>
-    </tr>
-    <tr>
-        <th><label for="company_hq"><?php echo esc_html__('Company HQ', 'remote-jobs'); ?></label></th>
-        <td>
-            <input type="text" name="company_hq" id="company_hq"
-                value="<?php echo esc_attr(get_user_meta($user->ID, 'company_hq', true)); ?>"
-                class="regular-text" />
-        </td>
-    </tr>
-    <tr>
-        <th><label for="company_logo"><?php echo esc_html__('Logo URL', 'remote-jobs'); ?></label></th>
-        <td>
-            <input type="url" name="company_logo" id="company_logo"
-                value="<?php echo esc_url(get_user_meta($user->ID, 'company_logo', true)); ?>"
-                class="regular-text" />
-        </td>
-    </tr>
-    <tr>
-        <th><label for="company_website"><?php echo esc_html__('Company Website URL', 'remote-jobs'); ?></label></th>
-        <td>
-            <input type="url" name="company_website" id="company_website"
-                value="<?php echo esc_url(get_user_meta($user->ID, 'company_website', true)); ?>"
-                class="regular-text" />
-        </td>
-    </tr>
-    <tr>
-        <th><label for="company_description"><?php echo esc_html__('Company Description', 'remote-jobs'); ?></label></th>
-        <td>
-            <textarea name="company_description" id="company_description" rows="5"
-                cols="30"><?php echo esc_textarea(get_user_meta($user->ID, 'company_description', true)); ?></textarea>
-        </td>
-    </tr>
+	<tr>
+		<th><label
+				for="company_name"><?php echo esc_html__('Company Name', 'remote-jobs'); ?></label>
+		</th>
+		<td>
+			<input type="text" name="company_name" id="company_name"
+				value="<?php echo esc_attr(get_user_meta($user->ID, 'company_name', true)); ?>"
+				class="regular-text" />
+		</td>
+	</tr>
+	<tr>
+		<th><label
+				for="company_hq"><?php echo esc_html__('Company HQ', 'remote-jobs'); ?></label>
+		</th>
+		<td>
+			<input type="text" name="company_hq" id="company_hq"
+				value="<?php echo esc_attr(get_user_meta($user->ID, 'company_hq', true)); ?>"
+				class="regular-text" />
+		</td>
+	</tr>
+	<tr>
+		<th><label
+				for="company_logo"><?php echo esc_html__('Logo URL', 'remote-jobs'); ?></label>
+		</th>
+		<td>
+			<input type="url" name="company_logo" id="company_logo"
+				value="<?php echo esc_url(get_user_meta($user->ID, 'company_logo', true)); ?>"
+				class="regular-text" />
+		</td>
+	</tr>
+	<tr>
+		<th><label
+				for="company_website"><?php echo esc_html__('Company Website URL', 'remote-jobs'); ?></label>
+		</th>
+		<td>
+			<input type="url" name="company_website" id="company_website"
+				value="<?php echo esc_url(get_user_meta($user->ID, 'company_website', true)); ?>"
+				class="regular-text" />
+		</td>
+	</tr>
+	<tr>
+		<th><label
+				for="company_description"><?php echo esc_html__('Company Description', 'remote-jobs'); ?></label>
+		</th>
+		<td>
+			<textarea name="company_description" id="company_description" rows="5"
+				cols="30"><?php echo esc_textarea(get_user_meta($user->ID, 'company_description', true)); ?></textarea>
+		</td>
+	</tr>
 </table>
 <?php
 }
@@ -202,8 +222,12 @@ function save_company_details_fields($user_id)
         return false;
     }
 
-    // Sanitize and verify nonce
-    $wpnonce = isset($_POST['_wpnonce']) ? wp_unslash($_POST['_wpnonce']) : '';
+    // Properly sanitize and verify nonce
+    $wpnonce = '';
+    if (isset($_POST['_wpnonce'])) {
+        $wpnonce = sanitize_text_field(wp_unslash($_POST['_wpnonce']));
+    }
+
     if (!wp_verify_nonce($wpnonce, 'update-user_' . $user_id)) {
         return false;
     }

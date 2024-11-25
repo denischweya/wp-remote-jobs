@@ -1,9 +1,9 @@
-=== WP Remote Jobs Board ===
+=== Remote Jobs Board ===
 Contributors: fortisthemes
 Donate link: https://denis.swishfolio.com/
 Tags: jobs, remote jobs, job board, careers, employment, gutenberg blocks, recruitment
 Requires at least: 6.0
-Tested up to: 6.4.3
+Tested up to: 6.7
 Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPLv2 or later

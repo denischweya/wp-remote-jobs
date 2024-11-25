@@ -448,7 +448,7 @@ class Wp_Remote_Jobs
         echo '</p>';
 
         // Enqueue Select2 scripts and styles
-        wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'), '4.0.13', true);
+        wp_enqueue_script('select2', plugin_dir_url(__FILE__) . '../public/js/select2.js', array('jquery'), '4.0.13', true);
         wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css', array(), '4.0.13');
 
         // Initialize Select2
@@ -464,8 +464,9 @@ class Wp_Remote_Jobs
      */
     public function save_job_meta($post_id)
     {
+        // Verify nonce with sanitization
         if (!isset($_POST['job_meta_box_nonce']) ||
-            !wp_verify_nonce(wp_unslash($_POST['job_meta_box_nonce']), 'job_meta_box')) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['job_meta_box_nonce'])), 'job_meta_box')) {
             return;
         }
 
@@ -535,7 +536,6 @@ class Wp_Remote_Jobs
     {
         // Check if the taxonomy exists
         if (!taxonomy_exists('job_location')) {
-            error_log('Job location taxonomy does not exist.');
             return;
         }
 
@@ -571,14 +571,7 @@ class Wp_Remote_Jobs
         // Add each country as a term in the taxonomy
         foreach ($countries as $country) {
             if (!term_exists($country, 'job_location')) {
-                $result = wp_insert_term($country, 'job_location');
-                if (is_wp_error($result)) {
-                    error_log('Failed to insert country term: ' . $country . '. Error: ' . $result->get_error_message());
-                } else {
-                    error_log('Successfully inserted country term: ' . $country);
-                }
-            } else {
-                error_log('Country term already exists: ' . $country);
+                wp_insert_term($country, 'job_location');
             }
         }
 
