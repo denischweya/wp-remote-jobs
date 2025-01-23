@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * The file that defines the core plugin class
  *
@@ -466,7 +468,7 @@ class Wp_Remote_Jobs
     {
         // Verify nonce with sanitization
         if (!isset($_POST['job_meta_box_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['job_meta_box_nonce'])), 'job_meta_box')) {
+            !wp_verify_nonce(wp_unslash($_POST['job_meta_box_nonce']), 'job_meta_box')) {
             return;
         }
 

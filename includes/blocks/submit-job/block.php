@@ -337,16 +337,4 @@ function clear_job_session_data()
 }
 add_action('template_redirect', 'clear_job_session_data');
 
-// Optional: Add JavaScript to prevent form resubmission on page refresh
-function add_form_submission_script()
-{
-    ?>
-<script>
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
-</script>
-<?php
-}
-add_action('wp_footer', 'add_form_submission_script');
 ?>
