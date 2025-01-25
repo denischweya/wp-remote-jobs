@@ -1,0 +1,80 @@
+.wp-block-wp-remote-jobs-job-side-bar {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    margin-bottom: 24px;
+}
+
+.company-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.company-header .company-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.company-header .company-name {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.job-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.job-details .detail-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.job-details .detail-item .icon {
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.job-details .detail-item strong {
+    display: block;
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.job-details .detail-item p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.job-apply .apply-button {
+    display: inline-block;
+    background: #4299e1;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.job-apply .apply-button:hover {
+    background: #3182ce;
+}

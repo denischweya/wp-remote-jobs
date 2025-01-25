@@ -22,7 +22,7 @@ class Remjobs_Job
     {
         add_action('init', array($this, 'register_meta_fields'));
         add_action('add_meta_boxes', array($this, 'add_job_meta_boxes'));
-        add_action('save_post_remjobs', array($this, 'save_job_meta'));
+        add_action('save_post_jobs', array($this, 'save_job_meta'));
     }
 
     /**
@@ -32,28 +32,28 @@ class Remjobs_Job
      */
     public function register_meta_fields(): void
     {
-        register_post_meta('remjobs', 'salary_range', array(
+        register_post_meta('jobs', 'salary_range', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('remjobs', 'application_deadline', array(
+        register_post_meta('jobs', 'application_deadline', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('remjobs', 'company_name', array(
+        register_post_meta('jobs', 'company_name', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('remjobs', 'company_website', array(
+        register_post_meta('jobs', 'company_website', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',

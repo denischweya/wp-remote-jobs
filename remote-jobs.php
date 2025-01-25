@@ -69,6 +69,8 @@ register_deactivation_hook(__FILE__, 'remjobs_deactivate');
  * admin-specific hooks, and public-facing site hooks.
  */
 require plugin_dir_path(__FILE__) . 'includes/class-remjobs-core.php';
+// Include blocks registration file
+require_once plugin_dir_path(__FILE__) . 'includes/blocks/blocks.php';
 
 /**
  * Begins execution of the plugin.

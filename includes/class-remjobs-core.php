@@ -58,7 +58,7 @@ class Remjobs_Core
         $this->remjobs_set_locale();
         $this->remjobs_define_admin_hooks();
         $this->remjobs_define_public_hooks();
-        $this->remjobs_register_post_types();
+        $this->register_jobs_post_type();
         $this->remjobs_register_taxonomies();
     }
 
@@ -85,44 +85,47 @@ class Remjobs_Core
      *
      * @since    1.0.0
      */
-    private function remjobs_register_post_types()
+    private function register_jobs_post_type()
     {
         add_action('init', function() {
             $labels = array(
-                'name'               => _x('Jobs', 'post type general name', 'remote-jobs'),
-                'singular_name'      => _x('Job', 'post type singular name', 'remote-jobs'),
-                'menu_name'          => _x('Jobs', 'admin menu', 'remote-jobs'),
-                'name_admin_bar'     => _x('Job', 'add new on admin bar', 'remote-jobs'),
-                'add_new'            => _x('Add New', 'job', 'remote-jobs'),
-                'add_new_item'       => __('Add New Job', 'remote-jobs'),
-                'new_item'           => __('New Job', 'remote-jobs'),
-                'edit_item'          => __('Edit Job', 'remote-jobs'),
-                'view_item'          => __('View Job', 'remote-jobs'),
-                'all_items'          => __('All Jobs', 'remote-jobs'),
-                'search_items'       => __('Search Jobs', 'remote-jobs'),
-                'parent_item_colon'  => __('Parent Jobs:', 'remote-jobs'),
-                'not_found'          => __('No jobs found.', 'remote-jobs'),
-                'not_found_in_trash' => __('No jobs found in Trash.', 'remote-jobs')
+                'name'               => _x('Jobs', 'post type general name', 'wp-remote-jobs'),
+                'singular_name'      => _x('Job', 'post type singular name', 'wp-remote-jobs'),
+                'menu_name'          => _x('Jobs', 'admin menu', 'wp-remote-jobs'),
+                'name_admin_bar'     => _x('Job', 'add new on admin bar', 'wp-remote-jobs'),
+                'add_new'            => _x('Add New', 'job', 'wp-remote-jobs'),
+                'add_new_item'       => __('Add New Job', 'wp-remote-jobs'),
+                'new_item'           => __('New Job', 'wp-remote-jobs'),
+                'edit_item'          => __('Edit Job', 'wp-remote-jobs'),
+                'view_item'          => __('View Job', 'wp-remote-jobs'),
+                'all_items'          => __('All Jobs', 'wp-remote-jobs'),
+                'search_items'       => __('Search Jobs', 'wp-remote-jobs'),
+                'parent_item_colon'  => __('Parent Jobs:', 'wp-remote-jobs'),
+                'not_found'          => __('No jobs found.', 'wp-remote-jobs'),
+                'not_found_in_trash' => __('No jobs found in Trash.', 'wp-remote-jobs')
             );
 
             $args = array(
                 'labels'             => $labels,
-                'description'        => __('Job listings.', 'remote-jobs'),
-                'public'            => true,
+                'public'             => true,
                 'publicly_queryable' => true,
-                'show_ui'           => true,
-                'show_in_menu'      => true,
-                'query_var'         => true,
-                'rewrite'           => array('slug' => 'jobs'),
-                'capability_type'   => 'post',
-                'has_archive'       => true,
-                'hierarchical'      => false,
-                'menu_position'     => null,
-                'supports'          => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields'),
-                'show_in_rest'      => true,
+                'show_ui'            => true,
+                'show_in_menu'       => true,
+                'query_var'          => true,
+                'rewrite'            => array('slug' => 'jobs'),
+                'capability_type'    => 'post',
+                'has_archive'        => true,
+                'hierarchical'       => false,
+                'menu_position'      => null,
+                'supports'           => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields'),
+                'show_in_rest'       => true,
+                'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range'),
             );
 
-            register_post_type('remjobs', $args);
+            register_post_type('jobs', $args);
+
+            // Add this line to ensure taxonomy meta boxes show up in the block editor
+            add_filter('register_post_type_args', array($this, 'add_taxonomies_to_job_cpt'), 10, 2);
         });
     }
 
@@ -135,7 +138,7 @@ class Remjobs_Core
     {
         add_action('init', function() {
             // Job Category Taxonomy
-            register_taxonomy('remjobs_category', 'remjobs', array(
+            register_taxonomy('job_category', 'jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Job Categories', 'taxonomy general name', 'remote-jobs'),
@@ -150,7 +153,7 @@ class Remjobs_Core
             ));
 
             // Job Skills Taxonomy
-            register_taxonomy('remjobs_skills', 'remjobs', array(
+            register_taxonomy('job_skills', 'jobs', array(
                 'hierarchical' => false,
                 'labels' => array(
                     'name' => _x('Skills', 'taxonomy general name', 'remote-jobs'),
@@ -165,7 +168,7 @@ class Remjobs_Core
             ));
 
             // Job Location Taxonomy
-            register_taxonomy('remjobs_location', 'remjobs', array(
+            register_taxonomy('job_location', 'jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Locations', 'taxonomy general name', 'remote-jobs'),
