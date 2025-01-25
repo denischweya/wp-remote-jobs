@@ -1,5 +1,5 @@
 === Remote Jobs Board ===
-Contributors: fortisthemes
+Contributors: Afrothemes, Fortisthemes
 Donate link: https://denis.swishfolio.com/
 Tags: jobs, remote jobs, job board, careers, employment, gutenberg blocks, recruitment
 Requires at least: 6.0

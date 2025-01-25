@@ -1,0 +1,28 @@
+/**
+ * Admin-specific styles for the Remote Jobs plugin
+ *
+ * @package    Remote_Jobs
+ * @subpackage Remote_Jobs/admin/css
+ * @since      1.0.0
+ */
+
+/* Job listing styles */
+.remjobs-admin-header {
+    margin-bottom: 20px;
+}
+
+.remjobs-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Form field styles */
+.remjobs-form-field {
+    margin-bottom: 15px;
+}
+
+.remjobs-form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}

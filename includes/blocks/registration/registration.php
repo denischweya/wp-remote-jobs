@@ -1,14 +1,14 @@
 <?php
 
-function registration_block_init()
+function remjobs_register_registration_block()
 {
     register_block_type(__DIR__ . '/build', array(
-        'render_callback' => 'render_registration_block',
+        'render_callback' => 'remjobs_render_registration_block',
     ));
 }
-add_action('init', 'registration_block_init');
+add_action('init', 'remjobs_register_registration_block');
 
-function render_registration_block($attributes, $content)
+function remjobs_render_registration_block()
 {
     $company_name = isset($attributes['companyName']) ? esc_attr($attributes['companyName']) : '';
     $company_hq = isset($attributes['companyHQ']) ? esc_attr($attributes['companyHQ']) : '';
@@ -156,7 +156,7 @@ function render_registration_block($attributes, $content)
 }
 
 // Add Company Details section to user profile
-function add_company_details_fields($user)
+function remjobs_add_company_fields($user)
 {
     ?>
 <h3><?php echo esc_html__('Company Details', 'remote-jobs'); ?>
@@ -216,7 +216,7 @@ function add_company_details_fields($user)
 }
 
 // Save Company Details fields
-function save_company_details_fields($user_id)
+function remjobs_save_company_fields($user_id)
 {
     if (!current_user_can('edit_user', $user_id)) {
         return false;
@@ -255,9 +255,9 @@ function save_company_details_fields($user_id)
 }
 
 // Add hooks to display and save the custom fields
-add_action('show_user_profile', 'add_company_details_fields');
-add_action('edit_user_profile', 'add_company_details_fields');
-add_action('personal_options_update', 'save_company_details_fields');
-add_action('edit_user_profile_update', 'save_company_details_fields');
+add_action('show_user_profile', 'remjobs_add_company_fields');
+add_action('edit_user_profile', 'remjobs_add_company_fields');
+add_action('personal_options_update', 'remjobs_save_company_fields');
+add_action('edit_user_profile_update', 'remjobs_save_company_fields');
 
 ?>

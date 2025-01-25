@@ -1,1 +1,37 @@
-document.addEventListener("DOMContentLoaded",(function(){const e=document.querySelector(".job-search-form"),t=document.getElementById("job-listings"),n=document.getElementById("job-search"),o=document.getElementById("job-category"),a=document.getElementById("job-type"),d=document.getElementById("job-location");function c(){const c=new FormData;c.append("action","filter_jobs"),c.append("search",n.value),c.append("category",o.value),c.append("type",a.value),c.append("location",d.value),fetch(e.getAttribute("data-ajax-url"),{method:"POST",body:c}).then((e=>e.json())).then((e=>{e.success?t.innerHTML=e.data:console.error("Error:",e)})).catch((e=>console.error("Error:",e)))}n.addEventListener("input",c),o.addEventListener("change",c),a.addEventListener("change",c),d.addEventListener("change",c)}));
+/******/ (() => { // webpackBootstrap
+/*!*********************!*\
+  !*** ./src/view.js ***!
+  \*********************/
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('.job-search-form');
+  const jobListings = document.getElementById('job-listings');
+  const searchInput = document.getElementById('job-search');
+  const categorySelect = document.getElementById('job-category');
+  const typeSelect = document.getElementById('job-type');
+  const locationSelect = document.getElementById('job-location');
+  function filterJobs() {
+    const formData = new FormData();
+    formData.append('action', 'filter_jobs');
+    formData.append('search', searchInput.value);
+    formData.append('category', categorySelect.value);
+    formData.append('type', typeSelect.value);
+    formData.append('location', locationSelect.value);
+    fetch(form.getAttribute('data-ajax-url'), {
+      method: 'POST',
+      body: formData
+    }).then(response => response.json()).then(data => {
+      if (data.success) {
+        jobListings.innerHTML = data.data;
+      } else {
+        console.error('Error:', data);
+      }
+    }).catch(error => console.error('Error:', error));
+  }
+  searchInput.addEventListener('input', filterJobs);
+  categorySelect.addEventListener('change', filterJobs);
+  typeSelect.addEventListener('change', filterJobs);
+  locationSelect.addEventListener('change', filterJobs);
+});
+/******/ })()
+;
+//# sourceMappingURL=view.js.map

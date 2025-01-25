@@ -24,7 +24,7 @@ if (! defined('ABSPATH')) {
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
-function wp_remote_jobs_job_side_bar_block_init()
+function remjobs_job_sidebar_block_init()
 {
     register_block_type(__DIR__ . '/build', array(
         'render_callback' => 'render_job_sidebar_block'
@@ -36,7 +36,7 @@ function render_job_sidebar_block($attributes, $content, $block)
 {
     // Get current post
     $post = get_post();
-    if (!$post || $post->post_type !== 'jobs') {
+    if (!$post || $post->post_type !== 'remjobs') {
         return '';
     }
 
@@ -47,7 +47,7 @@ function render_job_sidebar_block($attributes, $content, $block)
     $company_url = get_user_meta($author_id, 'company_website', true);
 
     // Get taxonomies
-    $location = get_the_terms($post->ID, 'job_location');
+    $location = get_the_terms($post->ID, 'remjobs_location');
     $employment_type = get_the_terms($post->ID, 'job_type');
     $salary_range = get_the_terms($post->ID, 'salary_range');
     $job_category = get_the_terms($post->ID, 'job_category');

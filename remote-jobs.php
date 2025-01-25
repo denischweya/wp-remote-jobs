@@ -37,38 +37,38 @@ if (! defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('WP_REMOTE_JOBS_VERSION', '1.0.0');
+define('REMJOBS_VERSION', '1.0.0');
+define('REMJOBS_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('REMJOBS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-wp-remote-jobs-activator.php
+ * This action is documented in includes/class-remjobs-activator.php
  */
-function activate_wp_remote_jobs()
+function remjobs_activate()
 {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-wp-remote-jobs-activator.php';
-    Wp_Remote_Jobs_Activator::activate();
+    require_once plugin_dir_path(__FILE__) . 'includes/class-remjobs-activator.php';
+    Remjobs_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-wp-remote-jobs-deactivator.php
+ * This action is documented in includes/class-remjobs-deactivator.php
  */
-function deactivate_wp_remote_jobs()
+function remjobs_deactivate()
 {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-wp-remote-jobs-deactivator.php';
-    Wp_Remote_Jobs_Deactivator::deactivate();
+    require_once plugin_dir_path(__FILE__) . 'includes/class-remjobs-deactivator.php';
+    Remjobs_Deactivator::deactivate();
 }
 
-register_activation_hook(__FILE__, 'activate_wp_remote_jobs');
-register_deactivation_hook(__FILE__, 'deactivate_wp_remote_jobs');
+register_activation_hook(__FILE__, 'remjobs_activate');
+register_deactivation_hook(__FILE__, 'remjobs_deactivate');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-wp-remote-jobs.php';
-
-
+require plugin_dir_path(__FILE__) . 'includes/class-remjobs-core.php';
 
 /**
  * Begins execution of the plugin.
@@ -79,11 +79,9 @@ require plugin_dir_path(__FILE__) . 'includes/class-wp-remote-jobs.php';
  *
  * @since    1.0.0
  */
-function run_wp_remote_jobs()
+function remjobs_init()
 {
-
-    $plugin = new Wp_Remote_Jobs();
+    $plugin = new Remjobs_Core();
     $plugin->run();
-
 }
-run_wp_remote_jobs();
+add_action('plugins_loaded', 'remjobs_init');

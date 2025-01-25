@@ -10,25 +10,25 @@
  */
 
 
-function render_job_listings_block($attributes)
+function remjobs_render_job_listings_block($attributes)
 {
     // Prepare taxonomies for dropdowns
     $job_categories = get_terms(array(
-        'taxonomy' => 'job_category',
+        'taxonomy' => 'remjobs_category',
         'hide_empty' => true,
         'fields' => 'all',
         'count' => true,
     ));
 
     $employment_types = get_terms(array(
-        'taxonomy' => 'employment_type',
+        'taxonomy' => 'remjobs_skills',
         'hide_empty' => true,
         'fields' => 'all',
         'count' => true,
     ));
 
     $locations = get_terms(array(
-        'taxonomy' => 'job_location',
+        'taxonomy' => 'remjobs_location',
         'hide_empty' => true,
         'fields' => 'all',
         'count' => true,
@@ -36,7 +36,7 @@ function render_job_listings_block($attributes)
 
     // Query for jobs
     $args = array(
-        'post_type' => 'jobs', // Make sure this matches your custom post type name
+        'post_type' => 'remjobs', // Using our registered custom post type
         'posts_per_page' => -1, // Adjust as needed
     );
     $jobs = new WP_Query($args);
@@ -179,20 +179,20 @@ function render_job_listings_block($attributes)
 }
 
 
-function register_job_listings_block()
+function remjobs_register_job_listings_block()
 {
     register_block_type(__DIR__ . '/build', array(
-        'render_callback' => 'render_job_listings_block',
+        'render_callback' => 'remjobs_render_job_listings',
     ));
 }
-add_action('init', 'register_job_listings_block');
-function enqueue_job_filter_script()
+add_action('init', 'remjobs_register_job_listings_block');
+function remjobs_enqueue_job_filter()
 {
-    wp_enqueue_script('job-filter', plugin_dir_url(__FILE__) . '/src/view.js', array('jquery'), '1.0', true);
+    wp_enqueue_script('remjobs-filter', plugin_dir_url(__FILE__) . '/src/view.js', array('jquery'), '1.0', true);
 }
-add_action('wp_enqueue_scripts', 'enqueue_job_filter_script');
+add_action('wp_enqueue_scripts', 'remjobs_enqueue_job_filter');
 
-function filter_jobs_ajax()
+function remjobs_filter_jobs()
 {
     // Verify nonce with proper sanitization
     check_ajax_referer('filter_jobs_nonce', 'nonce');
@@ -207,7 +207,7 @@ function filter_jobs_ajax()
 
     if ($category) {
         $tax_query[] = array(
-            'taxonomy' => 'job_category',
+            'taxonomy' => 'remjobs_category',
             'field' => 'slug',
             'terms' => $category,
         );
@@ -215,7 +215,7 @@ function filter_jobs_ajax()
 
     if ($type) {
         $tax_query[] = array(
-            'taxonomy' => 'employment_type',
+            'taxonomy' => 'remjobs_skills',
             'field' => 'slug',
             'terms' => $type,
         );
@@ -223,7 +223,7 @@ function filter_jobs_ajax()
 
     if ($location) {
         $tax_query[] = array(
-            'taxonomy' => 'job_location',
+            'taxonomy' => 'remjobs_location',
             'field' => 'slug',
             'terms' => $location,
         );
@@ -336,6 +336,6 @@ function filter_jobs_ajax()
     $output = ob_get_clean();
     wp_send_json_success($output);
 }
-add_action('wp_ajax_filter_jobs', 'filter_jobs_ajax');
-add_action('wp_ajax_nopriv_filter_jobs', 'filter_jobs_ajax');
+add_action('wp_ajax_filter_jobs', 'remjobs_filter_jobs');
+add_action('wp_ajax_nopriv_filter_jobs', 'remjobs_filter_jobs');
 ?>

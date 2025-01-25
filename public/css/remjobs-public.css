@@ -1,0 +1,26 @@
+/**
+ * Public-facing styles for the Remote Jobs plugin
+ *
+ * @package    Remote_Jobs
+ * @subpackage Remote_Jobs/public/css
+ * @since      1.0.0
+ */
+
+/* Job editor styles */
+.remjobs-editor-frame {
+    height: 400px !important;
+}
+
+/* Select2 customization */
+.select2-container .select2-selection--multiple {
+    min-height: 43px !important;
+}
+
+.select2-container {
+    width: 100% !important;
+}
+
+/* Job location field styles */
+.remjobs-location-field .select2-container {
+    width: 100% !important;
+}
