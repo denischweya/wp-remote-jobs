@@ -16,9 +16,8 @@
         "test:e2e": "wp-scripts test-e2e",
         "test:unit": "wp-scripts test-unit-js",
         "clean": "rm -rf node_modules includes/blocks/*/node_modules **/.DS_Store",
-        "create-zip": "npm --prefix=. run _create-zip",
-        "_create-zip": "chmod +x ./create-zip.sh && ./create-zip.sh",
-        "build:production": "npm run build && npm --prefix=. run clean && npm --prefix=. run create-zip"
+        "build:zip": "./build-zip.sh",
+        "build:production": "chmod +x ./build-zip.sh && ./build-zip.sh"
     },
     "devDependencies": {
         "@wordpress/scripts": "^30.0.2"
