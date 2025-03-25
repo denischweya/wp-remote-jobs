@@ -1,12 +1,12 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
-	"name": "wp-remote-jobs/job-side-bar",
-	"render": "render_job_sidebar_block",
+	"apiVersion": 2,
+	"name": "remjobs/job-sidebar",
 	"version": "0.1.0",
-	"title": "Job Side Bar",
-	"category": "remote-jobs",
-	"description": "Example block scaffolded with Create Block tool.",
+	"title": "Job Sidebar",
+	"category": "widgets",
+	"icon": "smiley",
+	"description": "Display job details in the sidebar",
 	"example": {},
 	"supports": {
 		"html": false

@@ -27,7 +27,18 @@ class Remjobs_Activator
             'notification_email' => get_option('admin_email'),
         ));
 
-        // Flush rewrite rules after registering custom post types
+        // Schedule a one-time action to flush rewrite rules
+        add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_activation'), 20);
+    }
+
+    /**
+     * Flush rewrite rules after post types are registered
+     *
+     * @since    1.0.0
+     */
+    public static function flush_rewrite_rules_on_activation()
+    {
+        // This will run after the post types are registered (which happens at priority 10)
         flush_rewrite_rules();
     }
 }

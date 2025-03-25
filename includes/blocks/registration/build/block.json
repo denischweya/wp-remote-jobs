@@ -1,18 +1,17 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "wp-remote-jobs/registration",
-  "version": "1.0.0",
-  "title": "Jobs Registration",
-  "category": "remote-jobs",
-  "description": "Example block scaffolded with Create Block tool.",
-  "example": {},
+  "apiVersion": 2,
+  "name": "remjobs/registration",
+  "version": "0.1.0",
+  "title": "Company Registration",
+  "category": "widgets",
+  "icon": "smiley",
+  "description": "Form for company registration",
+  "textdomain": "remote-jobs",
   "supports": {
     "html": false
   },
-  "textdomain": "remote-jobs",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css",
-  "viewScript": "file:./view.js"
+  "style": "file:./style-index.css"
 }

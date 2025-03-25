@@ -23,7 +23,18 @@ class Remjobs_Deactivator
         // Remove plugin options
         delete_option('remjobs_settings');
 
-        // Flush rewrite rules after deregistering custom post types
+        // Schedule rewrite rules flush for after post types are unregistered
+        add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_deactivation'), 20);
+    }
+
+    /**
+     * Flush rewrite rules after post types are unregistered
+     *
+     * @since    1.0.0
+     */
+    public static function flush_rewrite_rules_on_deactivation()
+    {
+        // This will run after the post types are unregistered
         flush_rewrite_rules();
     }
 }

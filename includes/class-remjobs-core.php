@@ -91,20 +91,20 @@ class Remjobs_Core
     {
         add_action('init', function () {
             $labels = array(
-                'name'               => _x('Jobs', 'post type general name', 'wp-remote-jobs'),
-                'singular_name'      => _x('Job', 'post type singular name', 'wp-remote-jobs'),
-                'menu_name'          => _x('Jobs', 'admin menu', 'wp-remote-jobs'),
-                'name_admin_bar'     => _x('Job', 'add new on admin bar', 'wp-remote-jobs'),
-                'add_new'            => _x('Add New', 'job', 'wp-remote-jobs'),
-                'add_new_item'       => __('Add New Job', 'wp-remote-jobs'),
-                'new_item'           => __('New Job', 'wp-remote-jobs'),
-                'edit_item'          => __('Edit Job', 'wp-remote-jobs'),
-                'view_item'          => __('View Job', 'wp-remote-jobs'),
-                'all_items'          => __('All Jobs', 'wp-remote-jobs'),
-                'search_items'       => __('Search Jobs', 'wp-remote-jobs'),
-                'parent_item_colon'  => __('Parent Jobs:', 'wp-remote-jobs'),
-                'not_found'          => __('No jobs found.', 'wp-remote-jobs'),
-                'not_found_in_trash' => __('No jobs found in Trash.', 'wp-remote-jobs')
+                'name'               => _x('Jobs', 'post type general name', 'remote-jobs'),
+                'singular_name'      => _x('Job', 'post type singular name', 'remote-jobs'),
+                'menu_name'          => _x('Jobs', 'admin menu', 'remote-jobs'),
+                'name_admin_bar'     => _x('Job', 'add new on admin bar', 'remote-jobs'),
+                'add_new'            => _x('Add New', 'job', 'remote-jobs'),
+                'add_new_item'       => __('Add New Job', 'remote-jobs'),
+                'new_item'           => __('New Job', 'remote-jobs'),
+                'edit_item'          => __('Edit Job', 'remote-jobs'),
+                'view_item'          => __('View Job', 'remote-jobs'),
+                'all_items'          => __('All Jobs', 'remote-jobs'),
+                'search_items'       => __('Search Jobs', 'remote-jobs'),
+                'parent_item_colon'  => __('Parent Jobs:', 'remote-jobs'),
+                'not_found'          => __('No jobs found.', 'remote-jobs'),
+                'not_found_in_trash' => __('No jobs found in Trash.', 'remote-jobs')
             );
 
             $args = array(

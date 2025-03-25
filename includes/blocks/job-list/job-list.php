@@ -7,7 +7,7 @@ function remjobs_render_job_listings_block($attributes, $content, $block)
 {
     ob_start();
     ?>
-<div <?php echo get_block_wrapper_attributes(['class' => 'job-listings-container']); ?>>
+<div <?php echo wp_kses_post(get_block_wrapper_attributes(['class' => 'job-listings-container'])); ?>>
     <?php
         $args = array(
             'post_type' => 'jobs',

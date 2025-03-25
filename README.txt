@@ -1,19 +1,19 @@
-=== Remote Jobs Board ===
+=== Remote Jobs ===
 Contributors: Afrothemes, Fortisthemes
 Donate link: https://denis.swishfolio.com/
 Tags: jobs, remote jobs, job board, careers, employment, gutenberg blocks, recruitment
 Requires at least: 6.0
 Tested up to: 6.7
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Create a powerful remote jobs board on your WordPress site with 4 customizable Gutenberg blocks for job listings, search, categories, and application forms.
+Create a powerful Remote Jobs on your WordPress site with 4 customizable Gutenberg blocks for job listings, search, categories, and application forms.
 
 == Description ==
 
-Transform your WordPress website into a fully-featured remote jobs board with WP Remote Jobs Board. This plugin provides four essential Gutenberg blocks designed to create a seamless job listing and application experience:
+Transform your WordPress website into a fully-featured Remote Jobs with WP Remote Jobs. This plugin provides four essential Gutenberg blocks designed to create a seamless job listing and application experience:
 
 **Key Features:**
 
@@ -37,7 +37,7 @@ This section describes how to install the plugin and get it working.
 
 e.g.
 
-1. Upload `wp-remote-jobs.php` to the `/wp-content/plugins/` directory
+1. Upload `remote-jobs.php` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 

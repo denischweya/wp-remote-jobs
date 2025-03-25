@@ -9,7 +9,7 @@ function render_job_sidebar_block($attributes, $content)
 
     ob_start();
     ?>
-<div <?php echo get_block_wrapper_attributes(['class' => 'job-sidebar']); ?>>
+<div <?php echo wp_kses_post(get_block_wrapper_attributes(['class' => 'job-sidebar'])); ?>>
     <div class="job-sidebar-content">
         <?php
             // Company Name

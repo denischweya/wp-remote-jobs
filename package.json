@@ -1,46 +1,38 @@
 {
-    "name": "wp-remote-jobs",
+    "name": "remjobs",
     "version": "1.0.0",
-    "description": "WordPress Remote Jobs Plugin",
-    "main": "includes/blocks/*/build/index.js",
+    "description": "Remote Jobs WordPress Plugin",
     "scripts": {
-      "build": "npm-run-all --parallel build:*",
-      "start": "npm-run-all --parallel start:*",
-      "format": "wp-scripts format",
-      "lint:css": "wp-scripts lint-style",
-      "lint:js": "wp-scripts lint-js",
-      "packages-update": "wp-scripts packages-update",
-      "plugin-zip": "wp-scripts plugin-zip",
-      "build:submit-job": "wp-scripts build --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build --config ./webpack.config.js",
-      "build:job-list": "wp-scripts build --webpack-src-dir=includes/blocks/job-list/src --output-path=includes/blocks/job-list/build --config ./webpack.config.js",
-      "build:job-sidebar": "wp-scripts build --webpack-src-dir=includes/blocks/job-sidebar/src --output-path=includes/blocks/job-sidebar/build --config ./webpack.config.js",
-      "build:registration": "wp-scripts build --webpack-src-dir=includes/blocks/registration/src --output-path=includes/blocks/registration/build --config ./webpack.config.js",
-      "start:submit-job": "wp-scripts start --webpack-src-dir=includes/blocks/submit-job/src --output-path=includes/blocks/submit-job/build --config ./webpack.config.js",
-      "start:job-list": "wp-scripts start --webpack-src-dir=includes/blocks/job-list/src --output-path=includes/blocks/job-list/build --config ./webpack.config.js",
-      "start:job-sidebar": "wp-scripts start --webpack-src-dir=includes/blocks/job-sidebar/src --output-path=includes/blocks/job-sidebar/build --config ./webpack.config.js",
-      "start:registration": "wp-scripts start --webpack-src-dir=includes/blocks/registration/src --output-path=includes/blocks/registration/build --config ./webpack.config.js",
-      "makepot": "wp i18n make-pot . languages/remote-jobs.pot --exclude=\"node_modules/,vendor/\""
-
+        "build": "wp-scripts build includes/blocks/*/src/index.js --output-path=includes/blocks/*/build",
+        "start": "wp-scripts start includes/blocks/*/src/index.js --output-path=includes/blocks/*/build",
+        "packages-update": "wp-scripts packages-update",
+        "check-engines": "wp-scripts check-engines",
+        "check-licenses": "wp-scripts check-licenses",
+        "format": "wp-scripts format",
+        "lint:css": "wp-scripts lint-style",
+        "lint:js": "wp-scripts lint-js",
+        "lint:md:docs": "wp-scripts lint-md-docs",
+        "lint:pkg-json": "wp-scripts lint-pkg-json",
+        "test:e2e": "wp-scripts test-e2e",
+        "test:unit": "wp-scripts test-unit-js",
+        "clean": "rm -rf node_modules includes/blocks/*/node_modules **/.DS_Store",
+        "create-zip": "npm --prefix=. run _create-zip",
+        "_create-zip": "chmod +x ./create-zip.sh && ./create-zip.sh",
+        "build:production": "npm run build && npm --prefix=. run clean && npm --prefix=. run create-zip"
     },
-    "author": "Denis Bosire",
-    "license": "GPL-2.0-or-later",
     "devDependencies": {
-      "@wordpress/scripts": "^30.0.2",
-      "sass": "^1.69.0",
-      "sass-loader": "^13.3.2",
-      "css-loader": "^6.8.1",
-      "style-loader": "^3.3.3",
-      "mini-css-extract-plugin": "^2.7.6",
-      "css-minimizer-webpack-plugin": "^5.0.1"
+        "@wordpress/scripts": "^30.0.2"
+    },
+    "dependencies": {
+        "@wordpress/blocks": "^12.29.0",
+        "@wordpress/block-editor": "^12.21.0",
+        "@wordpress/components": "^27.0.0",
+        "@wordpress/i18n": "^4.51.0",
+        "@wordpress/element": "^5.29.0",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0"
     },
     "workspaces": [
-      "includes/blocks/*"
-    ],
-    "exports": {
-       "./job-sidebar": "./includes/blocks/job-sidebar/build/index.js",
-      "./submit-job": "./includes/blocks/submit-job/build/index.js",
-      "./job-list": "./includes/blocks/job-list/build/index.js",
-      "./registration": "./includes/blocks/registration/build/index.js"
-     
-    }
-  }
+        "includes/blocks/*"
+    ]
+}

@@ -1,16 +1,17 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "wp-remote-jobs/submit-job",
+  "apiVersion": 2,
+  "name": "remjobs/submit-job",
   "version": "0.1.0",
   "title": "Submit Job",
-  "category": "remote-jobs",
-  "description": "Example block scaffolded with Create Block tool.",
+  "category": "widgets",
+  "icon": "smiley",
+  "description": "Form for submitting new job listings",
   "example": {},
   "supports": {
     "html": false
   },
-  "textdomain": "submit-job",
+  "textdomain": "remote-jobs",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",

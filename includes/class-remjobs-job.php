@@ -132,30 +132,29 @@ class Remjobs_Job
      */
     public function save_job_meta($post_id): void
     {
-        if (!isset($_POST['remjobs_meta_nonce']) || !wp_verify_nonce($_POST['remjobs_meta_nonce'], 'remjobs_save_meta')) {
+        // Verify nonce
+        $nonce = isset($_POST['remjobs_meta_nonce']) ? sanitize_text_field(wp_unslash($_POST['remjobs_meta_nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'remjobs_save_meta')) {
             return;
         }
 
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
-
-        $fields = array(
-            'salary_range' => 'sanitize_text_field',
-            'application_deadline' => 'sanitize_text_field',
-            'company_name' => 'sanitize_text_field',
-            'company_website' => 'esc_url_raw'
-        );
-
-        foreach ($fields as $field => $sanitize_callback) {
+        // Save meta fields
+        $meta_fields = $this->get_meta_fields();
+        foreach ($meta_fields as $field) {
             if (isset($_POST[$field])) {
-                $value = call_user_func($sanitize_callback, $_POST[$field]);
+                $value = sanitize_text_field(wp_unslash($_POST[$field]));
                 update_post_meta($post_id, $field, $value);
             }
         }
+    }
+
+    private function get_meta_fields(): array
+    {
+        return array(
+            'salary_range',
+            'application_deadline',
+            'company_name',
+            'company_website'
+        );
     }
 }

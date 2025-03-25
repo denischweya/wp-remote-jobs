@@ -7,7 +7,7 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
 {
     ob_start();
     ?>
-<div <?php echo get_block_wrapper_attributes(['class' => 'submit-job-form']); ?>>
+<div <?php echo wp_kses_post(get_block_wrapper_attributes(['class' => 'submit-job-form'])); ?>>
     <form id="submit-job-form" class="job-submission-form" method="post">
         <div class="form-group">
             <label for="job-title">Job Title</label>

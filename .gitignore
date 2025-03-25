@@ -13,6 +13,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+includes/blocks/*/node_modules/
 
 # Optional npm cache directory
 .npm
@@ -28,5 +29,21 @@ node_modules/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.*.local
 
 # Build directories
+#includes/blocks/*/build/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Development files
+package-lock.json
+composer.lock
