@@ -5,6 +5,31 @@
     font-family: system-ui, -apple-system, sans-serif;
 }
 
+.wp-block-wp-remote-jobs-job-list {
+    &.is-style-list {
+        .job-listings-grid {
+            grid-template-columns: 1fr;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .job-card {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+
+            .job-card-header {
+                flex: 1;
+                margin-bottom: 0;
+            }
+
+            .job-card-meta {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
 .job-listings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

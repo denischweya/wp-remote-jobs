@@ -16,10 +16,10 @@
  * Plugin Name:       Remote Jobs
  * Plugin URI:        https://denis.swishfolio.com/
  * Description:       A simple job board plugin for WordPress
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            Fortisthemes
+ * Author:            Afrothemes
  * Author URI:        https://denis.swishfolio.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

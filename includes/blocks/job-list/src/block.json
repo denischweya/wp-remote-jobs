@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "wp-remote-jobs/job-list",
+	"name": "remjobs/job-list",
 	"version": "0.1.0",
 	"title": "List Jobs",
 	"category": "remote-jobs",
@@ -9,6 +9,12 @@
 	"example": {},
 	"supports": {
 		"html": false
+	},
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"default": "grid"
+		}
 	},
 	"textdomain": "remote-jobs",
 	"editorScript": "file:./index.js",

@@ -80,7 +80,7 @@ function remjobs_render_registration_block()
 
     ob_start();
     ?>
-<div class="wp-block-wp-remote-jobs-registration">
+<div class="wp-block-remjobs-registration">
 	<div class="registration-container">
 		<h2 class="registration-title">
 			<?php echo esc_html__('Company Registration', 'remote-jobs'); ?>

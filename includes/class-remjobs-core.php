@@ -73,11 +73,13 @@ class Remjobs_Core
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-loader.php';
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-i18n.php';
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-job.php';
+        require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-assets.php';
         require_once REMJOBS_PLUGIN_PATH . 'admin/class-remjobs-admin.php';
         require_once REMJOBS_PLUGIN_PATH . 'public/class-remjobs-public.php';
 
         $this->loader = new Remjobs_Loader();
         new Remjobs_Job();
+        new Remjobs_Assets($this->plugin_name, $this->version);
     }
 
     /**
@@ -87,7 +89,7 @@ class Remjobs_Core
      */
     private function register_jobs_post_type()
     {
-        add_action('init', function() {
+        add_action('init', function () {
             $labels = array(
                 'name'               => _x('Jobs', 'post type general name', 'wp-remote-jobs'),
                 'singular_name'      => _x('Job', 'post type singular name', 'wp-remote-jobs'),
@@ -119,7 +121,14 @@ class Remjobs_Core
                 'menu_position'      => null,
                 'supports'           => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields'),
                 'show_in_rest'       => true,
-                'taxonomies'         => array('job_category', 'job_skills', 'job_location', 'employment_type', 'job_benefits', 'salary_range'),
+                'taxonomies'         => array(
+                    'remjobs_job_category',
+                    'remjobs_job_skills',
+                    'remjobs_job_location',
+                    'remjobs_employment_type',
+                    'remjobs_job_benefits',
+                    'remjobs_salary_range'
+                ),
             );
 
             register_post_type('jobs', $args);
@@ -136,9 +145,9 @@ class Remjobs_Core
      */
     private function remjobs_register_taxonomies()
     {
-        add_action('init', function() {
+        add_action('init', function () {
             // Job Category Taxonomy
-            register_taxonomy('job_category', 'jobs', array(
+            register_taxonomy('remjobs_job_category', 'jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Job Categories', 'taxonomy general name', 'remote-jobs'),
@@ -153,7 +162,7 @@ class Remjobs_Core
             ));
 
             // Job Skills Taxonomy
-            register_taxonomy('job_skills', 'jobs', array(
+            register_taxonomy('remjobs_job_skills', 'jobs', array(
                 'hierarchical' => false,
                 'labels' => array(
                     'name' => _x('Skills', 'taxonomy general name', 'remote-jobs'),
@@ -168,7 +177,7 @@ class Remjobs_Core
             ));
 
             // Job Location Taxonomy
-            register_taxonomy('job_location', 'jobs', array(
+            register_taxonomy('remjobs_job_location', 'jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Locations', 'taxonomy general name', 'remote-jobs'),
