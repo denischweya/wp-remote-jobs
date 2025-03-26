@@ -105,3 +105,51 @@
         }
     }
 }
+
+/**
+ * The following styles get applied inside the editor only.
+ */
+
+.job-listings-container-editor {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #333;
+    
+    // Import styles from frontend
+    @import '../style.css';
+    
+    // Editor-specific styles
+    .editor-preview-toggle {
+        margin-top: 24px;
+        text-align: center;
+    }
+    
+    .wp-block-remjobs-job-list {
+        width: 100%;
+    }
+    
+    // Make preview layout clearer in editor
+    .job-card, .job-row {
+        transition: box-shadow 0.2s ease;
+        
+        &:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+    }
+    
+    // Style for premium jobs in the editor
+    .premium-indicator {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: #F59E0B;
+    }
+    
+    .premium {
+        border-color: #FCD34D !important;
+        background-color: #FFFBEB !important;
+        position: relative;
+    }
+}

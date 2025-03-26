@@ -14,7 +14,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Remote Jobs
- * Plugin URI:        https://denis.swishfolio.com/
+ * Plugin URI:        https://swishfolio.com/
  * Description:       A simple job board plugin for WordPress
  * Version:           1.0.2
  * Requires at least: 5.8

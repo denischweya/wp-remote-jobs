@@ -5,22 +5,49 @@
   "version": "0.1.0",
   "title": "Job List",
   "category": "widgets",
-  "icon": "smiley",
-  "description": "Display a list of job postings",
+  "icon": "list-view",
+  "description": "Display a list of job postings with grid and list layout options",
   "example": {},
   "supports": {
-    "html": false
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
   },
   "attributes": {
     "layout": {
       "type": "string",
-      "default": "grid"
+      "default": "grid",
+      "enum": [
+        "grid",
+        "list"
+      ]
+    },
+    "jobsPerPage": {
+      "type": "number",
+      "default": 10
+    },
+    "showFilters": {
+      "type": "boolean",
+      "default": true
+    },
+    "featuredOnly": {
+      "type": "boolean",
+      "default": false
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "locations": {
+      "type": "array",
+      "default": []
     }
   },
   "textdomain": "remote-jobs",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",
-  "viewScript": "file:./view.js",
-  "render": "file:./block.php"
+  "viewScript": "file:./view.js"
 }
