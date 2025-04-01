@@ -108,12 +108,12 @@ function remjobs_render_job_list_block($attributes)
     $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
     $args = array(
-        'post_type'      => 'jobs',
-        'posts_per_page' => $posts_per_page,
-        'paged'          => $paged,
-        'post_status'    => 'publish',
-        'orderby'        => 'date',
-        'order'          => 'DESC',
+    'post_type'      => 'jobs',
+    'posts_per_page' => $posts_per_page,
+    'paged'          => $paged,
+    'post_status'    => 'publish',
+    'orderby'        => 'date',
+    'order'          => 'DESC',
     );
 
     // Add meta query for featured jobs if needed
@@ -137,7 +137,7 @@ function remjobs_render_job_list_block($attributes)
 
     if (! empty($filter_by_category)) {
         $tax_query[] = array(
-            'taxonomy' => 'job_category',
+            'taxonomy' => 'remjobs_job_category',
             'field'    => 'slug',
             'terms'    => $filter_by_category,
         );
@@ -145,7 +145,7 @@ function remjobs_render_job_list_block($attributes)
 
     if (! empty($filter_by_skills)) {
         $tax_query[] = array(
-            'taxonomy' => 'job_skills',
+            'taxonomy' => 'remjobs_job_skills',
             'field'    => 'slug',
             'terms'    => $filter_by_skills,
         );
@@ -153,7 +153,7 @@ function remjobs_render_job_list_block($attributes)
 
     if (! empty($filter_by_location)) {
         $tax_query[] = array(
-            'taxonomy' => 'job_location',
+            'taxonomy' => 'remjobs_location',
             'field'    => 'slug',
             'terms'    => $filter_by_location,
         );
@@ -182,7 +182,7 @@ function remjobs_render_job_list_block($attributes)
     $today_job_args = array(
         'post_type'      => 'jobs',
         'post_status'    => 'publish',
-        'posts_per_page' => -1,
+            'posts_per_page' => -1,
         'fields'         => 'ids',
         'date_query'     => array(
             array(
@@ -413,80 +413,80 @@ function remjobs_render_job_list_block($attributes)
                 // Grid layout - card style
                 ?>
 <div class="job-card <?php echo esc_attr($premium_class); ?>">
-	<div class="job-card-header">
-		<div class="company-logo-container">
-			<?php if (has_post_thumbnail()) : ?>
-			<div class="company-logo">
-				<?php the_post_thumbnail('thumbnail'); ?>
-			</div>
-			<?php else : ?>
-			<div class="company-logo-placeholder">
-				<?php echo esc_html(isset($company_name[0]) ? $company_name[0] : '?'); ?>
-			</div>
-			<?php endif; ?>
-		</div>
+    <div class="job-card-header">
+        <div class="company-logo-container">
+            <?php if (has_post_thumbnail()) : ?>
+            <div class="company-logo">
+                <?php the_post_thumbnail('thumbnail'); ?>
+            </div>
+            <?php else : ?>
+            <div class="company-logo-placeholder">
+                <?php echo esc_html(isset($company_name[0]) ? $company_name[0] : '?'); ?>
+            </div>
+            <?php endif; ?>
+        </div>
 
-		<h3 class="job-title">
-			<a
-				href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-		</h3>
+        <h3 class="job-title">
+            <a
+                href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+        </h3>
 
-		<div class="job-company">
-			<?php if ($company_name) : ?>
-			<?php esc_html_e('by', 'remote-jobs'); ?>
-			<span
-				class="company-name"><?php echo esc_html($company_name); ?></span>
-			<?php endif; ?>
+        <div class="job-company">
+            <?php if ($company_name) : ?>
+            <?php esc_html_e('by', 'remote-jobs'); ?>
+            <span
+                class="company-name"><?php echo esc_html($company_name); ?></span>
+            <?php endif; ?>
 
-			<?php if ($category_name) : ?>
-			<?php esc_html_e('in', 'remote-jobs'); ?>
-			<span
-				class="job-category"><?php echo esc_html($category_name); ?></span>
-			<?php endif; ?>
-		</div>
-	</div>
+            <?php if ($category_name) : ?>
+            <?php esc_html_e('in', 'remote-jobs'); ?>
+            <span
+                class="job-category"><?php echo esc_html($category_name); ?></span>
+            <?php endif; ?>
+        </div>
+    </div>
 
-	<div class="job-card-meta">
-		<div class="job-meta-info">
-			<?php if ($job_type) : ?>
-			<div class="job-type-badge">
-				<?php echo esc_html($job_type); ?>
-			</div>
-			<?php endif; ?>
+    <div class="job-card-meta">
+        <div class="job-meta-info">
+            <?php if ($job_type) : ?>
+            <div class="job-type-badge">
+                <?php echo esc_html($job_type); ?>
+            </div>
+            <?php endif; ?>
 
-			<?php if ($location_name) : ?>
-			<div class="job-location">
-				<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-					<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-					<circle cx="12" cy="10" r="3"></circle>
-				</svg>
-				<?php echo esc_html($location_name); ?>
-			</div>
-			<?php endif; ?>
+            <?php if ($location_name) : ?>
+            <div class="job-location">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <?php echo esc_html($location_name); ?>
+            </div>
+            <?php endif; ?>
 
-			<?php if ($salary) : ?>
-			<div class="job-salary">
-				<?php echo esc_html($salary); ?>
-			</div>
-			<?php endif; ?>
-		</div>
+            <?php if ($salary) : ?>
+            <div class="job-salary">
+                <?php echo esc_html($salary); ?>
+            </div>
+            <?php endif; ?>
+        </div>
 
-		<?php if (!empty($skills_list)) : ?>
-		<div class="job-skills">
-			<div class="skills-label">
-				<?php esc_html_e('Skills:', 'remote-jobs'); ?>
-			</div>
-			<div class="skills-list">
-				<?php echo esc_html(implode(', ', $skills_list)); ?>
-			</div>
-		</div>
-		<?php endif; ?>
-	</div>
+        <?php if (!empty($skills_list)) : ?>
+        <div class="job-skills">
+            <div class="skills-label">
+                <?php esc_html_e('Skills:', 'remote-jobs'); ?>
+            </div>
+            <div class="skills-list">
+                <?php echo esc_html(implode(', ', $skills_list)); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
 
-	<div class="job-card-footer">
-		<?php if ($days_left !== '') : ?>
-		<span class="days-left">
-			<?php
+    <div class="job-card-footer">
+        <?php if ($days_left !== '') : ?>
+        <span class="days-left">
+            <?php
                                 if ($days_left > 0) {
                                     echo esc_html(
                                         sprintf(
@@ -498,96 +498,96 @@ function remjobs_render_job_list_block($attributes)
                                     esc_html_e('Closing today', 'remote-jobs');
                                 }
                 ?>
-		</span>
-		<?php endif; ?>
+        </span>
+        <?php endif; ?>
 
-		<a href="#" class="save-job-button"
-			data-job-id="<?php echo esc_attr(get_the_ID()); ?>"
-			aria-label="<?php esc_attr_e('Save job', 'remote-jobs'); ?>">
-			<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-				<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-			</svg>
-		</a>
-	</div>
+        <a href="#" class="save-job-button"
+            data-job-id="<?php echo esc_attr(get_the_ID()); ?>"
+            aria-label="<?php esc_attr_e('Save job', 'remote-jobs'); ?>">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </a>
+    </div>
 </div>
 <?php
             } else {
                 // List layout - row style
                 ?>
 <div class="job-row <?php echo esc_attr($premium_class); ?>">
-	<div class="job-row-main">
-		<div class="company-logo-container">
-			<?php if (has_post_thumbnail()) : ?>
-			<div class="company-logo">
-				<?php the_post_thumbnail('thumbnail'); ?>
-			</div>
-			<?php else : ?>
-			<div class="company-logo-placeholder">
-				<?php echo esc_html(isset($company_name[0]) ? $company_name[0] : '?'); ?>
-			</div>
-			<?php endif; ?>
-		</div>
+    <div class="job-row-main">
+        <div class="company-logo-container">
+            <?php if (has_post_thumbnail()) : ?>
+            <div class="company-logo">
+                <?php the_post_thumbnail('thumbnail'); ?>
+            </div>
+            <?php else : ?>
+            <div class="company-logo-placeholder">
+                <?php echo esc_html(isset($company_name[0]) ? $company_name[0] : '?'); ?>
+            </div>
+            <?php endif; ?>
+        </div>
 
-		<div class="job-row-content">
-			<h3 class="job-title">
-				<a
-					href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-			</h3>
+        <div class="job-row-content">
+            <h3 class="job-title">
+                <a
+                    href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+            </h3>
 
-			<div class="job-company">
-				<?php if ($company_name) : ?>
-				<?php esc_html_e('by', 'remote-jobs'); ?>
-				<span
-					class="company-name"><?php echo esc_html($company_name); ?></span>
-				<?php endif; ?>
+            <div class="job-company">
+                <?php if ($company_name) : ?>
+                <?php esc_html_e('by', 'remote-jobs'); ?>
+                <span
+                    class="company-name"><?php echo esc_html($company_name); ?></span>
+                <?php endif; ?>
 
-				<?php if ($category_name) : ?>
-				<?php esc_html_e('in', 'remote-jobs'); ?>
-				<span
-					class="job-category"><?php echo esc_html($category_name); ?></span>
-				<?php endif; ?>
-			</div>
+                <?php if ($category_name) : ?>
+                <?php esc_html_e('in', 'remote-jobs'); ?>
+                <span
+                    class="job-category"><?php echo esc_html($category_name); ?></span>
+                <?php endif; ?>
+            </div>
 
-			<?php if (!empty($skills_list)) : ?>
-			<div class="job-skills">
-				<span class="skills-label">
-					<?php esc_html_e('Skills:', 'remote-jobs'); ?>
-				</span>
-				<span class="skills-list">
-					<?php echo esc_html(implode(', ', $skills_list)); ?>
-				</span>
-			</div>
-			<?php endif; ?>
-		</div>
-	</div>
+            <?php if (!empty($skills_list)) : ?>
+            <div class="job-skills">
+                <span class="skills-label">
+                    <?php esc_html_e('Skills:', 'remote-jobs'); ?>
+                </span>
+                <span class="skills-list">
+                    <?php echo esc_html(implode(', ', $skills_list)); ?>
+                </span>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
-	<div class="job-row-meta">
-		<?php if ($job_type) : ?>
-		<div class="job-type-badge">
-			<?php echo esc_html($job_type); ?>
-		</div>
-		<?php endif; ?>
+    <div class="job-row-meta">
+        <?php if ($job_type) : ?>
+        <div class="job-type-badge">
+            <?php echo esc_html($job_type); ?>
+        </div>
+        <?php endif; ?>
 
-		<?php if ($location_name) : ?>
-		<div class="job-location">
-			<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-				<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-				<circle cx="12" cy="10" r="3"></circle>
-			</svg>
-			<?php echo esc_html($location_name); ?>
-		</div>
-		<?php endif; ?>
+        <?php if ($location_name) : ?>
+        <div class="job-location">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <?php echo esc_html($location_name); ?>
+        </div>
+        <?php endif; ?>
 
-		<?php if ($salary) : ?>
-		<div class="job-salary"><?php echo esc_html($salary); ?>
-		</div>
-		<?php endif; ?>
-	</div>
+        <?php if ($salary) : ?>
+        <div class="job-salary"><?php echo esc_html($salary); ?>
+        </div>
+        <?php endif; ?>
+    </div>
 
-	<div class="job-row-actions">
-		<?php if ($days_left !== '') : ?>
-		<span class="days-left">
-			<?php
+    <div class="job-row-actions">
+        <?php if ($days_left !== '') : ?>
+        <span class="days-left">
+            <?php
                                 if ($days_left > 0) {
                                     echo esc_html(
                                         sprintf(
@@ -599,17 +599,17 @@ function remjobs_render_job_list_block($attributes)
                                     esc_html_e('Closing today', 'remote-jobs');
                                 }
                 ?>
-		</span>
-		<?php endif; ?>
+        </span>
+        <?php endif; ?>
 
-		<a href="#" class="save-job-button"
-			data-job-id="<?php echo esc_attr(get_the_ID()); ?>"
-			aria-label="<?php esc_attr_e('Save job', 'remote-jobs'); ?>">
-			<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-				<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-			</svg>
-		</a>
-	</div>
+        <a href="#" class="save-job-button"
+            data-job-id="<?php echo esc_attr(get_the_ID()); ?>"
+            aria-label="<?php esc_attr_e('Save job', 'remote-jobs'); ?>">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </a>
+    </div>
 </div>
 <?php
             }
