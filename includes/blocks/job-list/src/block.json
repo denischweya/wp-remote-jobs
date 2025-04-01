@@ -14,6 +14,14 @@
 		"align": ["wide", "full"]
 	},
 	"attributes": {
+		"blockTitle": {
+			"type": "string",
+			"default": "Latest jobs"
+		},
+		"backgroundColor": {
+			"type": "string",
+			"default": "#f7f9fc"
+		},
 		"layout": {
 			"type": "string",
 			"default": "grid"

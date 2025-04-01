@@ -41,22 +41,24 @@ add_action('init', 'remjobs_register_job_list_block');
 function remjobs_render_job_list_block($attributes)
 {
     // Extract block attributes with defaults
-    $layout = isset($attributes['layout']) ? $attributes['layout'] : 'grid';
-    $posts_per_page = isset($attributes['postsPerPage']) ? intval($attributes['postsPerPage']) : 10;
-    $show_toggle = isset($attributes['showToggle']) ? $attributes['showToggle'] : true;
-    $show_filters = isset($attributes['showFilters']) ? $attributes['showFilters'] : false;
-    $featured_only = isset($attributes['featuredOnly']) ? $attributes['featuredOnly'] : false;
+    $block_title = !empty($attributes['blockTitle']) ? $attributes['blockTitle'] : __('Latest jobs', 'remote-jobs');
+    $background_color = !empty($attributes['backgroundColor']) ? $attributes['backgroundColor'] : '#f7f9fc';
+    $layout = !empty($attributes['layout']) ? $attributes['layout'] : 'grid';
+    $posts_per_page = !empty($attributes['postsPerPage']) ? intval($attributes['postsPerPage']) : 10;
+    $show_toggle = !empty($attributes['showToggle']) ? $attributes['showToggle'] : true;
+    $show_filters = !empty($attributes['showFilters']) ? $attributes['showFilters'] : false;
+    $featured_only = !empty($attributes['featuredOnly']) ? $attributes['featuredOnly'] : false;
 
     // Filter visibility settings
-    $show_category_filter = isset($attributes['showCategoryFilter']) ? $attributes['showCategoryFilter'] : true;
-    $show_location_filter = isset($attributes['showLocationFilter']) ? $attributes['showLocationFilter'] : true;
-    $show_skills_filter = isset($attributes['showSkillsFilter']) ? $attributes['showSkillsFilter'] : false;
-    $show_search_filter = isset($attributes['showSearchFilter']) ? $attributes['showSearchFilter'] : true;
+    $show_category_filter = !empty($attributes['showCategoryFilter']) ? $attributes['showCategoryFilter'] : true;
+    $show_location_filter = !empty($attributes['showLocationFilter']) ? $attributes['showLocationFilter'] : true;
+    $show_skills_filter = !empty($attributes['showSkillsFilter']) ? $attributes['showSkillsFilter'] : false;
+    $show_search_filter = !empty($attributes['showSearchFilter']) ? $attributes['showSearchFilter'] : true;
 
     // Taxonomy filters
-    $filter_by_category = isset($attributes['filterByCategory']) ? $attributes['filterByCategory'] : array();
-    $filter_by_skills = isset($attributes['filterBySkills']) ? $attributes['filterBySkills'] : array();
-    $filter_by_location = isset($attributes['filterByLocation']) ? $attributes['filterByLocation'] : array();
+    $filter_by_category = !empty($attributes['filterByCategory']) ? $attributes['filterByCategory'] : array();
+    $filter_by_skills = !empty($attributes['filterBySkills']) ? $attributes['filterBySkills'] : array();
+    $filter_by_location = !empty($attributes['filterByLocation']) ? $attributes['filterByLocation'] : array();
 
     // Start output buffer
     ob_start();
@@ -195,10 +197,12 @@ function remjobs_render_job_list_block($attributes)
 
     // Block container with data attributes
     $container_class = 'job-listings-container';
+    $container_style = 'style="background-color: ' . esc_attr($background_color) . ';"';
     $container_attrs = sprintf(
-        'data-layout="%s" id="%s"',
+        'data-layout="%s" id="%s" %s',
         esc_attr($layout),
-        esc_attr($block_id)
+        esc_attr($block_id),
+        $container_style
     );
 
     echo '<div class="' . esc_attr($container_class) . '" ' . $container_attrs . '>';
@@ -208,7 +212,7 @@ function remjobs_render_job_list_block($attributes)
 
     // Job count display
     echo '<div class="job-count">';
-    echo '<h2 class="job-count-title">' . esc_html__('Latest jobs', 'remote-jobs') . '</h2>';
+    echo '<h2 class="job-count-title">' . esc_html($block_title) . '</h2>';
 
     // Format job counts
     echo '<p class="job-count-stats">';

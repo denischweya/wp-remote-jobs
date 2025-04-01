@@ -1,18 +1,125 @@
 /**
  * Job List View Script
  */
-document.addEventListener('DOMContentLoaded', () => {
+jQuery(document).ready(function ($) {
+	// Cache DOM elements
+	const $jobList = $("#jobs-list");
+	const $searchInput = $("#job-search");
+	const $categorySelect = $("#job-category");
+	const $locationSelect = $("#job-location");
+	const $skillsSelect = $("#job-skills");
+	const $filterButton = $("#filter-jobs");
+	const $jobSearchForm = $(".job-search-form");
+
+	// Function to update jobs list
+	function updateJobs() {
+		if (!$jobList.length) return;
+
+		// Create form data
+		const data = {
+			action: "filter_jobs",
+			nonce: remjobsAjax.nonce,
+			search: $searchInput.length ? $searchInput.val() : "",
+			category: $categorySelect.length ? $categorySelect.val() : "",
+			skills: $skillsSelect.length ? $skillsSelect.val() : "",
+			location: $locationSelect.length ? $locationSelect.val() : "",
+		};
+
+		// Debug log
+		console.log("Sending filter request with data:", data);
+
+		// Show loading state
+		$jobList.html('<div class="loading">Loading...</div>');
+
+		// Make AJAX request
+		$.ajax({
+			url: remjobsAjax.ajaxurl,
+			type: "POST",
+			data: data,
+			success: function (response) {
+				console.log("Received response:", response);
+				if (response.success) {
+					$jobList.html(response.data);
+				} else {
+					$jobList.html("<p>Error loading jobs. Please try again.</p>");
+				}
+			},
+			error: function (xhr, status, error) {
+				console.error("AJAX error:", { xhr, status, error });
+				$jobList.html("<p>Error loading jobs. Please try again.</p>");
+			},
+		});
+	}
+
+	// Event listeners
+	if ($filterButton.length) {
+		$filterButton.on("click", function (e) {
+			e.preventDefault();
+			console.log("Filter button clicked");
+			console.log("Current filter values:", {
+				search: $searchInput.val(),
+				category: $categorySelect.val(),
+				skills: $skillsSelect.val(),
+				location: $locationSelect.val(),
+			});
+			updateJobs();
+		});
+	}
+
+	// Optional: Update on select change
+	$searchInput.on("keyup", debounce(updateJobs, 500));
+	$categorySelect.on("change", function () {
+		console.log("Category changed to:", $(this).val());
+		updateJobs();
+	});
+	$locationSelect.on("change", function () {
+		console.log("Location changed to:", $(this).val());
+		updateJobs();
+	});
+	$skillsSelect.on("change", function () {
+		console.log("Skills changed to:", $(this).val());
+		updateJobs();
+	});
+
+	// Debounce function for search input
+	function debounce(func, wait) {
+		let timeout;
+		return function executedFunction(...args) {
+			const later = () => {
+				clearTimeout(timeout);
+				func(...args);
+			};
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+		};
+	}
+
+	// Handle layout toggle if it exists
+	const $layoutButtons = $(".layout-toggle button");
+	if ($layoutButtons.length) {
+		$layoutButtons.on("click", function () {
+			const layout = $(this).data("layout");
+			$jobList.removeClass("grid list").addClass(layout);
+			$layoutButtons.removeClass("is-primary").addClass("is-secondary");
+			$(this).removeClass("is-secondary").addClass("is-primary");
+		});
+	}
+
 	// Get all job listing containers on the page
-	const jobListingContainers = document.querySelectorAll('.job-listings-container');
+	const jobListingContainers = document.querySelectorAll(
+		".job-listings-container",
+	);
 
 	if (!jobListingContainers.length) {
 		return;
 	}
 
-	jobListingContainers.forEach(container => {
+	jobListingContainers.forEach((container) => {
 		const containerId = container.id;
-		const layoutButtons = container.querySelectorAll('.layout-button');
-		const jobListingsWrapper = container.querySelector('[class^="job-listings-"]');
+		const layoutButtons = container.querySelectorAll(".layout-button");
+		const jobListingsWrapper = container.querySelector(
+			'[class^="job-listings-"]',
+		);
 
 		// Only initialize if we have layout buttons and a wrapper
 		if (!layoutButtons.length || !jobListingsWrapper) {
@@ -20,36 +127,36 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		// Get the initial layout from container data attribute
-		const initialLayout = container.dataset.layout || 'grid';
-		
+		const initialLayout = container.dataset.layout || "grid";
+
 		// Set initial layout from saved preference, defaulting to stored container data attribute
 		let currentLayout = getLayoutPreference(containerId) || initialLayout;
-		
+
 		// Apply the initial layout
 		applyLayout(currentLayout, jobListingsWrapper);
-		
+
 		// Mark the correct button as active
 		updateActiveButton(layoutButtons, currentLayout);
 
 		// Add event listeners to layout buttons
-		layoutButtons.forEach(button => {
-			button.addEventListener('click', () => {
+		layoutButtons.forEach((button) => {
+			button.addEventListener("click", () => {
 				const layout = button.dataset.layout;
-				
+
 				// Don't do anything if already in this layout
 				if (layout === currentLayout) {
 					return;
 				}
-				
+
 				// Update the layout
 				applyLayout(layout, jobListingsWrapper);
-				
+
 				// Mark this button as active
 				updateActiveButton(layoutButtons, layout);
-				
+
 				// Save preference
 				saveLayoutPreference(containerId, layout);
-				
+
 				// Update tracking variable
 				currentLayout = layout;
 			});
@@ -65,14 +172,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Apply the specified layout to the job listings wrapper
- * 
+ *
  * @param {string} layout The layout to apply (grid or list)
  * @param {HTMLElement} wrapper The job listings wrapper element
  */
 function applyLayout(layout, wrapper) {
 	// Remove current layout class
-	if (wrapper.className.includes('job-listings-')) {
-		wrapper.className = wrapper.className.replace(/job-listings-(grid|list)/, `job-listings-${layout}`);
+	if (wrapper.className.includes("job-listings-")) {
+		wrapper.className = wrapper.className.replace(
+			/job-listings-(grid|list)/,
+			`job-listings-${layout}`,
+		);
 	} else {
 		wrapper.className = `job-listings-${layout}`;
 	}
@@ -80,40 +190,40 @@ function applyLayout(layout, wrapper) {
 
 /**
  * Update which button is marked as active
- * 
+ *
  * @param {NodeList} buttons Layout toggle buttons
  * @param {string} activeLayout The active layout
  */
 function updateActiveButton(buttons, activeLayout) {
-	buttons.forEach(button => {
+	buttons.forEach((button) => {
 		if (button.dataset.layout === activeLayout) {
-			button.classList.add('active');
+			button.classList.add("active");
 		} else {
-			button.classList.remove('active');
+			button.classList.remove("active");
 		}
 	});
 }
 
 /**
  * Save layout preference to localStorage
- * 
+ *
  * @param {string} containerId The ID of the job listings container
  * @param {string} layout The layout preference
  */
 function saveLayoutPreference(containerId, layout) {
-	if (typeof localStorage !== 'undefined') {
+	if (typeof localStorage !== "undefined") {
 		localStorage.setItem(`remjobs_layout_${containerId}`, layout);
 	}
 }
 
 /**
  * Get saved layout preference from localStorage
- * 
+ *
  * @param {string} containerId The ID of the job listings container
  * @return {string|null} The saved layout preference or null
  */
 function getLayoutPreference(containerId) {
-	if (typeof localStorage !== 'undefined') {
+	if (typeof localStorage !== "undefined") {
 		return localStorage.getItem(`remjobs_layout_${containerId}`);
 	}
 	return null;
@@ -121,15 +231,15 @@ function getLayoutPreference(containerId) {
 
 /**
  * Setup the filters functionality
- * 
+ *
  * @param {HTMLElement} container The job listings container
  */
 function setupFilters(container) {
-	const filterButton = container.querySelector('.filter-button');
-	const categorySelect = container.querySelector('.category-select');
-	const locationSelect = container.querySelector('.location-select');
-	const skillsSelect = container.querySelector('.skills-select');
-	const searchInput = container.querySelector('.search-input');
+	const filterButton = container.querySelector(".filter-button");
+	const categorySelect = container.querySelector(".category-select");
+	const locationSelect = container.querySelector(".location-select");
+	const skillsSelect = container.querySelector(".skills-select");
+	const searchInput = container.querySelector(".search-input");
 
 	if (!filterButton) {
 		return;
@@ -137,60 +247,60 @@ function setupFilters(container) {
 
 	// Get current URL params
 	const urlParams = new URLSearchParams(window.location.search);
-	
+
 	// Set initial values from URL if they exist
-	if (searchInput && urlParams.has('search')) {
-		searchInput.value = urlParams.get('search');
+	if (searchInput && urlParams.has("search")) {
+		searchInput.value = urlParams.get("search");
 	}
-	
-	if (categorySelect && urlParams.has('category')) {
-		categorySelect.value = urlParams.get('category');
+
+	if (categorySelect && urlParams.has("category")) {
+		categorySelect.value = urlParams.get("category");
 	}
-	
-	if (locationSelect && urlParams.has('location')) {
-		locationSelect.value = urlParams.get('location');
+
+	if (locationSelect && urlParams.has("location")) {
+		locationSelect.value = urlParams.get("location");
 	}
-	
-	if (skillsSelect && urlParams.has('skills')) {
-		skillsSelect.value = urlParams.get('skills');
+
+	if (skillsSelect && urlParams.has("skills")) {
+		skillsSelect.value = urlParams.get("skills");
 	}
 
 	// Handle filter button click
-	filterButton.addEventListener('click', () => {
+	filterButton.addEventListener("click", () => {
 		// Get filter values
-		const category = categorySelect ? categorySelect.value : '';
-		const location = locationSelect ? locationSelect.value : '';
-		const skills = skillsSelect ? skillsSelect.value : '';
-		const search = searchInput ? searchInput.value : '';
+		const category = categorySelect ? categorySelect.value : "";
+		const location = locationSelect ? locationSelect.value : "";
+		const skills = skillsSelect ? skillsSelect.value : "";
+		const search = searchInput ? searchInput.value : "";
 
 		// Here you would typically make an AJAX request to filter jobs
 		// For now, we just reload with query parameters
 		const url = new URL(window.location.href);
-		
+
 		if (category) {
-			url.searchParams.set('category', category);
+			url.searchParams.set("category", category);
 		} else {
-			url.searchParams.delete('category');
+			url.searchParams.delete("category");
 		}
-		
+
 		if (location) {
-			url.searchParams.set('location', location);
+			url.searchParams.set("location", location);
 		} else {
-			url.searchParams.delete('location');
+			url.searchParams.delete("location");
 		}
-		
+
 		if (skills) {
-			url.searchParams.set('skills', skills);
+			url.searchParams.set("skills", skills);
 		} else {
-			url.searchParams.delete('skills');
+			url.searchParams.delete("skills");
 		}
-		
+
 		if (search) {
-			url.searchParams.set('search', search);
+			url.searchParams.set("search", search);
 		} else {
-			url.searchParams.delete('search');
+			url.searchParams.delete("search");
 		}
-		
+
 		window.location.href = url.toString();
 	});
 }
@@ -199,24 +309,24 @@ function setupFilters(container) {
  * Setup the save job functionality
  */
 function setupSaveJobButtons() {
-	const saveButtons = document.querySelectorAll('.save-job-button');
-	
-	saveButtons.forEach(button => {
-		button.addEventListener('click', (e) => {
+	const saveButtons = document.querySelectorAll(".save-job-button");
+
+	saveButtons.forEach((button) => {
+		button.addEventListener("click", (e) => {
 			e.preventDefault();
-			
+
 			const jobId = button.dataset.jobId;
-			
+
 			if (!jobId) {
 				return;
 			}
-			
+
 			// Toggle saved state visually
-			button.classList.toggle('saved');
-			
+			button.classList.toggle("saved");
+
 			// TODO: Implement saving jobs to user preferences
 			// This would typically involve an AJAX call to save the job
-			console.log('Toggle saved state for job ID:', jobId);
+			console.log("Toggle saved state for job ID:", jobId);
 		});
 	});
 }
@@ -224,13 +334,15 @@ function setupSaveJobButtons() {
 /**
  * Highlight premium jobs with crown icon
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
 	// Add premium job indicators
-	const premiumJobs = document.querySelectorAll('.job-card.premium, .job-row.premium');
-	
-	premiumJobs.forEach(job => {
-		const indicator = document.createElement('div');
-		indicator.className = 'premium-indicator';
+	const premiumJobs = document.querySelectorAll(
+		".job-card.premium, .job-row.premium",
+	);
+
+	premiumJobs.forEach((job) => {
+		const indicator = document.createElement("div");
+		indicator.className = "premium-indicator";
 		indicator.innerHTML = `
 			<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
 				<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
@@ -243,26 +355,26 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Save job functionality
  */
-document.addEventListener('DOMContentLoaded', function() {
-	const saveButtons = document.querySelectorAll('.save-job-button');
-	
-	saveButtons.forEach(button => {
-		button.addEventListener('click', function(e) {
+document.addEventListener("DOMContentLoaded", function () {
+	const saveButtons = document.querySelectorAll(".save-job-button");
+
+	saveButtons.forEach((button) => {
+		button.addEventListener("click", function (e) {
 			e.preventDefault();
-			
+
 			// Toggle filled/unfilled state
-			const svg = button.querySelector('svg');
-			
-			if (svg.getAttribute('fill') === 'none') {
-				svg.setAttribute('fill', 'currentColor');
-				button.setAttribute('title', 'Saved');
-				
+			const svg = button.querySelector("svg");
+
+			if (svg.getAttribute("fill") === "none") {
+				svg.setAttribute("fill", "currentColor");
+				button.setAttribute("title", "Saved");
+
 				// You would add the job ID to saved jobs in user preferences
 				// This is a simplified example
 			} else {
-				svg.setAttribute('fill', 'none');
-				button.setAttribute('title', 'Save job');
-				
+				svg.setAttribute("fill", "none");
+				button.setAttribute("title", "Save job");
+
 				// You would remove the job ID from saved jobs in user preferences
 			}
 		});

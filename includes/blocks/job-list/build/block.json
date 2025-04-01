@@ -22,6 +22,14 @@
     ]
   },
   "attributes": {
+    "blockTitle": {
+      "type": "string",
+      "default": "Latest jobs"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#f7f9fc"
+    },
     "layout": {
       "type": "string",
       "default": "grid"
@@ -81,6 +89,10 @@
     "locations": {
       "type": "array",
       "default": []
+    },
+    "viewAllJobsPage": {
+      "type": "number",
+      "default": 0
     }
   },
   "textdomain": "remote-jobs",

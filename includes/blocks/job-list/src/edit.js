@@ -20,6 +20,7 @@ import {
 	Notice,
 	Panel,
 	Spinner,
+	ColorPicker,
 } from "@wordpress/components";
 import { useState, useEffect } from "@wordpress/element";
 import ServerSideRender from "@wordpress/server-side-render";
@@ -35,6 +36,8 @@ import "./editor.scss";
  */
 export default function Edit({ attributes, setAttributes }) {
 	const {
+		blockTitle,
+		backgroundColor,
 		layout,
 		jobsPerPage,
 		postsPerPage,
@@ -51,7 +54,11 @@ export default function Edit({ attributes, setAttributes }) {
 		viewAllJobsPage,
 	} = attributes;
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps({
+		style: {
+			backgroundColor: backgroundColor,
+		},
+	});
 
 	// State for taxonomy terms and pages
 	const [availableCategories, setAvailableCategories] = useState([]);
@@ -231,7 +238,44 @@ export default function Edit({ attributes, setAttributes }) {
 	const renderInspectorControls = () => {
 		return (
 			<>
-				<PanelBody title={__("Layout Settings", "remote-jobs")} initialOpen={true}>
+				<PanelBody title={__("General Settings", "remote-jobs")} initialOpen={true}>
+					<TextControl
+						label={__("Block Title", "remote-jobs")}
+						help={__("Title displayed at the top of the job list", "remote-jobs")}
+						value={blockTitle}
+						onChange={(value) => setAttributes({ blockTitle: value })}
+					/>
+					
+					<div className="components-base-control">
+						<label className="components-base-control__label">
+							{__("Background Color", "remote-jobs")}
+						</label>
+						<ColorPicker
+							color={backgroundColor}
+							onChange={(color) => {
+								// Handle different color formats (hex, rgba, etc.)
+								let colorValue;
+								if (typeof color === 'object' && color.hex) {
+									// If opacity is 100%, use hex, otherwise use rgba
+									colorValue = color.rgb && color.rgb.a < 1 
+										? `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`
+										: color.hex;
+								} else {
+									// Direct color string (could be hex, rgb, etc.)
+									colorValue = color;
+								}
+								setAttributes({ backgroundColor: colorValue });
+							}}
+							enableAlpha
+							defaultValue="#f7f9fc"
+						/>
+						<p className="components-base-control__help">
+							{__("Choose a background color for the job list block", "remote-jobs")}
+						</p>
+					</div>
+				</PanelBody>
+
+				<PanelBody title={__("Layout Settings", "remote-jobs")} initialOpen={false}>
 					<SelectControl
 						label={__("Display Style", "remote-jobs")}
 						value={layout}
@@ -428,7 +472,7 @@ export default function Edit({ attributes, setAttributes }) {
 						<>
 							<div className="job-listings-header">
 								<div className="job-count">
-									<h2 className="job-count-title">Latest jobs</h2>
+									<h2 className="job-count-title">{blockTitle}</h2>
 									<p className="job-count-stats">
 										{__("Jobs will be displayed here", "remote-jobs")}
 									</p>
