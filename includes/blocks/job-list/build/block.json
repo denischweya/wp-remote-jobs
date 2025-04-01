@@ -1,12 +1,18 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 2,
+  "apiVersion": 3,
   "name": "remjobs/job-list",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "title": "Job List",
   "category": "widgets",
   "icon": "list-view",
-  "description": "Display a list of job postings with grid and list layout options",
+  "description": "Display a list of job postings with filtering options.",
+  "keywords": [
+    "jobs",
+    "listings",
+    "careers",
+    "employment"
+  ],
   "example": {},
   "supports": {
     "html": false,
@@ -18,11 +24,7 @@
   "attributes": {
     "layout": {
       "type": "string",
-      "default": "grid",
-      "enum": [
-        "grid",
-        "list"
-      ]
+      "default": "grid"
     },
     "jobsPerPage": {
       "type": "number",
@@ -32,9 +34,45 @@
       "type": "boolean",
       "default": true
     },
+    "showToggle": {
+      "type": "boolean",
+      "default": true
+    },
+    "postsPerPage": {
+      "type": "number",
+      "default": 10
+    },
     "featuredOnly": {
       "type": "boolean",
       "default": false
+    },
+    "showCategoryFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLocationFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showSkillsFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showSearchFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "filterByCategory": {
+      "type": "array",
+      "default": []
+    },
+    "filterBySkills": {
+      "type": "array",
+      "default": []
+    },
+    "filterByLocation": {
+      "type": "array",
+      "default": []
     },
     "categories": {
       "type": "array",

@@ -1,7 +1,13 @@
+/**
+ * WordPress dependencies
+ */
 import { registerBlockType } from '@wordpress/blocks';
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
 import metadata from './block.json';
+
+/**
+ * Internal dependencies
+ */
+import Edit from './edit';
 import save from './save';
 
 // Import styles
@@ -16,44 +22,6 @@ registerBlockType(metadata.name, {
             </svg>
         )
     },
-    
-    attributes: {
-        layout: {
-            type: 'string',
-            default: 'grid'
-        }
-    },
-
-    edit: ({ attributes, setAttributes }) => {
-        const { layout } = attributes;
-
-        return (
-            <>
-                <InspectorControls>
-                    <PanelBody title="Layout" initialOpen={true}>
-                        <SelectControl
-                            label="Display Style"
-                            value={layout}
-                            options={[
-                                { label: 'Grid', value: 'grid' },
-                                { label: 'List', value: 'list' }
-                            ]}
-                            onChange={(newLayout) => setAttributes({ layout: newLayout })}
-                        />
-                    </PanelBody>
-                </InspectorControls>
-                <div className={`remjobs-job-list-block is-style-${layout}`}>
-                    <div className="job-preview">
-                        <h3>Sample Job Title</h3>
-                        <div className="job-meta">
-                            <span className="company">Sample Company</span>
-                            <span className="location">Remote</span>
-                        </div>
-                    </div>
-                </div>
-            </>
-        );
-    },
-
+    edit: Edit,
     save
 });

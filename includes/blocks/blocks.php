@@ -13,12 +13,9 @@ function remjobs_register_blocks()
         'render_callback' => 'remjobs_render_submit_job_block',
     ));
 
-    // Register Job List Block
+    // Job List Block is registered in its own file via remjobs_register_job_list_block()
+    // Just include the REST API endpoints
     require_once __DIR__ . '/job-list/rest-api.php';
-    register_block_type(__DIR__ . '/job-list/build', array(
-        'render_callback' => 'remjobs_render_job_listings_block',
-        'api_version' => 3
-    ));
 
     // Register Job Sidebar Block
     register_block_type(__DIR__ . '/job-sidebar/build', array(

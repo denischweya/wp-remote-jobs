@@ -153,3 +153,126 @@
         position: relative;
     }
 }
+
+/**
+ * Editor styles for the job-list block
+ */
+
+// Import the frontend styles
+@import './style.scss';
+
+// Editor-specific styles
+.wp-block-remjobs-job-list {
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    .components-panel__body-title {
+        font-size: 14px;
+    }
+    
+    .editor-preview-toggle {
+        margin-bottom: 15px;
+        background: #f2f2f2;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .preview-label {
+            font-weight: 500;
+            font-size: 14px;
+        }
+    }
+    
+    // Style editor components
+    .components-toggle-control {
+        margin-bottom: 16px;
+    }
+    
+    .components-base-control__field {
+        margin-bottom: 12px;
+    }
+    
+    // Sample job cards for the editor
+    .job-card, .job-row {
+        // Add a subtle indicator that this is a preview
+        position: relative;
+        
+        &::after {
+            content: "Preview";
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #666;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .job-skills {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            
+            .skills-label, .skills-list {
+                display: inline;
+            }
+            
+            .skills-label {
+                font-weight: 500;
+                color: #555;
+                margin-right: 5px;
+            }
+        }
+    }
+    
+    // Make premium jobs visually distinct in the editor
+    .premium {
+        &.job-card {
+            border-color: #ffc107;
+            
+            &::before {
+                content: "Premium";
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #ffc107;
+                color: #000;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 3px 8px;
+                border-radius: 12px;
+                z-index: 1;
+            }
+        }
+        
+        &.job-row {
+            border-color: #ffc107;
+            
+            &::before {
+                content: "Premium";
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #ffc107;
+                color: #000;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 3px 8px;
+                border-radius: 12px;
+                z-index: 1;
+            }
+        }
+    }
+    
+    // Filter settings in the editor
+    .filter-settings-panel {
+        .components-toggle-control {
+            margin-bottom: 16px;
+        }
+    }
+}
