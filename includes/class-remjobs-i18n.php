@@ -3,8 +3,8 @@
 /**
  * Define the internationalization functionality.
  *
- * Loads and defines the internationalization files for this plugin
- * so that it is ready for translation.
+ * For plugins hosted on WordPress.org, translations are automatically loaded
+ * by WordPress core. This class is maintained for backward compatibility.
  *
  * @since      1.0.0
  * @package    Remote_Jobs
@@ -16,16 +16,17 @@ declare(strict_types=1);
 class Remjobs_i18n
 {
     /**
-     * Load the plugin text domain for translation.
+     * Initialize the internationalization features.
+     *
+     * Note: As of WordPress 4.6+, plugins hosted on WordPress.org
+     * no longer need to call load_plugin_textdomain() as translations
+     * are automatically loaded by WordPress core.
      *
      * @since    1.0.0
      */
     public function load_plugin_textdomain()
     {
-        load_plugin_textdomain(
-            'remote-jobs',
-            false,
-            dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
-        );
+        // This method is kept for backward compatibility
+        // No action needed as WordPress.org automatically loads translations
     }
 }
