@@ -16,7 +16,7 @@
  * Plugin Name:       Remote Jobs
  * Plugin URI:        https://swishfolio.com/
  * Description:       A simple job board plugin for WordPress
- * Version:           1.0.2
+ * Version:           1.0.4
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Afrothemes

@@ -11,6 +11,11 @@
 
 declare(strict_types=1);
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Remjobs_Job
 {
     /**
@@ -32,32 +37,29 @@ class Remjobs_Job
      */
     public function register_meta_fields(): void
     {
-        register_post_meta('jobs', 'salary_range', array(
+        // Register custom meta fields for jobs
+        register_post_meta('remjobs_jobs', 'salary_range', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
-            'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('jobs', 'application_deadline', array(
+        register_post_meta('remjobs_jobs', 'application_deadline', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
-            'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('jobs', 'company_name', array(
+        register_post_meta('remjobs_jobs', 'company_name', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
-            'sanitize_callback' => 'sanitize_text_field'
         ));
 
-        register_post_meta('jobs', 'company_website', array(
+        register_post_meta('remjobs_jobs', 'company_website', array(
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
-            'sanitize_callback' => 'esc_url_raw'
         ));
     }
 

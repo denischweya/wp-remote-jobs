@@ -28,7 +28,11 @@ add_action('init', 'remjobs_register_registration_block');
 function remjobs_process_registration_form()
 {
     // Only process on actual form submission
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['remjobs_registration_submit'])) {
+    if (
+        !isset($_SERVER['REQUEST_METHOD']) ||
+        $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+        empty($_POST['remjobs_registration_submit'])
+    ) {
         return;
     }
 
@@ -77,9 +81,19 @@ function remjobs_process_registration_form()
 
     // Handle file upload with proper sanitization
     $logo_url = '';
-    if (isset($_FILES['logo']) && isset($_FILES['logo']['error']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+    // Check if a file was uploaded and there are no errors
+    if (
+        isset($_FILES['logo']) &&
+        isset($_FILES['logo']['error']) &&
+        isset($_FILES['logo']['name']) &&
+        intval($_FILES['logo']['error']) === UPLOAD_ERR_OK &&
+        !empty($_FILES['logo']['name'])
+    ) {
+        // Sanitize the filename
+        $file_name = sanitize_file_name(basename(sanitize_text_field($_FILES['logo']['name'])));
+
         // Check for valid mime type
-        $file_type = wp_check_filetype(basename($_FILES['logo']['name']));
+        $file_type = wp_check_filetype($file_name);
         if (!$file_type['type'] || !in_array($file_type['type'], array('image/jpeg', 'image/png', 'image/gif'), true)) {
             // Invalid file type
             set_transient(
@@ -101,11 +115,20 @@ function remjobs_process_registration_form()
             )
         );
 
+        // Create a file array with sanitized values
+        $file = array(
+            'name'     => $file_name,
+            'type'     => isset($_FILES['logo']['type']) ? sanitize_text_field($_FILES['logo']['type']) : '',
+            'tmp_name' => isset($_FILES['logo']['tmp_name']) ? sanitize_text_field($_FILES['logo']['tmp_name']) : '',
+            'error'    => isset($_FILES['logo']['error']) ? intval($_FILES['logo']['error']) : UPLOAD_ERR_NO_FILE,
+            'size'     => isset($_FILES['logo']['size']) ? intval($_FILES['logo']['size']) : 0
+        );
+
         // Handle the upload using WordPress functions
-        $movefile = wp_handle_upload($_FILES['logo'], $upload_overrides);
+        $movefile = wp_handle_upload($file, $upload_overrides);
 
         if ($movefile && !isset($movefile['error'])) {
-            $logo_url = $movefile['url'];
+            $logo_url = esc_url_raw($movefile['url']);
         } else {
             // Upload failed
             set_transient(

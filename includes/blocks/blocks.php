@@ -1,4 +1,13 @@
 <?php
+/**
+ * Register blocks for RemJobs
+ *
+ * @package RemJobs
+ */
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
+}
 
 // Include individual block files
 require_once __DIR__ . '/submit-job/submit-job.php';

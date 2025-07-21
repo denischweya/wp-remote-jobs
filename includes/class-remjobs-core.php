@@ -10,6 +10,11 @@
 
 declare(strict_types=1);
 
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Remjobs_Core
 {
     /**
@@ -125,13 +130,13 @@ class Remjobs_Core
                     'remjobs_job_category',
                     'remjobs_job_skills',
                     'remjobs_job_location',
-                    'remjobs_employment_type',
+                    'remjobs_job_employment_type',
                     'remjobs_job_benefits',
-                    'remjobs_salary_range'
+                    'remjobs_job_salary_range'
                 ),
             );
 
-            register_post_type('jobs', $args);
+            register_post_type('remjobs_jobs', $args);
 
             // Add this line to ensure taxonomy meta boxes show up in the block editor
             add_filter('register_post_type_args', array($this, 'add_taxonomies_to_job_cpt'), 10, 2);
@@ -147,7 +152,7 @@ class Remjobs_Core
     {
         add_action('init', function () {
             // Job Category Taxonomy
-            register_taxonomy('remjobs_job_category', 'jobs', array(
+            register_taxonomy('remjobs_job_category', 'remjobs_jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Job Categories', 'taxonomy general name', 'remote-jobs'),
@@ -162,7 +167,7 @@ class Remjobs_Core
             ));
 
             // Job Skills Taxonomy
-            register_taxonomy('remjobs_job_skills', 'jobs', array(
+            register_taxonomy('remjobs_job_skills', 'remjobs_jobs', array(
                 'hierarchical' => false,
                 'labels' => array(
                     'name' => _x('Skills', 'taxonomy general name', 'remote-jobs'),
@@ -177,7 +182,7 @@ class Remjobs_Core
             ));
 
             // Job Location Taxonomy
-            register_taxonomy('remjobs_job_location', 'jobs', array(
+            register_taxonomy('remjobs_job_location', 'remjobs_jobs', array(
                 'hierarchical' => true,
                 'labels' => array(
                     'name' => _x('Locations', 'taxonomy general name', 'remote-jobs'),
@@ -188,6 +193,51 @@ class Remjobs_Core
                 'show_admin_column' => true,
                 'query_var' => true,
                 'rewrite' => array('slug' => 'job-location'),
+                'show_in_rest' => true,
+            ));
+
+            // Job Employment Type Taxonomy
+            register_taxonomy('remjobs_job_employment_type', 'remjobs_jobs', array(
+                'hierarchical' => true,
+                'labels' => array(
+                    'name' => _x('Employment Types', 'taxonomy general name', 'remote-jobs'),
+                    'singular_name' => _x('Employment Type', 'taxonomy singular name', 'remote-jobs'),
+                    'menu_name' => __('Employment Types', 'remote-jobs'),
+                ),
+                'show_ui' => true,
+                'show_admin_column' => true,
+                'query_var' => true,
+                'rewrite' => array('slug' => 'employment-type'),
+                'show_in_rest' => true,
+            ));
+
+            // Job Benefits Taxonomy
+            register_taxonomy('remjobs_job_benefits', 'remjobs_jobs', array(
+                'hierarchical' => false,
+                'labels' => array(
+                    'name' => _x('Benefits', 'taxonomy general name', 'remote-jobs'),
+                    'singular_name' => _x('Benefit', 'taxonomy singular name', 'remote-jobs'),
+                    'menu_name' => __('Benefits', 'remote-jobs'),
+                ),
+                'show_ui' => true,
+                'show_admin_column' => true,
+                'query_var' => true,
+                'rewrite' => array('slug' => 'job-benefits'),
+                'show_in_rest' => true,
+            ));
+
+            // Job Salary Range Taxonomy
+            register_taxonomy('remjobs_job_salary_range', 'remjobs_jobs', array(
+                'hierarchical' => true,
+                'labels' => array(
+                    'name' => _x('Salary Ranges', 'taxonomy general name', 'remote-jobs'),
+                    'singular_name' => _x('Salary Range', 'taxonomy singular name', 'remote-jobs'),
+                    'menu_name' => __('Salary Ranges', 'remote-jobs'),
+                ),
+                'show_ui' => true,
+                'show_admin_column' => true,
+                'query_var' => true,
+                'rewrite' => array('slug' => 'salary-range'),
                 'show_in_rest' => true,
             ));
         });

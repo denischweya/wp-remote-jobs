@@ -28,14 +28,29 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
             '</div>';
     }
 
-    // Process success message if present
-    if (isset($_GET['remjobs_job_submitted']) && $_GET['remjobs_job_submitted'] === 'success') {
-        // Verify the nonce
-        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
-        if (wp_verify_nonce($nonce, 'remjobs_job_submission')) {
-            echo '<div class="remjobs-notice remjobs-success">';
-            echo '<p>' . esc_html__('Job submitted successfully! It will be reviewed shortly.', 'remote-jobs') . '</p>';
-            echo '</div>';
+    // Check if user has permission to submit jobs
+    if (!current_user_can('publish_posts')) {
+        return '<div class="remjobs-notice remjobs-error">' .
+            esc_html__('You do not have permission to submit jobs.', 'remote-jobs') .
+            '</div>';
+    }
+
+    // Process success message if present - only check when the parameter exists
+    if (isset($_GET['remjobs_job_submitted'])) {
+        // Sanitize the job_submitted value
+        $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
+
+        // Only proceed if we have both the success value and a nonce
+        if ($job_submitted === 'success') {
+            // Verify the nonce - both must be present and valid
+            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+            if (!empty($nonce) && wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+                echo '<div class="remjobs-notice remjobs-success">';
+                echo '<p>' . esc_html__('Job submitted successfully! It will be reviewed shortly.', 'remote-jobs') . '</p>';
+                echo '</div>';
+            }
+            // If nonce is missing or invalid, silently ignore (don't show success message)
         }
     }
 
@@ -45,24 +60,24 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
 <div <?php echo wp_kses_post(get_block_wrapper_attributes(['class' => 'submit-job-form'])); ?>>
     <form id="submit-job-form" class="job-submission-form" method="post"
         action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-        <input type="hidden" name="action" value="submit_job">
+        <input type="hidden" name="action" value="remjobs_submit_job">
         <input type="hidden" name="remjobs_job_submission_nonce"
             value="<?php echo esc_attr($nonce); ?>">
 
         <div class="form-group">
             <label
                 for="job-title"><?php esc_html_e('Job Title', 'remote-jobs'); ?></label>
-            <input type="text" id="job-title" name="job_title" required />
             <span
                 class="field-description"><?php esc_html_e('Enter a descriptive title for the job position', 'remote-jobs'); ?></span>
+            <input type="text" id="job-title" name="job_title" required />
         </div>
 
         <div class="form-group">
             <label
                 for="job-description"><?php esc_html_e('Job Description', 'remote-jobs'); ?></label>
-            <textarea id="job-description" name="job_description" required></textarea>
             <span
                 class="field-description"><?php esc_html_e('Describe the job responsibilities, requirements, and benefits', 'remote-jobs'); ?></span>
+            <textarea id="job-description" name="job_description" required></textarea>
         </div>
 
         <div class="form-group">
@@ -109,9 +124,9 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
         <div class="form-group">
             <label
                 for="application-link"><?php esc_html_e('Application Link', 'remote-jobs'); ?></label>
-            <input type="url" id="application-link" name="application_link" required />
             <span
                 class="field-description"><?php esc_html_e('Full URL where candidates can apply (including https://)', 'remote-jobs'); ?></span>
+            <input type="url" id="application-link" name="application_link" required />
         </div>
 
         <button type="submit"
@@ -129,7 +144,7 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
 function remjobs_handle_job_submission()
 {
     // Verify request method
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
         return;
     }
 
@@ -152,6 +167,15 @@ function remjobs_handle_job_submission()
             esc_html__('You must be logged in to submit a job.', 'remote-jobs'),
             esc_html__('Authentication Error', 'remote-jobs'),
             array('response' => 401)
+        );
+    }
+
+    // Check if user has permission to submit jobs
+    if (!current_user_can('publish_posts')) {
+        wp_die(
+            esc_html__('You do not have permission to submit jobs.', 'remote-jobs'),
+            esc_html__('Authorization Error', 'remote-jobs'),
+            array('response' => 403)
         );
     }
 
@@ -204,7 +228,7 @@ function remjobs_handle_job_submission()
         'post_title'    => $job_title,
         'post_content'  => $job_description,
         'post_status'   => 'pending', // Jobs require moderation
-        'post_type'     => 'jobs',
+        'post_type'     => 'remjobs_jobs',  // Use consistent post type name
         'post_author'   => get_current_user_id(),
     );
 
@@ -276,8 +300,8 @@ function remjobs_handle_job_submission()
         exit;
     }
 }
-add_action('admin_post_submit_job', 'remjobs_handle_job_submission');
-add_action('admin_post_nopriv_submit_job', 'remjobs_handle_job_submission');
+add_action('admin_post_remjobs_submit_job', 'remjobs_handle_job_submission');
+add_action('admin_post_nopriv_remjobs_submit_job', 'remjobs_handle_job_submission');
 
 /**
  * Display job submission messages (errors or success).
@@ -301,22 +325,29 @@ function remjobs_display_job_submission_message()
         $output .= '</div>';
     }
 
-    // Check for success message
-    if (isset($_GET['remjobs_job_submitted']) && $_GET['remjobs_job_submitted'] === 'success') {
-        // Verify the nonce
-        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
-        if (wp_verify_nonce($nonce, 'remjobs_job_submission')) {
-            // Clean up any session data if used
-            if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['remjobs_job_form_data'])) {
-                unset($_SESSION['remjobs_job_form_data']);
-            }
+    // Check for success message - only when the parameter exists
+    if (isset($_GET['remjobs_job_submitted'])) {
+        $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
 
-            $output .= '<div class="remjobs-notice remjobs-success">';
-            $output .= '<p>' . esc_html__('Job submitted successfully! It will be reviewed shortly.', 'remote-jobs') . '</p>';
-            $output .= '<a href="' . esc_url(remove_query_arg(array('remjobs_job_submitted', '_wpnonce'))) . '" class="button submit-another-job">';
-            $output .= esc_html__('Submit Another Job', 'remote-jobs');
-            $output .= '</a>';
-            $output .= '</div>';
+        // Only proceed if we have the success value
+        if ($job_submitted === 'success') {
+            // Verify the nonce - both must be present and valid
+            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+            if (!empty($nonce) && wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+                // Clean up any session data if used
+                if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['remjobs_job_form_data'])) {
+                    unset($_SESSION['remjobs_job_form_data']);
+                }
+
+                $output .= '<div class="remjobs-notice remjobs-success">';
+                $output .= '<p>' . esc_html__('Job submitted successfully! It will be reviewed shortly.', 'remote-jobs') . '</p>';
+                $output .= '<a href="' . esc_url(remove_query_arg(array('remjobs_job_submitted', '_wpnonce'))) . '" class="button submit-another-job">';
+                $output .= esc_html__('Submit Another Job', 'remote-jobs');
+                $output .= '</a>';
+                $output .= '</div>';
+            }
+            // If nonce is missing or invalid, silently ignore (don't show success message)
         }
     }
 

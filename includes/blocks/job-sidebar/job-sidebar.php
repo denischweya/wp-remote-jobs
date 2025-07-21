@@ -3,7 +3,14 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-function render_job_sidebar_block($attributes, $content)
+/**
+ * Render the job sidebar block.
+ *
+ * @param array  $attributes Block attributes.
+ * @param string $content    Block content.
+ * @return string The rendered sidebar HTML.
+ */
+function remjobs_render_job_sidebar_block($attributes, $content)
 {
     $job_id = get_the_ID();
 
@@ -13,7 +20,7 @@ function render_job_sidebar_block($attributes, $content)
     <div class="job-sidebar-content">
         <?php
             // Company Name
-            $company_name = get_post_meta($job_id, 'company_name', true);
+            $company_name = get_post_meta($job_id, '_remjobs_company_name', true);
     $company_name = !empty($company_name) ? $company_name : esc_html__('Company Name Not Provided', 'remote-jobs');
     ?>
         <div class="job-company">
@@ -24,7 +31,7 @@ function render_job_sidebar_block($attributes, $content)
 
         <?php
     // Salary Range
-    $salary_range = get_post_meta($job_id, 'salary_range', true);
+    $salary_range = get_post_meta($job_id, '_remjobs_salary_range', true);
     $salary_range = !empty($salary_range) ? $salary_range : esc_html__('Salary To Be Discussed', 'remote-jobs');
     ?>
         <div class="job-salary">
@@ -35,7 +42,7 @@ function render_job_sidebar_block($attributes, $content)
 
         <?php
     // Application Link
-    $application_link = get_post_meta($job_id, 'application_link', true);
+    $application_link = get_post_meta($job_id, '_remjobs_application_link', true);
     if ($application_link) : ?>
         <div class="job-apply">
             <a href="<?php echo esc_url($application_link); ?>"
@@ -53,7 +60,7 @@ function render_job_sidebar_block($attributes, $content)
 
         <?php
     // Company Website
-    $company_website = get_post_meta($job_id, 'company_website', true);
+    $company_website = get_post_meta($job_id, '_remjobs_company_website', true);
     if ($company_website) : ?>
         <div class="company-website">
             <a href="<?php echo esc_url($company_website); ?>"

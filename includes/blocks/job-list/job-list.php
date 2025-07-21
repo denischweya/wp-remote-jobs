@@ -65,7 +65,7 @@ function remjobs_render_job_list_block($attributes)
 
     // Check if we have any jobs before proceeding
     $check_jobs = new WP_Query(array(
-        'post_type' => 'jobs',
+        'post_type' => 'remjobs_jobs',
         'posts_per_page' => 1,
         'fields' => 'ids',
     ));
@@ -85,13 +85,30 @@ function remjobs_render_job_list_block($attributes)
     // Unique ID for this instance
     $block_id = 'job-list-' . wp_unique_id();
 
-    // Handle URL parameters for filtering
-    $url_category = isset($_GET['category']) ? sanitize_text_field($_GET['category']) : '';
-    $url_location = isset($_GET['location']) ? sanitize_text_field($_GET['location']) : '';
-    $url_skills = isset($_GET['skills']) ? sanitize_text_field($_GET['skills']) : '';
-    $url_search = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
+    // Initialize filter variables
+    $url_category = '';
+    $url_location = '';
+    $url_skills = '';
+    $url_search = '';
 
-    // Apply URL filters if they exist
+    // Only process GET parameters if they exist and verify nonce
+    // This improves performance by not checking nonce on every page load
+    if (!empty($_GET['category']) || !empty($_GET['location']) || !empty($_GET['skills']) || !empty($_GET['search'])) {
+        // Get and verify nonce first
+        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+        // Only proceed with filtering if nonce is valid
+        if (wp_verify_nonce($nonce, 'job_filter_nonce')) {
+            // Now safely sanitize and use the filter parameters
+            $url_category = isset($_GET['category']) ? sanitize_text_field(wp_unslash($_GET['category'])) : '';
+            $url_location = isset($_GET['location']) ? sanitize_text_field(wp_unslash($_GET['location'])) : '';
+            $url_skills = isset($_GET['skills']) ? sanitize_text_field(wp_unslash($_GET['skills'])) : '';
+            $url_search = isset($_GET['search']) ? sanitize_text_field(wp_unslash($_GET['search'])) : '';
+        }
+        // If nonce verification fails, filter parameters remain empty (safe default)
+    }
+
+    // Apply URL filters if they exist and passed nonce verification
     if (!empty($url_category)) {
         $filter_by_category = array($url_category);
     }
@@ -108,7 +125,7 @@ function remjobs_render_job_list_block($attributes)
     $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
     $args = array(
-    'post_type'      => 'jobs',
+    'post_type'      => 'remjobs_jobs',
     'posts_per_page' => $posts_per_page,
     'paged'          => $paged,
     'post_status'    => 'publish',
@@ -153,7 +170,7 @@ function remjobs_render_job_list_block($attributes)
 
     if (! empty($filter_by_location)) {
         $tax_query[] = array(
-            'taxonomy' => 'remjobs_location',
+            'taxonomy' => 'remjobs_job_location',
             'field'    => 'slug',
             'terms'    => $filter_by_location,
         );
@@ -169,7 +186,7 @@ function remjobs_render_job_list_block($attributes)
 
     // Get total job count for display
     $job_count_args = array(
-        'post_type'      => 'jobs',
+        'post_type'      => 'remjobs_jobs',
         'post_status'    => 'publish',
         'posts_per_page' => -1,
         'fields'         => 'ids',
@@ -180,7 +197,7 @@ function remjobs_render_job_list_block($attributes)
     // Get today's job count
     $today = getdate();
     $today_job_args = array(
-        'post_type'      => 'jobs',
+        'post_type'      => 'remjobs_jobs',
         'post_status'    => 'publish',
             'posts_per_page' => -1,
         'fields'         => 'ids',
@@ -197,7 +214,7 @@ function remjobs_render_job_list_block($attributes)
 
     // Block container with data attributes
     $container_class = 'job-listings-container';
-    $container_style = 'style="background-color: ' . esc_attr($background_color) . ';"';
+    $container_style = sprintf('style="background-color: %s;"', esc_attr($background_color));
     $container_attrs = sprintf(
         'data-layout="%s" id="%s" %s',
         esc_attr($layout),
@@ -205,7 +222,7 @@ function remjobs_render_job_list_block($attributes)
         $container_style
     );
 
-    echo '<div class="' . esc_attr($container_class) . '" ' . $container_attrs . '>';
+    echo '<div class="' . esc_attr($container_class) . '" ' . wp_kses_post($container_attrs) . '>';
 
     // Display the header with job count and layout toggle
     echo '<div class="job-listings-header">';
@@ -217,22 +234,25 @@ function remjobs_render_job_list_block($attributes)
     // Format job counts
     echo '<p class="job-count-stats">';
 
-    // Properly escape the count output
-    echo esc_html(
-        sprintf(
-            _n('%d job live', '%d jobs live', $total_jobs_count, 'remote-jobs'),
-            $total_jobs_count
-        )
+    /* translators: %d: Number of job listings */
+    $jobs_live_text = _n(
+        '%d job live',
+        '%d jobs live',
+        $total_jobs_count,
+        'remote-jobs'
     );
+    echo esc_html(sprintf($jobs_live_text, $total_jobs_count));
 
     if ($today_jobs_count > 0) {
         echo ' - ';
-        echo esc_html(
-            sprintf(
-                _n('%d added today', '%d added today', $today_jobs_count, 'remote-jobs'),
-                $today_jobs_count
-            )
+        /* translators: %d: Number of job listings added today */
+        $added_today_text = _n(
+            '%d added today',
+            '%d added today',
+            $today_jobs_count,
+            'remote-jobs'
         );
+        echo esc_html(sprintf($added_today_text, $today_jobs_count));
     }
 
     echo '</p>';
@@ -243,7 +263,7 @@ function remjobs_render_job_list_block($attributes)
         echo '<div class="view-toggle">';
 
         // View all jobs link
-        echo '<a href="' . esc_url(get_post_type_archive_link('jobs')) . '" class="view-all-link">';
+        echo '<a href="' . esc_url(get_post_type_archive_link('remjobs_jobs')) . '" class="view-all-link">';
         echo esc_html__('View all jobs', 'remote-jobs');
         echo '</a>';
 
@@ -289,7 +309,7 @@ function remjobs_render_job_list_block($attributes)
         ));
 
         $locations = get_terms(array(
-            'taxonomy'   => 'remjobs_location',
+            'taxonomy'   => 'remjobs_job_location',
             'hide_empty' => true,
         ));
 
@@ -299,12 +319,15 @@ function remjobs_render_job_list_block($attributes)
         ));
 
         echo '<div class="job-filters">';
+        // Add nonce field for the filter form
+        wp_nonce_field('job_filter_nonce', '_wpnonce', false);
+
         echo '<div class="filter-row">';
 
         // Search input
         if ($show_search_filter) {
             $search_value = !empty($url_search) ? ' value="' . esc_attr($url_search) . '"' : '';
-            echo '<input type="text" class="search-input" id="job-search-' . esc_attr($block_id) . '" placeholder="' . esc_attr__('Search jobs...', 'remote-jobs') . '"' . $search_value . '>';
+            echo '<input type="text" class="search-input" id="job-search-' . esc_attr($block_id) . '" placeholder="' . esc_attr__('Search jobs...', 'remote-jobs') . '"' . esc_attr($search_value) . '>';
         }
 
         // Category dropdown
@@ -314,7 +337,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($categories as $category) {
                 $selected = ($url_category === $category->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($category->slug) . '"' . $selected . '>' . esc_html($category->name) . '</option>';
+                echo '<option value="' . esc_attr($category->slug) . '"' . esc_attr($selected) . '>' . esc_html($category->name) . '</option>';
             }
 
             echo '</select>';
@@ -327,7 +350,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($locations as $location) {
                 $selected = ($url_location === $location->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($location->slug) . '"' . $selected . '>' . esc_html($location->name) . '</option>';
+                echo '<option value="' . esc_attr($location->slug) . '"' . esc_attr($selected) . '>' . esc_html($location->name) . '</option>';
             }
 
             echo '</select>';
@@ -340,7 +363,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($skills as $skill) {
                 $selected = ($url_skills === $skill->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($skill->slug) . '"' . $selected . '>' . esc_html($skill->name) . '</option>';
+                echo '<option value="' . esc_attr($skill->slug) . '"' . esc_attr($selected) . '>' . esc_html($skill->name) . '</option>';
             }
 
             echo '</select>';
@@ -386,7 +409,7 @@ function remjobs_render_job_list_block($attributes)
 
             // Get categories/taxonomies
             $job_categories = get_the_terms(get_the_ID(), 'remjobs_job_category');
-            $job_locations = get_the_terms(get_the_ID(), 'remjobs_location');
+            $job_locations = get_the_terms(get_the_ID(), 'remjobs_job_location');
             $job_skills = get_the_terms(get_the_ID(), 'remjobs_job_skills');
 
             $category_name = '';
@@ -488,12 +511,14 @@ function remjobs_render_job_list_block($attributes)
         <span class="days-left">
             <?php
                                 if ($days_left > 0) {
-                                    echo esc_html(
-                                        sprintf(
-                                            _n('%d day left to apply', '%d days left to apply', $days_left, 'remote-jobs'),
-                                            $days_left
-                                        )
+                                    /* translators: %d: Number of days left to apply for the job */
+                                    $days_left_text = _n(
+                                        '%d day left to apply',
+                                        '%d days left to apply',
+                                        $days_left,
+                                        'remote-jobs'
                                     );
+                                    echo esc_html(sprintf($days_left_text, $days_left));
                                 } else {
                                     esc_html_e('Closing today', 'remote-jobs');
                                 }
@@ -589,12 +614,14 @@ function remjobs_render_job_list_block($attributes)
         <span class="days-left">
             <?php
                                 if ($days_left > 0) {
-                                    echo esc_html(
-                                        sprintf(
-                                            _n('%d day left to apply', '%d days left to apply', $days_left, 'remote-jobs'),
-                                            $days_left
-                                        )
+                                    /* translators: %d: Number of days left to apply for the job */
+                                    $days_left_text = _n(
+                                        '%d day left to apply',
+                                        '%d days left to apply',
+                                        $days_left,
+                                        'remote-jobs'
                                     );
+                                    echo esc_html(sprintf($days_left_text, $days_left));
                                 } else {
                                     esc_html_e('Closing today', 'remote-jobs');
                                 }
@@ -626,14 +653,14 @@ function remjobs_render_job_list_block($attributes)
 
             $current_page = max(1, get_query_var('paged'));
 
-            echo paginate_links(array(
+            echo wp_kses_post(paginate_links(array(
                 'base'      => get_pagenum_link(1) . '%_%',
                 'format'    => '?paged=%#%',
                 'current'   => $current_page,
                 'total'     => $total_pages,
                 'prev_text' => '&laquo; ' . __('Previous', 'remote-jobs'),
                 'next_text' => __('Next', 'remote-jobs') . ' &raquo;',
-            ));
+            )));
 
             echo '</div>';
         }

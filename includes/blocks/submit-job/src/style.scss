@@ -38,13 +38,18 @@ $primary-foreground: #ffffff;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    margin-bottom: 1rem;
 
     label {
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-weight: 500;
         color: $foreground;
     }
-
+    .field-description {
+        font-size: 0.875rem;
+        color: $muted-foreground;
+        margin-top: 0,
+    }
     small {
         font-size: 0.75rem;
         color: $muted-foreground;
@@ -58,7 +63,7 @@ $primary-foreground: #ffffff;
         padding: 0.75rem 1rem;
         font-size: 0.875rem;
         border: 1px solid $border;
-        border-radius: 0.5rem;
+        border-radius: 4px;
         background-color: $input;
         transition: all 0.2s;
 

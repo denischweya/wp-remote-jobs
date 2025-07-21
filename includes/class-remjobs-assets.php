@@ -163,12 +163,13 @@ class Remjobs_Assets
         // Only load on job post type pages
         if ('post.php' === $hook_suffix || 'post-new.php' === $hook_suffix) {
             global $post_type;
-            if ('jobs' === $post_type) {
+            if ('remjobs_jobs' === $post_type) {
                 wp_enqueue_style(
-                    'remjobs-admin',
-                    plugin_dir_url(dirname(__FILE__)) . 'admin/css/remjobs-admin.css',
+                    'remjobs-admin-style',
+                    plugin_dir_url(__FILE__) . 'admin/assets/css/admin-style.css',
                     array(),
-                    $this->version
+                    $this->version,
+                    'all'
                 );
             }
         }
@@ -185,13 +186,13 @@ class Remjobs_Assets
         // Only load on job post type pages
         if ('post.php' === $hook_suffix || 'post-new.php' === $hook_suffix) {
             global $post_type;
-            if ('jobs' === $post_type) {
+            if ('remjobs_jobs' === $post_type) {
                 wp_enqueue_script(
-                    'remjobs-admin',
-                    plugin_dir_url(dirname(__FILE__)) . 'admin/js/remjobs-admin.js',
-                    array('jquery'),
+                    'remjobs-admin-job-editor',
+                    plugin_dir_url(__FILE__) . 'admin/assets/js/job-editor.js',
+                    array('wp-blocks', 'wp-editor', 'wp-edit-post'),
                     $this->version,
-                    array('strategy' => 'defer')
+                    true
                 );
             }
         }

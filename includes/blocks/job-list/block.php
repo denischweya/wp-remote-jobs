@@ -60,10 +60,10 @@ add_action('wp_enqueue_scripts', 'remjobs_enqueue_job_filter');
 function remjobs_filter_jobs()
 {
     // Verify nonce
-    check_ajax_referer('filter_jobs_nonce', 'nonce');
-
-    // Debug received data
-    error_log('Received filter request with data: ' . print_r($_POST, true));
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'filter_jobs_nonce')) {
+        wp_send_json_error(array('message' => 'Security check failed.'));
+        return;
+    }
 
     // Sanitize inputs
     $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
@@ -71,17 +71,9 @@ function remjobs_filter_jobs()
     $skills = isset($_POST['skills']) ? sanitize_text_field(wp_unslash($_POST['skills'])) : '';
     $location = isset($_POST['location']) ? sanitize_text_field(wp_unslash($_POST['location'])) : '';
 
-    // Debug sanitized inputs
-    error_log('Sanitized inputs: ' . print_r([
-        'search' => $search,
-        'category' => $category,
-        'skills' => $skills,
-        'location' => $location
-    ], true));
-
     // Build query args
     $args = array(
-        'post_type' => 'jobs',
+        'post_type' => 'remjobs_jobs',
         'post_status' => 'publish',
         'posts_per_page' => -1,
     );
@@ -114,7 +106,7 @@ function remjobs_filter_jobs()
 
     if (!empty($location)) {
         $tax_query[] = array(
-            'taxonomy' => 'remjobs_location',
+            'taxonomy' => 'remjobs_job_location',
             'field' => 'slug',
             'terms' => explode(',', $location),
             'operator' => 'IN'
@@ -128,15 +120,8 @@ function remjobs_filter_jobs()
         $args['tax_query'] = $tax_query;
     }
 
-    // Debug final query args
-    error_log('Final WP_Query args: ' . print_r($args, true));
-
     // Execute query
     $query = new WP_Query($args);
-
-    // Debug query results
-    error_log('Query found ' . $query->found_posts . ' posts');
-    error_log('Query SQL: ' . $query->request);
 
     ob_start();
 
@@ -167,30 +152,22 @@ function remjobs_filter_jobs()
                 }
             }
             ?>
-        <span class="job-date"><?php echo get_the_date(); ?></span>
+        <span class="job-date"><?php echo esc_html(get_the_date()); ?></span>
     </div>
 </div>
 <?php
         }
     } else {
         echo '<p>' . esc_html__('No jobs found matching your criteria.', 'remote-jobs') . '</p>';
-        // Debug taxonomies
-        error_log('Available terms in remjobs_job_category: ' . print_r(get_terms(['taxonomy' => 'remjobs_job_category', 'hide_empty' => false]), true));
-        error_log('Available terms in remjobs_job_skills: ' . print_r(get_terms(['taxonomy' => 'remjobs_job_skills', 'hide_empty' => false]), true));
-        error_log('Available terms in remjobs_location: ' . print_r(get_terms(['taxonomy' => 'remjobs_location', 'hide_empty' => false]), true));
     }
 
     wp_reset_postdata();
     $output = ob_get_clean();
 
-    wp_send_json_success([
+    wp_send_json_success(array(
         'data' => $output,
-        'found' => $query->found_posts,
-        'debug' => [
-            'args' => $args,
-            'sql' => $query->request
-        ]
-    ]);
+        'found' => $query->found_posts
+    ));
 }
 
 add_action('wp_ajax_filter_jobs', 'remjobs_filter_jobs');

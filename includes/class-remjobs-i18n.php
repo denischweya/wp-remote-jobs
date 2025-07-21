@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Define the internationalization functionality.
  *
@@ -11,7 +13,10 @@
  * @subpackage Remote_Jobs/includes
  */
 
-declare(strict_types=1);
+// If this file is called directly, abort.
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 class Remjobs_i18n
 {
