@@ -16,7 +16,7 @@
  * Plugin Name:       Remote Jobs
  * Plugin URI:        https://github.com/denischweya/wp-remote-jobs
  * Description:       A simple job board plugin for WordPress
- * Version:           1.0.4
+ * Version:           1.0.5
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Afrothemes
