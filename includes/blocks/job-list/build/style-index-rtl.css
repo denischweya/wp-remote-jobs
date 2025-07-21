@@ -10,7 +10,7 @@
   max-width: 1200px;
   margin: 2rem auto;
   font-family: var(--wp--preset--font-family--body);
-  color: var(--wp--preset--color--contrast);
+  color: #232323;
   border-radius: 8px;
   padding: 25px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
@@ -38,12 +38,12 @@
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 5px 0;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-family: var(--wp--preset--font-family--heading);
 }
 .job-listings-header .job-count .job-count-stats {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   margin: 0;
 }
 .job-listings-header .view-toggle {
@@ -58,13 +58,12 @@
 }
 .job-listings-header .view-toggle .view-all-link {
   text-decoration: none;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-size: 14px;
   font-weight: 500;
   margin-left: 15px;
 }
 .job-listings-header .view-toggle .view-all-link:hover {
-  color: var(--wp--preset--color--contrast-2);
   text-decoration: underline;
 }
 .job-listings-header .view-toggle .layout-toggle {
@@ -91,7 +90,7 @@
 .job-listings-header .view-toggle .layout-toggle .layout-button svg {
   width: 18px;
   height: 18px;
-  stroke: var(--wp--preset--color--base);
+  stroke: rgba(213, 213, 213, 0.5529411765);
 }
 .job-listings-header .view-toggle .layout-toggle .layout-button:hover {
   background-color: var(--wp--preset--color--base-2);
@@ -101,7 +100,7 @@
   border-color: var(--wp--preset--color--base);
 }
 .job-listings-header .view-toggle .layout-toggle .layout-button.active svg {
-  stroke: var(--wp--preset--color--contrast);
+  stroke: #232323;
 }
 
 /* Job Filters */
@@ -122,9 +121,9 @@
 .job-filters .filter-row select,
 .job-filters .filter-row input {
   padding: 8px 12px;
-  border: 1px solid var(--wp--preset--color--base);
-  background-color: var(--wp--preset--color--base);
-  color: var(--wp--preset--color--contrast);
+  border: 1px solid rgba(213, 213, 213, 0.5529411765);
+  background-color: rgba(213, 213, 213, 0.5529411765);
+  color: #232323;
   border-radius: 4px;
   font-size: 14px;
   flex-grow: 1;
@@ -134,7 +133,7 @@
 .job-filters .filter-row select:focus,
 .job-filters .filter-row input:focus {
   outline: none;
-  border-color: var(--wp--preset--color--contrast);
+  border-color: #232323;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 .job-filters .filter-row .filter-button {
@@ -151,7 +150,7 @@
   background-color: #0055aa;
 }
 .job-filters .filter-row .clear-filters-link {
-  color: var(--wp--preset--color--base);
+  color: #232323;
   text-decoration: underline;
   font-size: 14px;
   font-weight: 500;
@@ -159,9 +158,10 @@
   padding: 8px 12px;
   display: inline-block;
   align-self: center;
+  transition: opacity 0.2s;
 }
 .job-filters .filter-row .clear-filters-link:hover {
-  color: var(--wp--preset--color--contrast-2);
+  opacity: 0.8;
   text-decoration: underline;
 }
 
@@ -200,7 +200,7 @@
   top: 10px;
   left: 10px;
   background: var(--wp--preset--color--accent-3);
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-size: 12px;
   font-weight: 600;
   padding: 3px 8px;
@@ -234,11 +234,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--wp--preset--color--base);
+  background-color: rgba(213, 213, 213, 0.5529411765);
   border-radius: 5px;
   font-size: 20px;
   font-weight: bold;
-  color: var(--wp--preset--color--contrast);
+  color: #232323;
 }
 .job-listings-grid .job-card .job-card-header .job-title {
   font-size: 18px;
@@ -248,7 +248,7 @@
   font-family: var(--wp--preset--font-family--heading);
 }
 .job-listings-grid .job-card .job-card-header .job-title a {
-  color: var(--wp--preset--color--base);
+  color: #232323;
   text-decoration: none;
 }
 .job-listings-grid .job-card .job-card-header .job-title a:hover {
@@ -256,12 +256,12 @@
 }
 .job-listings-grid .job-card .job-card-header .job-company {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-grid .job-card .job-card-header .job-company .company-name,
 .job-listings-grid .job-card .job-card-header .job-company .job-category {
   font-weight: 500;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-grid .job-card .job-card-meta {
   padding: 10px 20px;
@@ -274,8 +274,8 @@
   margin-bottom: 10px;
 }
 .job-listings-grid .job-card .job-card-meta .job-meta-info .job-type-badge {
-  background-color: var(--wp--preset--color--base-2);
-  color: var(--wp--preset--color--contrast);
+  background-color: var(--wp--preset--color--base);
+  color: #232323;
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 12px;
@@ -286,16 +286,16 @@
   align-items: center;
   gap: 5px;
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-grid .job-card .job-card-meta .job-meta-info .job-location svg {
   width: 14px;
   height: 14px;
-  stroke: var(--wp--preset--color--base);
+  stroke: #232323;
 }
 .job-listings-grid .job-card .job-card-meta .job-meta-info .job-salary {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-weight: 500;
 }
 .job-listings-grid .job-card .job-card-meta .job-skills {
@@ -306,11 +306,11 @@
 }
 .job-listings-grid .job-card .job-card-meta .job-skills .skills-label {
   font-weight: 500;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   margin-bottom: 4px;
 }
 .job-listings-grid .job-card .job-card-meta .job-skills .skills-list {
-  color: var(--wp--preset--color--base);
+  color: #232323;
   line-height: 1.4;
 }
 .job-listings-grid .job-card .job-card-footer {
@@ -322,7 +322,7 @@
 }
 .job-listings-grid .job-card .job-card-footer .days-left {
   font-size: 13px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-weight: 500;
 }
 .job-listings-grid .job-card .job-card-footer .save-job-button {
@@ -335,11 +335,11 @@
   justify-content: center;
 }
 .job-listings-grid .job-card .job-card-footer .save-job-button svg {
-  stroke: var(--wp--preset--color--base);
+  stroke: #232323;
   transition: stroke 0.2s;
 }
 .job-listings-grid .job-card .job-card-footer .save-job-button:hover svg {
-  stroke: var(--wp--preset--color--base);
+  opacity: 0.8;
 }
 
 /* List Layout */
@@ -378,7 +378,7 @@
   top: 10px;
   left: 10px;
   background: var(--wp--preset--color--accent-3);
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-size: 12px;
   font-weight: 600;
   padding: 3px 8px;
@@ -409,11 +409,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--wp--preset--color--base);
+  background-color: rgba(213, 213, 213, 0.5529411765);
   border-radius: 5px;
   font-size: 20px;
   font-weight: bold;
-  color: var(--wp--preset--color--contrast-2);
+  color: #232323;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-title {
   font-size: 18px;
@@ -423,7 +423,7 @@
   font-family: var(--wp--preset--font-family--heading);
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-title a {
-  color: var(--wp--preset--color--base);
+  color: #232323;
   text-decoration: none;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-title a:hover {
@@ -431,25 +431,25 @@
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-company {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   margin-bottom: 8px;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-company .company-name,
 .job-listings-list .job-row .job-row-main .job-row-content .job-company .job-category {
   font-weight: 500;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-skills {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-skills .skills-label {
   font-weight: 500;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   margin-left: 5px;
 }
 .job-listings-list .job-row .job-row-main .job-row-content .job-skills .skills-list {
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-list .job-row .job-row-meta {
   display: flex;
@@ -467,7 +467,7 @@
 }
 .job-listings-list .job-row .job-row-meta .job-type-badge {
   background-color: var(--wp--preset--color--base);
-  color: var(--wp--preset--color--base);
+  color: #232323;
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 12px;
@@ -478,16 +478,16 @@
   align-items: center;
   gap: 5px;
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
 }
 .job-listings-list .job-row .job-row-meta .job-location svg {
   width: 14px;
   height: 14px;
-  stroke: var(--wp--preset--color--base);
+  stroke: #232323;
 }
 .job-listings-list .job-row .job-row-meta .job-salary {
   font-size: 14px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-weight: 500;
 }
 .job-listings-list .job-row .job-row-actions {
@@ -506,7 +506,7 @@
 }
 .job-listings-list .job-row .job-row-actions .job-date {
   font-size: 13px;
-  color: var(--wp--preset--color--base);
+  color: #232323;
   font-weight: 400;
 }
 .job-listings-list .job-row .job-row-actions .save-job-button {
@@ -519,7 +519,7 @@
   justify-content: center;
 }
 .job-listings-list .job-row .job-row-actions .save-job-button svg {
-  stroke: var(--wp--preset--color--base);
+  stroke: #232323;
   transition: stroke 0.2s;
 }
 .job-listings-list .job-row .job-row-actions .save-job-button:hover svg {
@@ -672,7 +672,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--wp--preset--color--base);
+  background-color: rgba(213, 213, 213, 0.5529411765);
   border-radius: 5px;
   font-size: 20px;
   font-weight: bold;
