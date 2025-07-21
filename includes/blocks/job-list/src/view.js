@@ -118,18 +118,18 @@ jQuery(document).ready(function ($) {
 		console.log("- Location:", location);
 		console.log("- Skills:", skills);
 
-		// Detect current layout from the jobs list container
-		const $layoutContainer = $jobList.find('[class*="job-listings-"]');
+		// Detect current layout from the active layout button instead of DOM classes
+		// (since DOM gets replaced during updates)
 		let currentLayout = "grid"; // default
-		if ($layoutContainer.length) {
-			if ($layoutContainer.hasClass("job-listings-list")) {
-				currentLayout = "list";
-			} else if ($layoutContainer.hasClass("job-listings-grid")) {
-				currentLayout = "grid";
+		const $activeLayoutButton = $(".layout-toggle button.active");
+		if ($activeLayoutButton.length) {
+			const buttonLayout = $activeLayoutButton.data("layout");
+			if (buttonLayout) {
+				currentLayout = buttonLayout;
 			}
 		}
 		
-		console.log("Current layout:", currentLayout);
+		console.log("Current layout detected from button:", currentLayout);
 
 		// Show loading state
 		$jobList.html('<div class="loading">Loading jobs...</div>');
@@ -279,6 +279,9 @@ jQuery(document).ready(function ($) {
 			$(this).removeClass("is-secondary").addClass("is-primary active");
 			
 			console.log("Layout switched to:", layout);
+			
+			// Update the jobs list with the new layout
+			updateJobs();
 		});
 	} else {
 		console.log("No layout toggle buttons found");
