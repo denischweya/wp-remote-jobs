@@ -8,19 +8,19 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://https://denis.swishfolio.com/
+ * @link              https://github.com/denischweya/wp-remote-jobs
  * @since             1.0.0
  * @package           Remote_Jobs
  *
  * @wordpress-plugin
  * Plugin Name:       Remote Jobs
- * Plugin URI:        https://swishfolio.com/
+ * Plugin URI:        https://github.com/denischweya/wp-remote-jobs
  * Description:       A simple job board plugin for WordPress
  * Version:           1.0.4
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Afrothemes
- * Author URI:        https://denis.swishfolio.com/
+ * Author URI:        https://github.com/denischweya/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       remote-jobs

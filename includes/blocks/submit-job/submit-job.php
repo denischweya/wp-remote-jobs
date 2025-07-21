@@ -35,23 +35,22 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
             '</div>';
     }
 
-    // Process success message if present - only check when the parameter exists
-    if (isset($_GET['remjobs_job_submitted'])) {
-        // Sanitize the job_submitted value
-        $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
+    // Process success message if present - verify nonce first before accessing any parameters
+    if (isset($_GET['remjobs_job_submitted']) && isset($_GET['_wpnonce'])) {
+        // Verify the nonce FIRST before accessing any GET parameters
+        $nonce = sanitize_text_field(wp_unslash($_GET['_wpnonce']));
 
-        // Only proceed if we have both the success value and a nonce
-        if ($job_submitted === 'success') {
-            // Verify the nonce - both must be present and valid
-            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        if (wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+            // Only now access the job_submitted parameter after nonce verification
+            $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
 
-            if (!empty($nonce) && wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+            if ($job_submitted === 'success') {
                 echo '<div class="remjobs-notice remjobs-success">';
                 echo '<p>' . esc_html__('Job submitted successfully! It will be reviewed shortly.', 'remote-jobs') . '</p>';
                 echo '</div>';
             }
-            // If nonce is missing or invalid, silently ignore (don't show success message)
         }
+        // If nonce verification fails, silently ignore (don't show success message)
     }
 
     // Generate a unique nonce for this form
@@ -325,16 +324,16 @@ function remjobs_display_job_submission_message()
         $output .= '</div>';
     }
 
-    // Check for success message - only when the parameter exists
-    if (isset($_GET['remjobs_job_submitted'])) {
-        $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
+    // Check for success message - verify nonce first before accessing any parameters
+    if (isset($_GET['remjobs_job_submitted']) && isset($_GET['_wpnonce'])) {
+        // Verify the nonce FIRST before accessing any GET parameters
+        $nonce = sanitize_text_field(wp_unslash($_GET['_wpnonce']));
 
-        // Only proceed if we have the success value
-        if ($job_submitted === 'success') {
-            // Verify the nonce - both must be present and valid
-            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        if (wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+            // Only now access the job_submitted parameter after nonce verification
+            $job_submitted = sanitize_text_field(wp_unslash($_GET['remjobs_job_submitted']));
 
-            if (!empty($nonce) && wp_verify_nonce($nonce, 'remjobs_job_submission')) {
+            if ($job_submitted === 'success') {
                 // Clean up any session data if used
                 if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['remjobs_job_form_data'])) {
                     unset($_SESSION['remjobs_job_form_data']);
@@ -347,8 +346,8 @@ function remjobs_display_job_submission_message()
                 $output .= '</a>';
                 $output .= '</div>';
             }
-            // If nonce is missing or invalid, silently ignore (don't show success message)
         }
+        // If nonce verification fails, silently ignore (don't show success message)
     }
 
     if (!empty($output)) {
