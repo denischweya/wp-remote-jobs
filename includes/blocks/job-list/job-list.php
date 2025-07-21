@@ -366,10 +366,10 @@ function remjobs_render_job_list_block($attributes)
             echo '</select>';
         }
 
-        // Filter button
-        echo '<button type="button" class="filter-button" id="filter-jobs">';
-        echo esc_html__('Filter', 'remote-jobs');
-        echo '</button>';
+        // Clear filters link
+        echo '<a href="#" class="clear-filters-link" id="clear-filters">';
+        echo esc_html__('Clear filters', 'remote-jobs');
+        echo '</a>';
 
         echo '</div>'; // End filter row
         echo '</div>'; // End job filters
@@ -530,23 +530,18 @@ function remjobs_render_job_list_block($attributes)
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
                 echo '</h3>';
 
-                // Job company info with category
-                if ($company || $categories) {
+                // Job company info with category (only show category, no company name)
+                if ($categories && !is_wp_error($categories)) {
                     echo '<div class="job-company">';
-                    if ($company) {
-                        echo esc_html($company) . ' ';
-                    }
-                    if ($categories && !is_wp_error($categories)) {
-                        echo 'in ';
-                        foreach ($categories as $category) {
-                            echo '<span class="job-category">' . esc_html($category->name) . '</span>';
-                            break; // Show only first category
-                        }
+                    echo 'in ';
+                    foreach ($categories as $category) {
+                        echo '<span class="job-category">' . esc_html($category->name) . '</span>';
+                        break; // Show only first category
                     }
                     echo '</div>';
                 }
 
-                // Skills in list layout
+                // Skills in list layout (use span elements)
                 if ($skills && !is_wp_error($skills)) {
                     $skills_list = array_map(function ($term) {
                         return $term->name;
@@ -567,7 +562,7 @@ function remjobs_render_job_list_block($attributes)
 
                 echo '<div class="job-row-meta">';
 
-                // Location in list layout
+                // Location in list layout (only show if exists)
                 if ($location_meta || $locations) {
                     echo '<div class="job-location">';
                     echo '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">';
@@ -584,16 +579,6 @@ function remjobs_render_job_list_block($attributes)
                         echo esc_html(implode(', ', $location_names));
                     }
                     echo '</div>';
-                }
-
-                // Employment type in list layout
-                if ($employment_type) {
-                    echo '<div class="job-type-badge">' . esc_html($employment_type) . '</div>';
-                }
-
-                // Salary in list layout
-                if ($salary) {
-                    echo '<div class="job-salary">💰 ' . esc_html($salary) . '</div>';
                 }
 
                 echo '</div>'; // End job-row-meta
@@ -1044,23 +1029,18 @@ function remjobs_filter_jobs()
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
                 echo '</h3>';
 
-                // Job company info with category
-                if ($company || $categories) {
+                // Job company info with category (only show category, no company name)
+                if ($categories && !is_wp_error($categories)) {
                     echo '<div class="job-company">';
-                    if ($company) {
-                        echo esc_html($company) . ' ';
-                    }
-                    if ($categories && !is_wp_error($categories)) {
-                        echo 'in ';
-                        foreach ($categories as $category) {
-                            echo '<span class="job-category">' . esc_html($category->name) . '</span>';
-                            break; // Show only first category
-                        }
+                    echo 'in ';
+                    foreach ($categories as $category) {
+                        echo '<span class="job-category">' . esc_html($category->name) . '</span>';
+                        break; // Show only first category
                     }
                     echo '</div>';
                 }
 
-                // Skills in list layout
+                // Skills in list layout (use span elements)
                 if ($skills && !is_wp_error($skills)) {
                     $skills_list = array_map(function ($term) {
                         return $term->name;
@@ -1081,7 +1061,7 @@ function remjobs_filter_jobs()
 
                 echo '<div class="job-row-meta">';
 
-                // Location in list layout
+                // Location in list layout (only show if exists)
                 if ($location_meta || $locations) {
                     echo '<div class="job-location">';
                     echo '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">';
@@ -1098,16 +1078,6 @@ function remjobs_filter_jobs()
                         echo esc_html(implode(', ', $location_names));
                     }
                     echo '</div>';
-                }
-
-                // Employment type in list layout
-                if ($employment_type) {
-                    echo '<div class="job-type-badge">' . esc_html($employment_type) . '</div>';
-                }
-
-                // Salary in list layout
-                if ($salary) {
-                    echo '<div class="job-salary">💰 ' . esc_html($salary) . '</div>';
                 }
 
                 echo '</div>'; // End job-row-meta

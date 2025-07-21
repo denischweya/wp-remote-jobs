@@ -72,7 +72,7 @@ jQuery(document).ready(function ($) {
 	const $categorySelect = $("#job-category");
 	const $locationSelect = $("#job-location");
 	const $skillsSelect = $("#job-skills");
-	const $filterButton = $("#filter-jobs");
+	const $filterButton = $("#clear-filters");
 	const $jobSearchForm = $(".job-search-form");
 
 	// Debug: Check if elements are found
@@ -82,7 +82,7 @@ jQuery(document).ready(function ($) {
 	console.log("- Category Select (#job-category):", $categorySelect.length);
 	console.log("- Location Select (#job-location):", $locationSelect.length);
 	console.log("- Skills Select (#job-skills):", $skillsSelect.length);
-	console.log("- Filter Button (#filter-jobs):", $filterButton.length);
+	console.log("- Clear Filters Link (#clear-filters):", $filterButton.length);
 
 	// Function to update jobs list
 	function updateJobs() {
@@ -211,14 +211,12 @@ jQuery(document).ready(function ($) {
 	if ($filterButton.length) {
 		$filterButton.on("click", function (e) {
 			e.preventDefault();
-			console.log("Filter button clicked");
-			console.log("Current filter values:", {
-				search: $searchInput.val(),
-				category: $categorySelect.val(),
-				skills: $skillsSelect.val(),
-				location: $locationSelect.val(),
-			});
-			updateJobs();
+			console.log("Clear Filters button clicked");
+			$searchInput.val("").trigger("change"); // Clear search input
+			$categorySelect.val("").trigger("change"); // Clear category
+			$locationSelect.val("").trigger("change"); // Clear location
+			$skillsSelect.val("").trigger("change"); // Clear skills
+			updateJobs(); // Trigger update with new filters
 		});
 	}
 
