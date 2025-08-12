@@ -324,7 +324,7 @@ function remjobs_render_job_list_block($attributes)
         // Search input
         if ($show_search_filter) {
             $search_value = !empty($url_search) ? ' value="' . esc_attr($url_search) . '"' : '';
-            echo '<input type="text" class="search-input" id="job-search" placeholder="' . esc_attr__('Search jobs...', 'remote-jobs') . '"' . $search_value . '>';
+            echo '<input type="text" class="search-input" id="job-search" placeholder="' . esc_attr__('Search jobs...', 'remote-jobs') . '"' . esc_attr($search_value) . '>';
         }
 
         // Category dropdown
@@ -334,7 +334,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($categories as $category) {
                 $selected = ($url_category === $category->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($category->slug) . '"' . $selected . '>' . esc_html($category->name) . '</option>';
+                echo '<option value="' . esc_attr($category->slug) . '"' . esc_attr($selected) . '>' . esc_html($category->name) . '</option>';
             }
 
             echo '</select>';
@@ -347,7 +347,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($locations as $location) {
                 $selected = ($url_location === $location->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($location->slug) . '"' . $selected . '>' . esc_html($location->name) . '</option>';
+                echo '<option value="' . esc_attr($location->slug) . '"' . esc_attr($selected) . '>' . esc_html($location->name) . '</option>';
             }
 
             echo '</select>';
@@ -360,7 +360,7 @@ function remjobs_render_job_list_block($attributes)
 
             foreach ($skills as $skill) {
                 $selected = ($url_skills === $skill->slug) ? ' selected' : '';
-                echo '<option value="' . esc_attr($skill->slug) . '"' . $selected . '>' . esc_html($skill->name) . '</option>';
+                echo '<option value="' . esc_attr($skill->slug) . '"' . esc_attr($selected) . '>' . esc_html($skill->name) . '</option>';
             }
 
             echo '</select>';
@@ -440,17 +440,19 @@ function remjobs_render_job_list_block($attributes)
                 ?>
 <div class="job-card <?php echo esc_attr($premium_class); ?>">
     <div class="job-card-header">
+        <?php if (has_post_thumbnail() || !empty($company)) : ?>
         <div class="company-logo-container">
             <?php if (has_post_thumbnail()) : ?>
             <div class="company-logo">
                 <?php the_post_thumbnail('thumbnail'); ?>
             </div>
-            <?php else : ?>
+            <?php elseif (!empty($company)) : ?>
             <div class="company-logo-placeholder">
                 <?php echo esc_html(isset($company[0]) ? $company[0] : '?'); ?>
             </div>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
 
         <h3 class="job-title">
             <a
@@ -509,21 +511,25 @@ function remjobs_render_job_list_block($attributes)
 </div>
 <?php
             } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Generating LIST layout HTML (else condition)');
-                }
-
                 // List layout - match the original block structure
                 echo '<div class="job-row' . esc_attr($premium_class) . '">';
 
                 echo '<div class="job-row-main">';
 
-                // Company logo container
-                echo '<div class="company-logo-container">';
-                echo '<div class="company-logo-placeholder">';
-                echo '?'; // Default placeholder content
-                echo '</div>';
-                echo '</div>';
+                // Company logo container - only show if there's a logo or company name
+                if (has_post_thumbnail() || !empty($company)) {
+                    echo '<div class="company-logo-container">';
+                    if (has_post_thumbnail()) {
+                        echo '<div class="company-logo">';
+                        the_post_thumbnail('thumbnail');
+                        echo '</div>';
+                    } elseif (!empty($company)) {
+                        echo '<div class="company-logo-placeholder">';
+                        echo esc_html(isset($company[0]) ? $company[0] : '?');
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                }
 
                 echo '<div class="job-row-content">';
                 echo '<h3 class="job-title">';
@@ -658,37 +664,12 @@ function remjobs_enqueue_job_filter()
         }
     }
 
-    // Debug logging
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        global $wp_scripts;
-        $all_handles = array_keys($wp_scripts->registered);
-
-        // Log ALL script handles to see what WordPress is actually registering
-        error_log('=== ALL REGISTERED SCRIPT HANDLES ===');
-        error_log(print_r($all_handles, true));
-
-        $job_list_handles = array_filter($all_handles, function ($handle) {
-            return strpos($handle, 'job-list') !== false || strpos($handle, 'remjobs') !== false || strpos($handle, 'view') !== false;
-        });
-        error_log('Handles containing job-list, remjobs, or view: ' . print_r($job_list_handles, true));
-
-        if ($script_handle) {
-            error_log('Found matching script handle: ' . $script_handle);
-        } else {
-            error_log('No matching script handle found. Trying manual enqueue.');
-        }
-    }
-
     // If we found a registered script, localize it
     if ($script_handle) {
         wp_localize_script($script_handle, 'remjobsAjax', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('filter_jobs_nonce')
         ));
-
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Successfully localized script handle: ' . $script_handle);
-        }
     } else {
         // Fallback: manually enqueue if auto-script not found or if block is present
         if (has_block('remjobs/job-list')) {
@@ -704,10 +685,6 @@ function remjobs_enqueue_job_filter()
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('filter_jobs_nonce')
             ));
-
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Manually enqueued and localized remjobs-job-list-manual script');
-            }
         }
     }
 }
@@ -718,10 +695,6 @@ function remjobs_localize_on_block_render($block_content, $block)
 {
     // Only target our specific block
     if (isset($block['blockName']) && $block['blockName'] === 'remjobs/job-list') {
-
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('=== Job List Block is being rendered ===');
-        }
 
         // Try to localize any script handle that might be our view script
         global $wp_scripts;
@@ -734,10 +707,6 @@ function remjobs_localize_on_block_render($block_content, $block)
                    strpos($handle, 'remjobs-job-list') !== false;
         });
 
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Found potential view script handles: ' . print_r($view_handles, true));
-        }
-
         // Try to localize all potential handles
         foreach ($view_handles as $handle) {
             if (wp_script_is($handle, 'registered')) {
@@ -745,10 +714,6 @@ function remjobs_localize_on_block_render($block_content, $block)
                     'ajaxurl' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('filter_jobs_nonce')
                 ));
-
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Successfully localized handle during block render: ' . $handle);
-                }
             }
         }
 
@@ -769,10 +734,6 @@ function remjobs_localize_on_block_render($block_content, $block)
             ));
 
             $manual_enqueued = true;
-
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Manually enqueued script during block render');
-            }
         }
     }
 
@@ -790,41 +751,12 @@ add_action('wp_footer', 'remjobs_localize_scripts_later', 5);
 
 function remjobs_filter_jobs()
 {
-    // Add debugging at the start
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('=== remjobs_filter_jobs AJAX handler called ===');
-        error_log('POST data: ' . print_r($_POST, true));
-        error_log('Request method: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('Content type: ' . (isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : 'not set'));
-    }
-
-    // Verify nonce (with debugging-friendly fallback)
-    $nonce_valid = false;
+    // Verify nonce - required for all requests
     $nonce_provided = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
-
-    if (!empty($nonce_provided)) {
-        $nonce_valid = wp_verify_nonce($nonce_provided, 'filter_jobs_nonce');
-    }
-
-    // In debug mode, be more permissive to help with testing
-    $allow_without_nonce = defined('WP_DEBUG') && WP_DEBUG;
-
-    if (!$nonce_valid && !$allow_without_nonce) {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Nonce verification failed');
-            error_log('Received nonce: ' . $nonce_provided);
-            error_log('Expected nonce action: filter_jobs_nonce');
-        }
+    
+    if (empty($nonce_provided) || !wp_verify_nonce($nonce_provided, 'filter_jobs_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed.'));
         return;
-    }
-
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        if ($nonce_valid) {
-            error_log('Nonce verification passed');
-        } else {
-            error_log('Proceeding without nonce validation (debug mode)');
-        }
     }
 
     // Sanitize inputs
@@ -833,11 +765,6 @@ function remjobs_filter_jobs()
     $skills = isset($_POST['skills']) ? sanitize_text_field(wp_unslash($_POST['skills'])) : '';
     $location = isset($_POST['location']) ? sanitize_text_field(wp_unslash($_POST['location'])) : '';
     $layout = isset($_POST['layout']) ? sanitize_text_field(wp_unslash($_POST['layout'])) : 'grid';
-
-    // Debug logging
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('AJAX Filter Request - Search: ' . $search . ', Category: ' . $category . ', Skills: ' . $skills . ', Location: ' . $location . ', Layout: ' . $layout);
-    }
 
     // Build query args
     $args = array(
@@ -888,11 +815,6 @@ function remjobs_filter_jobs()
         $args['tax_query'] = $tax_query;
     }
 
-    // Debug the query
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Query args: ' . print_r($args, true));
-    }
-
     // Execute query
     $query = new WP_Query($args);
 
@@ -919,29 +841,26 @@ function remjobs_filter_jobs()
 
             $premium_class = $featured ? ' premium' : '';
 
-            // Debug the layout decision
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Layout decision - Received layout: "' . $layout . '" (type: ' . gettype($layout) . ')');
-                error_log('Layout comparison - $layout === "grid": ' . ($layout === 'grid' ? 'true' : 'false'));
-                error_log('Layout comparison - $layout === "list": ' . ($layout === 'list' ? 'true' : 'false'));
-            }
-
             if ($layout === 'grid') {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Generating GRID layout HTML');
-                }
-
                 // Grid layout - match the original block structure
                 echo '<div class="job-card' . esc_attr($premium_class) . '">';
 
                 echo '<div class="job-card-header">';
 
                 // Company logo container (matching original structure)
-                echo '<div class="company-logo-container">';
-                echo '<div class="company-logo-placeholder">';
-                echo '?'; // Default placeholder content
-                echo '</div>';
-                echo '</div>';
+                if (has_post_thumbnail() || !empty($company)) {
+                    echo '<div class="company-logo-container">';
+                    if (has_post_thumbnail()) {
+                        echo '<div class="company-logo">';
+                        the_post_thumbnail('thumbnail');
+                        echo '</div>';
+                    } elseif (!empty($company)) {
+                        echo '<div class="company-logo-placeholder">';
+                        echo esc_html(isset($company[0]) ? $company[0] : '?');
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                }
 
                 echo '<h3 class="job-title">';
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
@@ -1017,12 +936,20 @@ function remjobs_filter_jobs()
 
                 echo '<div class="job-row-main">';
 
-                // Company logo container
-                echo '<div class="company-logo-container">';
-                echo '<div class="company-logo-placeholder">';
-                echo '?'; // Default placeholder content
-                echo '</div>';
-                echo '</div>';
+                // Company logo container (matching original structure)
+                if (has_post_thumbnail() || !empty($company)) {
+                    echo '<div class="company-logo-container">';
+                    if (has_post_thumbnail()) {
+                        echo '<div class="company-logo">';
+                        the_post_thumbnail('thumbnail');
+                        echo '</div>';
+                    } elseif (!empty($company)) {
+                        echo '<div class="company-logo-placeholder">';
+                        echo esc_html(isset($company[0]) ? $company[0] : '?');
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                }
 
                 echo '<div class="job-row-content">';
                 echo '<h3 class="job-title">';
@@ -1117,34 +1044,23 @@ function remjobs_filter_jobs()
         }
 
         if (!empty($filter_descriptions)) {
-            $message = sprintf(
-                esc_html__('No jobs found matching your filters: %s. Try adjusting your search criteria.', 'remote-jobs'),
-                implode(', ', $filter_descriptions)
-            );
+            $message = esc_html(sprintf(
+                /* translators: %s: Comma-separated list of active filters (e.g., "category 'PHP', location 'Remote'") */
+                __('No jobs found matching your filters: %s. Try adjusting your search criteria.', 'remote-jobs'),
+                implode(', ', array_map('esc_html', $filter_descriptions))
+            ));
         } else {
             $message = esc_html__('No jobs found. Please try different search criteria.', 'remote-jobs');
         }
 
-        echo '<p>' . $message . '</p>';
+        echo '<p>' . esc_html($message) . '</p>';
         echo '</div>';
-
-        // Debug logging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('No jobs found. Query returned ' . $query->found_posts . ' posts. SQL: ' . $query->request);
-        }
     }
 
     echo '</div>'; // End job listings
 
     wp_reset_postdata();
     $output = ob_get_clean();
-
-    // Debug the final output
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Query completed. Found posts: ' . $query->found_posts);
-        error_log('Output length: ' . strlen($output));
-        error_log('Output preview (first 200 chars): ' . substr($output, 0, 200));
-    }
 
     wp_send_json_success(array(
         'data' => $output,

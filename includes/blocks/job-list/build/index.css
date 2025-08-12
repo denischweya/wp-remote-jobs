@@ -225,7 +225,7 @@
   border-color: var(--wp--preset--color--base);
 }
 .job-listings-header .view-toggle .layout-toggle .layout-button.active svg {
-  stroke: #232323;
+  stroke: var(--wp--preset--color--contrast);
 }
 
 /* Job Filters */

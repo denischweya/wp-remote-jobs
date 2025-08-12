@@ -109,7 +109,7 @@ $font-color: #232323;
 					border-color: var(--wp--preset--color--base);
 
 					svg {
-						stroke: $font-color;
+						stroke: var(--wp--preset--color--contrast);
 					}
 				}
 			}
@@ -135,8 +135,8 @@ $font-color: #232323;
 		input {
 			padding: 8px 12px;
 			border: 1px solid #d5d5d58d;
-            background-color: #d5d5d58d;
-            color: $font-color;
+			background-color: #d5d5d58d;
+			color: $font-color;
 			border-radius: 4px;
 			font-size: 14px;
 			flex-grow: 1;
@@ -174,7 +174,7 @@ $font-color: #232323;
 			padding: 8px 12px;
 			display: inline-block;
 			align-self: center;
-            transition: opacity 0.2s;
+			transition: opacity 0.2s;
 
 			&:hover {
 				opacity: 0.8;
@@ -301,7 +301,7 @@ $font-color: #232323;
 				display: flex;
 				flex-wrap: wrap;
 				gap: 10px;
-				margin-bottom: 10px;    
+				margin-bottom: 10px;
 
 				.job-type-badge {
 					background-color: var(--wp--preset--color--base);

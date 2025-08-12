@@ -9,8 +9,6 @@
 // Use WordPress's global jQuery
 jQuery(document).ready(function ($) {
   // Debug: Check if required variables are available
-  console.log("Job List Script Loaded");
-  console.log("remjobsAjax available:", typeof remjobsAjax !== "undefined");
 
   // Flag to track if we're ready to make AJAX requests
   let ajaxReady = false;
@@ -46,7 +44,6 @@ jQuery(document).ready(function ($) {
           window.remjobsAjax.nonce = response.data.nonce;
           window.remjobsAjax.ajaxurl = response.data.ajaxurl;
           ajaxReady = true;
-          console.log("Successfully retrieved nonce from server:", window.remjobsAjax);
         } else {
           console.warn("Failed to get nonce from server:", response);
           // Still set ajaxReady to true to allow requests (debug mode should handle this)
@@ -59,16 +56,9 @@ jQuery(document).ready(function ($) {
         ajaxReady = true;
       }
     });
-    console.log("Created fallback remjobsAjax:", window.remjobsAjax);
   } else {
     // remjobsAjax is already available, we're ready
     ajaxReady = true;
-  }
-  if (typeof remjobsAjax !== "undefined") {
-    console.log("remjobsAjax:", remjobsAjax);
-  } else {
-    console.error("remjobsAjax is still not available after fallback!");
-    console.log("Available global variables:", Object.keys(window));
   }
 
   // Cache DOM elements
@@ -80,22 +70,10 @@ jQuery(document).ready(function ($) {
   const $filterButton = $("#clear-filters");
   const $jobSearchForm = $(".job-search-form");
 
-  // Debug: Check if elements are found
-  console.log("DOM Elements Found:");
-  console.log("- Job List Container (#jobs-list):", $jobList.length);
-  console.log("- Search Input (#job-search):", $searchInput.length);
-  console.log("- Category Select (#job-category):", $categorySelect.length);
-  console.log("- Location Select (#job-location):", $locationSelect.length);
-  console.log("- Skills Select (#job-skills):", $skillsSelect.length);
-  console.log("- Clear Filters Link (#clear-filters):", $filterButton.length);
-
   // Function to update jobs list
   function updateJobs() {
-    console.log("=== updateJobs function called ===");
-
     // Check if AJAX system is ready
     if (!ajaxReady) {
-      console.log("AJAX system not ready yet, waiting...");
       // Wait and retry
       setTimeout(function () {
         updateJobs();
@@ -105,21 +83,14 @@ jQuery(document).ready(function ($) {
 
     // Check if required variables are available
     if (typeof remjobsAjax === 'undefined') {
-      console.error("remjobsAjax is not available in updateJobs function");
       return;
     }
-    console.log("remjobsAjax in updateJobs:", remjobsAjax);
 
     // Get current filter values
     const search = $searchInput.val() || "";
     const category = $categorySelect.val() || "";
     const location = $locationSelect.val() || "";
     const skills = $skillsSelect.val() || "";
-    console.log("Filter values:");
-    console.log("- Search:", search);
-    console.log("- Category:", category);
-    console.log("- Location:", location);
-    console.log("- Skills:", skills);
 
     // Detect current layout from the active layout button instead of DOM classes
     // (since DOM gets replaced during updates)
@@ -131,7 +102,6 @@ jQuery(document).ready(function ($) {
         currentLayout = buttonLayout;
       }
     }
-    console.log("Current layout detected from button:", currentLayout);
 
     // Show loading state
     $jobList.html('<div class="loading">Loading jobs...</div>');
@@ -146,64 +116,36 @@ jQuery(document).ready(function ($) {
       skills: skills,
       layout: currentLayout
     };
-    console.log("AJAX data being sent:", data);
-    console.log("AJAX URL:", remjobsAjax.ajaxurl);
-
-    // Check if we have a nonce
-    if (!data.nonce || data.nonce === '') {
-      console.warn("No nonce available, but proceeding (debug mode should handle this)");
-    }
 
     // Make AJAX request
     $.ajax({
       url: remjobsAjax.ajaxurl,
       type: "POST",
       data: data,
-      beforeSend: function () {
-        console.log("AJAX request starting...");
-      },
+      beforeSend: function () {},
       success: function (response) {
-        console.log("AJAX Success response:", response);
         if (response.success) {
-          console.log("Response data:", response.data);
+          // Update jobs list with new content
           $jobList.html(response.data.data);
-          console.log("Jobs updated successfully. Found:", response.data.found, "posts");
         } else {
-          console.error("AJAX returned success=false:", response);
-          $jobList.html('<div class="error">Error loading jobs: ' + (response.data.message || 'Unknown error') + '</div>');
-        }
-      },
-      error: function (xhr, status, error) {
-        console.error("AJAX Error:");
-        console.error("- Status:", status);
-        console.error("- Error:", error);
-        console.error("- Response:", xhr.responseText);
-        console.error("- Status Code:", xhr.status);
-
-        // If it's a nonce issue and we're in fallback mode, try to get a new nonce
-        if (xhr.status === 400 && !remjobsAjax.nonce) {
-          console.log("Trying to get a fresh nonce...");
+          // If nonce is expired, get a new one and retry
           $.ajax({
             url: remjobsAjax.ajaxurl,
             type: "POST",
             data: {
-              action: "get_filter_nonce"
+              action: 'get_filter_nonce'
             },
             success: function (nonceResponse) {
-              if (nonceResponse.success && nonceResponse.data.nonce) {
-                remjobsAjax.nonce = nonceResponse.data.nonce;
-                console.log("Got fresh nonce, retrying filter request...");
-                // Retry the original request
-                setTimeout(updateJobs, 100);
-                return;
+              if (nonceResponse.success) {
+                window.remjobsAjax.nonce = nonceResponse.data.nonce;
+                updateJobs(); // Retry with new nonce
               }
             }
           });
         }
-        $jobList.html('<div class="error">Error loading jobs. Please try again.</div>');
       },
-      complete: function () {
-        console.log("AJAX request completed");
+      error: function (xhr, status, error) {
+        $jobList.html('<div class="error">Error loading jobs</div>');
       }
     });
   }
@@ -212,7 +154,6 @@ jQuery(document).ready(function ($) {
   if ($filterButton.length) {
     $filterButton.on("click", function (e) {
       e.preventDefault();
-      console.log("Clear Filters button clicked");
       $searchInput.val("").trigger("change"); // Clear search input
       $categorySelect.val("").trigger("change"); // Clear category
       $locationSelect.val("").trigger("change"); // Clear location
@@ -222,44 +163,26 @@ jQuery(document).ready(function ($) {
   }
 
   // Optional: Update on select change
-  $searchInput.on("keyup", debounce(updateJobs, 500));
-  $categorySelect.on("change", function () {
-    console.log("Category changed to:", $(this).val());
+  $categorySelect.on("change", debounce(function () {
     updateJobs();
-  });
-  $locationSelect.on("change", function () {
-    console.log("Location changed to:", $(this).val());
+  }, 500));
+  $locationSelect.on("change", debounce(function () {
     updateJobs();
-  });
-  $skillsSelect.on("change", function () {
-    console.log("Skills changed to:", $(this).val());
+  }, 500));
+  $skillsSelect.on("change", debounce(function () {
     updateJobs();
-  });
+  }, 500));
 
-  // Debounce function for search input
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-
-  // ============================================
-  // LAYOUT TOGGLE FUNCTIONALITY
-  // ============================================
+  // Search input with debounce
+  $searchInput.on("input", debounce(function () {
+    updateJobs();
+  }, 500));
 
   // Handle layout toggle if it exists
   const $layoutButtons = $(".layout-toggle button");
   if ($layoutButtons.length) {
-    console.log("Layout toggle buttons found:", $layoutButtons.length);
     $layoutButtons.on("click", function () {
       const layout = $(this).data("layout");
-      console.log("Layout button clicked:", layout);
 
       // Find the job listings container (the one with class job-listings-grid or job-listings-list)
       const $jobListingsContainer = $jobList.find('[class*="job-listings-"]');
@@ -267,26 +190,35 @@ jQuery(document).ready(function ($) {
         // Remove existing layout classes and add the new one
         $jobListingsContainer.removeClass("job-listings-grid job-listings-list");
         $jobListingsContainer.addClass("job-listings-" + layout);
-        console.log("Applied layout class: job-listings-" + layout);
-      } else {
-        console.warn("Job listings container not found");
       }
 
       // Update button states
       $layoutButtons.removeClass("is-primary active").addClass("is-secondary");
       $(this).removeClass("is-secondary").addClass("is-primary active");
-      console.log("Layout switched to:", layout);
 
       // Update the jobs list with the new layout
       updateJobs();
     });
-  } else {
-    console.log("No layout toggle buttons found");
   }
 
   // Setup save job functionality
   setupSaveJobButtons();
 });
+
+/**
+ * Debounce function to limit how often a function can be called
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 /**
  * Setup the save job functionality
@@ -297,16 +229,6 @@ function setupSaveJobButtons() {
     button.addEventListener("click", e => {
       e.preventDefault();
       const jobId = button.dataset.jobId;
-      if (!jobId) {
-        return;
-      }
-
-      // Toggle saved state visually
-      button.classList.toggle("saved");
-
-      // TODO: Implement saving jobs to user preferences
-      // This would typically involve an AJAX call to save the job
-      console.log("Toggle saved state for job ID:", jobId);
     });
   });
 }
