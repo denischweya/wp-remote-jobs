@@ -19,17 +19,17 @@ jQuery(document).ready(function ($) {
 
     // Create a basic fallback object
     window.remjobsAjax = {
-      ajaxurl: "/wp-admin/admin-ajax.php",
-      // Standard WordPress AJAX URL
+      ajaxurl: "",
+      // Will be set dynamically
       nonce: "" // We'll try to get this from the server
     };
 
     // Try to get the AJAX URL from WordPress if available
     if (typeof ajaxurl !== "undefined") {
       window.remjobsAjax.ajaxurl = ajaxurl;
-    } else if (typeof wpApiSettings !== "undefined" && wpApiSettings.root) {
-      // Use REST API as fallback
-      window.remjobsAjax.ajaxurl = wpApiSettings.root + "wp/v2/";
+    } else {
+      // Last resort: use relative path and let browser resolve
+      window.remjobsAjax.ajaxurl = './wp-admin/admin-ajax.php';
     }
 
     // Try to get a nonce from the server

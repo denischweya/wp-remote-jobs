@@ -22,10 +22,6 @@ jQuery(document).ready(function ($) {
 		// Try to get the AJAX URL from WordPress if available
 		if (typeof ajaxurl !== "undefined") {
 			window.remjobsAjax.ajaxurl = ajaxurl;
-		} else if (typeof wpApiSettings !== "undefined" && wpApiSettings.root) {
-			// Use REST API as fallback for Ajax URL determination
-			const baseUrl = wpApiSettings.root.replace(/wp-json.*$/, '');
-			window.remjobsAjax.ajaxurl = baseUrl + 'wp-admin/admin-ajax.php';
 		} else {
 			// Last resort: use relative path and let browser resolve
 			window.remjobsAjax.ajaxurl = './wp-admin/admin-ajax.php';
