@@ -1068,8 +1068,8 @@ function remjobs_filter_jobs()
     ));
 }
 
-add_action('wp_ajax_filter_jobs', 'remjobs_filter_jobs');
-add_action('wp_ajax_nopriv_filter_jobs', 'remjobs_filter_jobs');
+add_action('wp_ajax_remjobs_ajax_filter_jobs', 'remjobs_filter_jobs');
+add_action('wp_ajax_nopriv_remjobs_ajax_filter_jobs', 'remjobs_filter_jobs');
 
 // Additional AJAX endpoint to provide nonces
 function remjobs_get_nonce()
@@ -1079,6 +1079,6 @@ function remjobs_get_nonce()
         'ajaxurl' => admin_url('admin-ajax.php')
     ));
 }
-add_action('wp_ajax_get_filter_nonce', 'remjobs_get_nonce');
-add_action('wp_ajax_nopriv_get_filter_nonce', 'remjobs_get_nonce');
+add_action('wp_ajax_remjobs_ajax_get_nonce', 'remjobs_get_nonce');
+add_action('wp_ajax_nopriv_remjobs_ajax_get_nonce', 'remjobs_get_nonce');
 ?>

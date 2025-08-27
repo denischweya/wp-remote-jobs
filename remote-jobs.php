@@ -21,8 +21,8 @@
  * Requires PHP:      7.4
  * Author:            Afrothemes
  * Author URI:        https://github.com/denischweya/
- * License:           GPL v2 or later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * License:           GPL v3 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       remote-jobs
  * Domain Path:       /languages
  */
@@ -37,7 +37,7 @@ if (! defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('REMJOBS_VERSION', '1.0.0');
+define('REMJOBS_VERSION', '1.0.6');
 define('REMJOBS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('REMJOBS_PLUGIN_URL', plugin_dir_url(__FILE__));
 

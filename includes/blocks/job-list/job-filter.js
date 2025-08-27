@@ -8,7 +8,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	function filterJobs() {
 		const formData = new FormData();
-		formData.append( 'action', 'filter_jobs' );
+		formData.append( 'action', 'remjobs_ajax_filter_jobs' );
 		formData.append( 'search', searchInput.value );
 		formData.append( 'category', categorySelect.value );
 		formData.append( 'type', typeSelect.value );

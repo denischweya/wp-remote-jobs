@@ -31,7 +31,7 @@ jQuery(document).ready(function ($) {
 		$.ajax({
 			url: window.remjobsAjax.ajaxurl,
 			type: "POST",
-			data: { action: "get_filter_nonce" },
+			data: { action: "remjobs_ajax_get_nonce" },
 			success: function(response) {
 				if (response.success && response.data.nonce) {
 					window.remjobsAjax.nonce = response.data.nonce;
@@ -103,7 +103,7 @@ jQuery(document).ready(function ($) {
 
 		// AJAX data
 		const data = {
-			action: "filter_jobs",
+			action: "remjobs_ajax_filter_jobs",
 			nonce: remjobsAjax.nonce,
 			search: search,
 			category: category,
@@ -129,7 +129,7 @@ jQuery(document).ready(function ($) {
 						url: remjobsAjax.ajaxurl,
 						type: "POST",
 						data: {
-							action: 'get_filter_nonce'
+							action: 'remjobs_ajax_get_nonce'
 						},
 						success: function (nonceResponse) {
 							if (nonceResponse.success) {

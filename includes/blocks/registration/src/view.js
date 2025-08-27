@@ -41,10 +41,16 @@ jQuery( document ).ready( function ( $ ) {
 
 		frame.on( 'select', function () {
 			var attachment = frame.state().get( 'selection' ).first().toJSON();
-			$( '#logo' ).val( attachment.url );
-			$( '.logo-preview' ).html(
-				'<img src="' + attachment.url + '" alt="Company Logo Preview">'
-			);
+			
+			// Store attachment ID instead of URL for better WordPress integration
+			$( '#logo' ).val( attachment.id );
+			
+			// Create proper image element with WordPress standards
+			var logoHtml = '<img src="' + attachment.url + '" alt="' + 
+				(attachment.alt || 'Company Logo Preview') + 
+				'" class="company-logo-preview" style="max-width: 150px; height: auto;" />';
+			
+			$( '.logo-preview' ).html( logoHtml );
 			$( '.remove-logo-button' ).show();
 		} );
 

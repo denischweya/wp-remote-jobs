@@ -1,9 +1,9 @@
 {
 	"name": "registration",
-	"version": "1.0.0",
+	"version": "1.0.6",
 	"description": "Example block scaffolded with Create Block tool.",
 	"author": "Denis Bosire",
-	"license": "GPL-2.0-or-later",
+	"license": "GPL-3.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
 		"build": "wp-scripts build",

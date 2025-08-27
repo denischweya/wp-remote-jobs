@@ -308,8 +308,22 @@ function remjobs_render_registration_block($attributes = array())
 							class="field-hint"><?php echo esc_html__('Accepted formats: JPEG, PNG, GIF', 'remote-jobs'); ?></span>
 						<?php if ($logo): ?>
 						<div class="logo-preview">
-							<img src="<?php echo esc_url($logo); ?>"
-								alt="<?php echo esc_attr__('Company Logo Preview', 'remote-jobs'); ?>">
+							<?php
+							// Check if logo is a WordPress attachment ID
+							if (is_numeric($logo) && wp_attachment_is_image($logo)) {
+								echo wp_get_attachment_image($logo, 'thumbnail', false, array(
+									'alt' => esc_attr__('Company Logo Preview', 'remote-jobs'),
+									'class' => 'company-logo-preview'
+								));
+							} else {
+								// Fallback for URL-based logos (for backward compatibility)
+								printf(
+									'<img src="%s" alt="%s" class="company-logo-preview" style="max-width: 150px; height: auto;">',
+									esc_url($logo),
+									esc_attr__('Company Logo Preview', 'remote-jobs')
+								);
+							}
+							?>
 							<button type="button" class="button remove-logo-button">
 								<?php echo esc_html__('Remove Logo', 'remote-jobs'); ?>
 							</button>
@@ -382,9 +396,27 @@ function remjobs_add_company_fields($user)
 			<input type="url" name="company_logo" id="company_logo"
 				value="<?php echo esc_url(get_user_meta($user->ID, 'company_logo', true)); ?>"
 				class="regular-text" />
-			<?php if (get_user_meta($user->ID, 'company_logo', true)): ?>
-			<p><img src="<?php echo esc_url(get_user_meta($user->ID, 'company_logo', true)); ?>"
-					style="max-width: 100px; height: auto;" /></p>
+			<?php 
+			$company_logo = get_user_meta($user->ID, 'company_logo', true);
+			if ($company_logo): ?>
+			<div class="company-logo-display">
+				<?php
+				// Check if logo is a WordPress attachment ID
+				if (is_numeric($company_logo) && wp_attachment_is_image($company_logo)) {
+					echo wp_get_attachment_image($company_logo, 'thumbnail', false, array(
+						'alt' => esc_attr__('Company Logo', 'remote-jobs'),
+						'class' => 'company-logo-profile'
+					));
+				} else {
+					// Fallback for URL-based logos (for backward compatibility)
+					printf(
+						'<img src="%s" alt="%s" class="company-logo-profile" style="max-width: 100px; height: auto;">',
+						esc_url($company_logo),
+						esc_attr__('Company Logo', 'remote-jobs')
+					);
+				}
+				?>
+			</div>
 			<?php endif; ?>
 		</td>
 	</tr>
