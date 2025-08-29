@@ -23,8 +23,9 @@ jQuery(document).ready(function ($) {
 		if (typeof ajaxurl !== "undefined") {
 			window.remjobsAjax.ajaxurl = ajaxurl;
 		} else {
-			// Last resort: use relative path and let browser resolve
-			window.remjobsAjax.ajaxurl = './wp-admin/admin-ajax.php';
+			// No fallback - proper AJAX URL should be provided by wp_localize_script
+			console.error("AJAX URL not provided - ensure wp_localize_script is called with proper admin_url");
+			return;
 		}
 		
 		// Try to get a nonce from the server

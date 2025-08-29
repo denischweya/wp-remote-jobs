@@ -3,7 +3,7 @@ Contributors: Afrothemes, Fortisthemes
 Tags: jobs, remote jobs, job board, recruitment
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -56,6 +56,11 @@ The Remote Jobs plugin is designed to work with any WordPress theme that support
 The plugin follows WordPress best practices for data handling. For job applications, ensure you add appropriate privacy notices and obtain user consent as required by GDPR and other privacy regulations.
 
 == Changelog ==
+
+= 1.0.7 =
+* Fixed WordPress.org guidelines violation: Replace hardcoded wp-admin/admin-ajax.php URLs with proper admin_url() function
+* Improved AJAX endpoint compatibility for different WordPress configurations
+* Enhanced security by removing static fallback paths and enforcing proper wp_localize_script usage
 
 = 1.0.6 =
 * Enhanced job list block with improved input sanitization and better CSS contrast

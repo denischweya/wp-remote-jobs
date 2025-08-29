@@ -16,7 +16,7 @@
  * Plugin Name:       Remote Jobs
  * Plugin URI:        https://github.com/denischweya/wp-remote-jobs
  * Description:       A simple job board plugin for WordPress
- * Version:           1.0.6
+ * Version:           1.0.7
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Afrothemes
@@ -37,7 +37,7 @@ if (! defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('REMJOBS_VERSION', '1.0.6');
+define('REMJOBS_VERSION', '1.0.7');
 define('REMJOBS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('REMJOBS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
