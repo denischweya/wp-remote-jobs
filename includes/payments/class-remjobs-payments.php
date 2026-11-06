@@ -19,6 +19,18 @@ class Remjobs_Payments
     /** @var Remjobs_Featured */
     private $featured;
 
+    /** @var Remjobs_Payment_Gateway[] */
+    private $gateways;
+
+    /** @var Remjobs_Fulfillment */
+    private $fulfillment;
+
+    /** @var Remjobs_Checkout */
+    private $checkout;
+
+    /** @var Remjobs_Webhooks */
+    private $webhooks;
+
     public function __construct()
     {
         $base = REMJOBS_PLUGIN_PATH . 'includes/payments/';
@@ -27,10 +39,24 @@ class Remjobs_Payments
         require_once $base . 'class-remjobs-orders.php';
         require_once $base . 'class-remjobs-subscriptions.php';
         require_once $base . 'class-remjobs-featured.php';
+        require_once $base . 'interface-remjobs-gateway.php';
+        require_once $base . 'class-remjobs-fulfillment.php';
+        require_once $base . 'class-remjobs-checkout.php';
+        require_once $base . 'class-remjobs-webhooks.php';
+        require_once $base . 'gateways/class-remjobs-gateway-stripe.php';
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-activator.php';
 
         $this->settings = new Remjobs_Payment_Settings();
         $this->featured = new Remjobs_Featured();
+
+        $this->gateways = array(
+            'stripe' => new Remjobs_Gateway_Stripe(),
+            // PayPal added in Phase 3b.
+        );
+
+        $this->fulfillment = new Remjobs_Fulfillment($this->featured);
+        $this->checkout = new Remjobs_Checkout($this->gateways, $this->featured);
+        $this->webhooks = new Remjobs_Webhooks($this->gateways, $this->fulfillment);
     }
 
     public function init(): void
@@ -41,6 +67,15 @@ class Remjobs_Payments
         add_action(Remjobs_Featured::CRON_HOOK, array($this->featured, 'run_expiry_sweep'));
         add_action('init', array($this, 'maybe_schedule_cron'));
         add_action('init', array($this, 'maybe_migrate_featured'));
+        add_action('rest_api_init', array($this->webhooks, 'register_routes'));
+    }
+
+    /**
+     * Checkout coordinator accessor, used by Phase 4 UI (submit/My Jobs).
+     */
+    public function checkout(): Remjobs_Checkout
+    {
+        return $this->checkout;
     }
 
     /**
