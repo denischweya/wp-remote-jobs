@@ -3,7 +3,7 @@ Contributors: Afrothemes, Fortisthemes
 Tags: job board, remote jobs, job listings, stripe, paypal
 Requires at least: 5.8
 Tested up to: 7.2
-Stable tag: 1.0.8
+Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
