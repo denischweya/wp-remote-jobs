@@ -44,6 +44,7 @@ class Remjobs_Payments
         require_once $base . 'class-remjobs-checkout.php';
         require_once $base . 'class-remjobs-webhooks.php';
         require_once $base . 'gateways/class-remjobs-gateway-stripe.php';
+        require_once $base . 'gateways/class-remjobs-gateway-paypal.php';
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-activator.php';
 
         $this->settings = new Remjobs_Payment_Settings();
@@ -51,7 +52,7 @@ class Remjobs_Payments
 
         $this->gateways = array(
             'stripe' => new Remjobs_Gateway_Stripe(),
-            // PayPal added in Phase 3b.
+            'paypal' => new Remjobs_Gateway_PayPal(),
         );
 
         $this->fulfillment = new Remjobs_Fulfillment($this->featured);
