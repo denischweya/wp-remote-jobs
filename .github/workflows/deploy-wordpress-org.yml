@@ -1,0 +1,58 @@
+name: Deploy to WordPress.org
+
+# Publishes the plugin to the WordPress.org SVN repo (trunk + a version tag)
+# whenever a GitHub Release is published. The release tag must equal the plugin
+# version in both readme.txt (Stable tag) and remote-jobs.php (Version header).
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   SVN_USERNAME  - WordPress.org account with commit access to the plugin
+#   SVN_PASSWORD  - that account's SVN password
+#
+# To release:  bump the Version header + readme Stable tag, commit, then create a
+# GitHub Release whose tag is the exact version (e.g. 1.0.9 - no "v" is needed; a
+# leading "v" is stripped automatically).
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy to WordPress.org SVN
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Untrusted-input note: the tag name is passed via env (not interpolated
+      # into the shell) so a crafted tag cannot inject commands.
+      - name: Derive version from release tag
+        id: ver
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          version="${REF_NAME#v}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify version matches readme.txt and plugin header
+        env:
+          TAG: ${{ steps.ver.outputs.version }}
+        run: |
+          READ=$(grep -m1 -i "Stable tag:" readme.txt | sed -E 's/.*:[[:space:]]*//' | tr -d '\r')
+          HED=$(grep -m1 -i "Version:" remote-jobs.php | sed -E 's/.*:[[:space:]]*//' | tr -d '\r')
+          echo "release tag: ${TAG} | readme Stable tag: ${READ} | plugin Version header: ${HED}"
+          if [ "${TAG}" != "${READ}" ] || [ "${TAG}" != "${HED}" ]; then
+            echo "::error::Release tag (${TAG}) must match readme Stable tag (${READ}) and plugin Version header (${HED}). Aborting deploy."
+            exit 1
+          fi
+
+      - name: WordPress.org plugin deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: remote-jobs
+          VERSION: ${{ steps.ver.outputs.version }}
+          # When you add banner/icon/screenshot images, put them in a
+          # .wordpress-org/ directory and uncomment the next line:
+          # ASSETS_DIR: .wordpress-org

@@ -1,0 +1,45 @@
+# Files and directories that must NOT be deployed to the WordPress.org SVN repo.
+# The 10up deploy action rsyncs the plugin to SVN, excluding everything below.
+# NOTE: the compiled block assets in includes/blocks/*/build/ ARE committed and
+# shipped — only the source and tooling are excluded.
+
+# Version control & CI
+/.git
+/.github
+/.gitignore
+/.gitattributes
+/.distignore
+/.npmrc
+/.editorconfig
+
+# OS / editor cruft
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Planning, scratch, and internal docs (not runtime)
+/.superpowers
+/docs
+/SECURITY_AUDIT_FIXES.md
+
+# Tests
+/tests
+
+# Node / build tooling (build output is committed and shipped, sources are not)
+/node_modules
+/package.json
+/package-lock.json
+/webpack.config.js
+/includes/blocks/*/node_modules
+/includes/blocks/*/src
+/includes/blocks/*/package.json
+/includes/blocks/*/package-lock.json
+/includes/blocks/*/.editorconfig
+/includes/blocks/*/.gitignore
+/includes/blocks/*/readme.txt
+
+# Local release scripts & archives
+/build-zip.sh
+/create-zip.sh
+/run-build.sh
+*.zip
