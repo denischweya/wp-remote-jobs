@@ -307,5 +307,112 @@ class Remjobs_Payment_Ui
         return '';
     }
 
-    // add_orders_page/add_job_columns/render_job_column -> Task 4.
+    /**
+     * Register the read-only admin Orders list under the Jobs menu.
+     */
+    public function add_orders_page(): void
+    {
+        add_submenu_page(
+            'edit.php?post_type=remjobs_jobs',
+            __('Orders', 'remote-jobs'),
+            __('Orders', 'remote-jobs'),
+            'manage_options',
+            'remjobs-orders',
+            array($this, 'render_orders_page')
+        );
+    }
+
+    /**
+     * Render the read-only admin Orders list (most recent 200 orders).
+     */
+    public function render_orders_page(): void
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        global $wpdb;
+        $orders = $wpdb->get_results('SELECT * FROM ' . Remjobs_Orders::table() . ' ORDER BY id DESC LIMIT 200', ARRAY_A);
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Remote Jobs — Orders', 'remote-jobs') . '</h1>';
+        echo '<table class="wp-list-table widefat fixed striped">';
+        echo '<thead><tr>';
+        foreach (array(
+            __('ID', 'remote-jobs'),
+            __('Date', 'remote-jobs'),
+            __('User', 'remote-jobs'),
+            __('Job', 'remote-jobs'),
+            __('Plan', 'remote-jobs'),
+            __('Gateway', 'remote-jobs'),
+            __('Amount', 'remote-jobs'),
+            __('Status', 'remote-jobs'),
+        ) as $label) {
+            echo '<th>' . esc_html($label) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+
+        foreach ((array) $orders as $order) {
+            $user = get_userdata((int) $order['user_id']);
+            $job_title = $order['job_id'] ? get_the_title((int) $order['job_id']) : '';
+
+            echo '<tr>';
+            echo '<td>' . esc_html((string) $order['id']) . '</td>';
+            echo '<td>' . esc_html((string) $order['created_at']) . '</td>';
+            echo '<td>' . esc_html($user ? $user->user_login : (string) $order['user_id']) . '</td>';
+            echo '<td>' . esc_html($job_title !== '' ? $job_title : (string) $order['job_id']) . '</td>';
+            echo '<td>' . esc_html((string) $order['plan']) . '</td>';
+            echo '<td>' . esc_html((string) $order['gateway']) . '</td>';
+            echo '<td>' . esc_html($order['amount'] . ' ' . $order['currency']) . '</td>';
+            echo '<td>' . esc_html((string) $order['status']) . '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+        echo '</div>';
+    }
+
+    /**
+     * Insert Featured / Feature expires / Payment columns before the Date
+     * column on the remjobs_jobs admin list screen.
+     */
+    public function add_job_columns(array $columns): array
+    {
+        $new = array();
+        foreach ($columns as $key => $label) {
+            if ($key === 'date') {
+                $new['remjobs_featured'] = __('Featured', 'remote-jobs');
+                $new['remjobs_expires'] = __('Feature expires', 'remote-jobs');
+                $new['remjobs_payment'] = __('Payment', 'remote-jobs');
+            }
+            $new[$key] = $label;
+        }
+        if (!isset($new['remjobs_featured'])) {
+            // 'date' column wasn't present (unlikely); append at the end.
+            $new['remjobs_featured'] = __('Featured', 'remote-jobs');
+            $new['remjobs_expires'] = __('Feature expires', 'remote-jobs');
+            $new['remjobs_payment'] = __('Payment', 'remote-jobs');
+        }
+        return $new;
+    }
+
+    /**
+     * Render a single custom column cell on the remjobs_jobs admin list screen.
+     */
+    public function render_job_column(string $column, int $post_id): void
+    {
+        switch ($column) {
+            case 'remjobs_featured':
+                echo esc_html($this->featured->is_featured($post_id) ? __('Yes', 'remote-jobs') : '—');
+                break;
+            case 'remjobs_expires':
+                $expires = get_post_meta($post_id, '_remjobs_featured_expires', true);
+                echo esc_html($expires !== '' ? (string) $expires : '—');
+                break;
+            case 'remjobs_payment':
+                $status = get_post_meta($post_id, '_remjobs_payment_status', true);
+                echo esc_html($status !== '' ? (string) $status : '—');
+                break;
+        }
+    }
 }
