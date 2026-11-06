@@ -114,12 +114,126 @@ class Remjobs_Gateway_Stripe implements Remjobs_Payment_Gateway
     /** @return array|null normalized event (see plan); null if unverified/irrelevant */
     public function parse_webhook(WP_REST_Request $request): ?array
     {
-        return null;
+        $payload = $request->get_body();
+        $sig = (string) $request->get_header('stripe_signature');
+        $secret = (string) Remjobs_Payment_Settings::get('stripe_webhook_secret', '');
+
+        $t = null;
+        $v1 = null;
+        foreach (explode(',', $sig) as $part) {
+            $part = trim($part);
+            if (strpos($part, 't=') === 0) {
+                $t = substr($part, 2);
+            } elseif (strpos($part, 'v1=') === 0) {
+                $v1 = substr($part, 3);
+            }
+        }
+        if ($t === null || $v1 === null || $secret === '') {
+            return null;
+        }
+
+        $signed = $t . '.' . $payload;
+        $expected = hash_hmac('sha256', $signed, $secret);
+        if (!hash_equals($expected, $v1)) {
+            return null;
+        }
+        if (abs(time() - (int) $t) > 300) {
+            return null;
+        }
+
+        $event = json_decode((string) $payload, true);
+        if (!is_array($event) || empty($event['id']) || empty($event['type'])) {
+            return null;
+        }
+
+        $event_id = (string) $event['id'];
+        $obj = isset($event['data']['object']) && is_array($event['data']['object']) ? $event['data']['object'] : array();
+
+        switch ($event['type']) {
+            case 'checkout.session.completed':
+                $order_id = isset($obj['metadata']['order_id']) ? (int) $obj['metadata']['order_id'] : null;
+                $gateway_order_id = (string) ($obj['id'] ?? '');
+                $subscription = null;
+                if (($obj['mode'] ?? '') === 'subscription' && !empty($obj['subscription'])) {
+                    $sub_data = $this->get_subscription((string) $obj['subscription']);
+                    $subscription = array(
+                        'gateway_subscription_id' => (string) $obj['subscription'],
+                        'gateway_customer_id'     => (string) ($sub_data['customer'] ?? ''),
+                        'current_period_end'      => isset($sub_data['current_period_end']) ? gmdate('Y-m-d H:i:s', (int) $sub_data['current_period_end']) : null,
+                        'status'                  => 'active',
+                    );
+                }
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'payment_succeeded',
+                    'order_id'         => $order_id,
+                    'gateway_order_id' => $gateway_order_id,
+                    'subscription'     => $subscription,
+                );
+
+            case 'invoice.paid':
+                $period_end = $obj['lines']['data'][0]['period']['end'] ?? null;
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'subscription_renewed',
+                    'order_id'         => null,
+                    'gateway_order_id' => (string) ($obj['id'] ?? ''),
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($obj['subscription'] ?? ''),
+                        'gateway_customer_id'     => (string) ($obj['customer'] ?? ''),
+                        'current_period_end'      => $period_end !== null ? gmdate('Y-m-d H:i:s', (int) $period_end) : null,
+                        'status'                  => 'active',
+                    ),
+                );
+
+            case 'invoice.payment_failed':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'subscription_payment_failed',
+                    'order_id'         => null,
+                    'gateway_order_id' => (string) ($obj['id'] ?? ''),
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($obj['subscription'] ?? ''),
+                        'gateway_customer_id'     => (string) ($obj['customer'] ?? ''),
+                        'current_period_end'      => null,
+                        'status'                  => 'past_due',
+                    ),
+                );
+
+            case 'customer.subscription.deleted':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'subscription_canceled',
+                    'order_id'         => null,
+                    'gateway_order_id' => '',
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($obj['id'] ?? ''),
+                        'gateway_customer_id'     => (string) ($obj['customer'] ?? ''),
+                        'current_period_end'      => null,
+                        'status'                  => 'canceled',
+                    ),
+                );
+
+            default:
+                return null;
+        }
+    }
+
+    private function get_subscription(string $gateway_subscription_id): array
+    {
+        return $this->request('GET', '/v1/subscriptions/' . rawurlencode($gateway_subscription_id));
     }
 
     public function cancel_subscription(string $gateway_subscription_id): bool
     {
-        return false;
+        try {
+            $this->request('POST', '/v1/subscriptions/' . rawurlencode($gateway_subscription_id), array(
+                'cancel_at_period_end' => 'true',
+            ));
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
