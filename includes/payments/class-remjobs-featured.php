@@ -113,4 +113,65 @@ class Remjobs_Featured
         $cap = (int) Remjobs_Payment_Settings::get('monthly_account_cap');
         return $cap === 0 || $this->count_featured_for_user($user_id) < $cap;
     }
+
+    /**
+     * Hourly cron callback (CRON_HOOK): expire lapsed features (skipping jobs
+     * protected by an active subscription) and delete abandoned
+     * awaiting-payment drafts older than 48h.
+     */
+    public function run_expiry_sweep(): void
+    {
+        require_once __DIR__ . '/class-remjobs-subscriptions.php';
+
+        $lapsed_ids = get_posts(array(
+            'post_type'      => 'remjobs_jobs',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                array(
+                    'key'   => '_remjobs_featured',
+                    'value' => '1',
+                ),
+                array(
+                    'key'     => '_remjobs_featured_expires',
+                    'value'   => gmdate('Y-m-d H:i:s'),
+                    'compare' => '<',
+                    'type'    => 'DATETIME',
+                ),
+            ),
+        ));
+
+        foreach ($lapsed_ids as $job_id) {
+            if (Remjobs_Subscriptions::active_for_job((int) $job_id) !== null) {
+                continue;
+            }
+            $this->expire_feature((int) $job_id);
+        }
+
+        $awaiting_ids = get_posts(array(
+            'post_type'      => 'remjobs_jobs',
+            'post_status'    => 'draft',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                array(
+                    'key'   => '_remjobs_payment_status',
+                    'value' => 'awaiting',
+                ),
+            ),
+        ));
+
+        $cutoff = time() - 48 * HOUR_IN_SECONDS;
+        foreach ($awaiting_ids as $job_id) {
+            // get_post_time('U', true, ...) relies on post_date_gmt, which
+            // WordPress leaves as '0000-00-00 00:00:00' for non-published
+            // statuses (drafts). Derive a real UTC timestamp from post_date.
+            $post_date_gmt = get_gmt_from_date(get_post_field('post_date', (int) $job_id));
+            $created_utc = strtotime($post_date_gmt . ' GMT');
+            if ($created_utc !== false && $created_utc < $cutoff) {
+                wp_delete_post((int) $job_id, true);
+            }
+        }
+    }
 }
