@@ -96,4 +96,94 @@ class Remjobs_Payment_Settings
 
         return $out;
     }
+
+    public function register(): void
+    {
+        add_action('admin_menu', array($this, 'add_menu'));
+        add_action('admin_init', array($this, 'register_settings'));
+    }
+
+    public function add_menu(): void
+    {
+        add_submenu_page(
+            'edit.php?post_type=remjobs_jobs',
+            __('Payments', 'remote-jobs'),
+            __('Payments', 'remote-jobs'),
+            'manage_options',
+            'remjobs-payments',
+            array($this, 'render_page')
+        );
+    }
+
+    public function register_settings(): void
+    {
+        register_setting('remjobs_payments', self::OPTION, array(
+            'type'              => 'array',
+            'sanitize_callback' => array(__CLASS__, 'sanitize'),
+            'default'           => self::defaults(),
+        ));
+    }
+
+    public function render_page(): void
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $s = self::all();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Remote Jobs — Payments', 'remote-jobs'); ?></h1>
+            <form method="post" action="options.php">
+                <?php settings_fields('remjobs_payments'); ?>
+                <table class="form-table" role="presentation">
+                    <?php
+                    $this->text_row('currency', __('Currency (ISO 4217)', 'remote-jobs'), $s);
+                    $this->select_row('mode', __('Mode', 'remote-jobs'), $s, array('sandbox' => 'Sandbox', 'live' => 'Live'));
+                    $this->text_row('single_price', __('Single plan price', 'remote-jobs'), $s);
+                    $this->text_row('single_duration_days', __('Single plan featured days', 'remote-jobs'), $s);
+                    $this->text_row('monthly_price', __('Monthly plan price', 'remote-jobs'), $s);
+                    $this->select_row('monthly_scope', __('Monthly scope', 'remote-jobs'), $s, array('job' => 'Per job', 'account' => 'Account-wide'));
+                    $this->text_row('monthly_account_cap', __('Account cap (0 = unlimited)', 'remote-jobs'), $s);
+                    $this->select_row('expiry_behavior', __('On expiry', 'remote-jobs'), $s, array('unfeature' => 'Unfeature (keep published)', 'unpublish' => 'Unpublish'));
+                    $this->text_row('stripe_publishable_key', __('Stripe publishable key', 'remote-jobs'), $s);
+                    $this->text_row('stripe_secret_key', __('Stripe secret key', 'remote-jobs'), $s);
+                    $this->text_row('stripe_webhook_secret', __('Stripe webhook secret', 'remote-jobs'), $s);
+                    $this->text_row('paypal_client_id', __('PayPal client ID', 'remote-jobs'), $s);
+                    $this->text_row('paypal_secret', __('PayPal secret', 'remote-jobs'), $s);
+                    $this->text_row('paypal_webhook_id', __('PayPal webhook ID', 'remote-jobs'), $s);
+                    ?>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    private function text_row(string $key, string $label, array $s): void
+    {
+        $val = isset($s[$key]) ? $s[$key] : '';
+        printf(
+            '<tr><th scope="row"><label for="%1$s">%2$s</label></th><td><input type="text" id="%1$s" name="%3$s[%1$s]" value="%4$s" class="regular-text" /></td></tr>',
+            esc_attr($key),
+            esc_html($label),
+            esc_attr(self::OPTION),
+            esc_attr((string) $val)
+        );
+    }
+
+    private function select_row(string $key, string $label, array $s, array $choices): void
+    {
+        $val = isset($s[$key]) ? $s[$key] : '';
+        $opts = '';
+        foreach ($choices as $ck => $cl) {
+            $opts .= sprintf('<option value="%s"%s>%s</option>', esc_attr($ck), selected($val, $ck, false), esc_html($cl));
+        }
+        printf(
+            '<tr><th scope="row"><label for="%1$s">%2$s</label></th><td><select id="%1$s" name="%3$s[%1$s]">%4$s</select></td></tr>',
+            esc_attr($key),
+            esc_html($label),
+            esc_attr(self::OPTION),
+            $opts // phpcs:ignore WordPress.Security.EscapeOutput -- built from esc_attr/esc_html above
+        );
+    }
 }
