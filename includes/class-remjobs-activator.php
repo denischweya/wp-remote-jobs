@@ -35,8 +35,24 @@ class Remjobs_Activator
         // Create the payments tables.
         self::create_tables();
 
+        // Seed default payment settings on first activation.
+        self::seed_payment_settings();
+
         // Schedule a one-time action to flush rewrite rules
         add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_activation'), 20);
+    }
+
+    /**
+     * Seed the payment settings option with defaults on first activation.
+     *
+     * @since 1.1.0
+     */
+    public static function seed_payment_settings(): void
+    {
+        require_once REMJOBS_PLUGIN_PATH . 'includes/payments/class-remjobs-payment-settings.php';
+        if (false === get_option('remjobs_payment_settings')) {
+            add_option('remjobs_payment_settings', Remjobs_Payment_Settings::defaults());
+        }
     }
 
     /**
