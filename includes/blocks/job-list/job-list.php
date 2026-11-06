@@ -137,7 +137,7 @@ function remjobs_render_job_list_block($attributes)
     if ($featured_only) {
         $args['meta_query'] = array(
             array(
-                'key'     => '_remjobs_is_premium',
+                'key'     => '_remjobs_featured',
                 'value'   => '1',
                 'compare' => '=',
             ),

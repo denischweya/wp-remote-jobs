@@ -40,6 +40,7 @@ class Remjobs_Payments
 
         add_action(Remjobs_Featured::CRON_HOOK, array($this->featured, 'run_expiry_sweep'));
         add_action('init', array($this, 'maybe_schedule_cron'));
+        add_action('init', array($this, 'maybe_migrate_featured'));
     }
 
     /**
@@ -60,5 +61,35 @@ class Remjobs_Payments
         if (!wp_next_scheduled(Remjobs_Featured::CRON_HOOK)) {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'hourly', Remjobs_Featured::CRON_HOOK);
         }
+    }
+
+    /**
+     * One-time migration: backfill the canonical `_remjobs_featured` flag
+     * from the legacy `_remjobs_is_premium` flag. Guarded so it only runs once.
+     */
+    public function maybe_migrate_featured(): void
+    {
+        if (get_option('remjobs_featured_migrated')) {
+            return;
+        }
+
+        $ids = get_posts(array(
+            'post_type'      => 'remjobs_jobs',
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+            'posts_per_page' => -1,
+            'meta_query'     => array(
+                array(
+                    'key'   => '_remjobs_is_premium',
+                    'value' => '1',
+                ),
+            ),
+        ));
+
+        foreach ($ids as $job_id) {
+            update_post_meta((int) $job_id, '_remjobs_featured', '1');
+        }
+
+        update_option('remjobs_featured_migrated', '1');
     }
 }
