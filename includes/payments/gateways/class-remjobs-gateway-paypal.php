@@ -185,9 +185,21 @@ class Remjobs_Gateway_PayPal implements Remjobs_Payment_Gateway
         switch ($event['event_type']) {
             case 'CHECKOUT.ORDER.APPROVED':
                 // Capture server-side; the resulting PAYMENT.CAPTURE.COMPLETED
-                // event drives fulfillment. Let a capture failure throw so
-                // PayPal retries the webhook delivery.
-                $this->request('POST', '/v2/checkout/orders/' . rawurlencode((string) $r['id']) . '/capture', array());
+                // event drives fulfillment. A genuine capture failure still
+                // throws so PayPal retries the webhook delivery. But a
+                // *duplicate* APPROVED redelivery for an order already
+                // captured by a prior delivery must NOT throw (that would
+                // 500-loop forever, since this runs before the handler's
+                // event-id dedupe) — treat ORDER_ALREADY_CAPTURED as success;
+                // the original PAYMENT.CAPTURE.COMPLETED already fulfilled it.
+                try {
+                    $this->request('POST', '/v2/checkout/orders/' . rawurlencode((string) $r['id']) . '/capture', array());
+                } catch (Remjobs_PayPal_Request_Exception $e) {
+                    if ($e->paypal_issue !== 'ORDER_ALREADY_CAPTURED'
+                        && !($e->getCode() === 422 && $e->paypal_name === 'ORDER_ALREADY_CAPTURED')) {
+                        throw $e;
+                    }
+                }
                 return array('kind' => 'ignored', 'event_id' => $event_id);
 
             case 'PAYMENT.CAPTURE.COMPLETED':
@@ -382,9 +394,37 @@ class Remjobs_Gateway_PayPal implements Remjobs_Payment_Gateway
             $message = !empty($decoded['message'])
                 ? (string) $decoded['message']
                 : (!empty($decoded['name']) ? (string) $decoded['name'] : __('PayPal request failed.', 'remote-jobs'));
-            throw new Exception($message);
+            // Surface the specific PayPal `issue` code (e.g. ORDER_ALREADY_CAPTURED)
+            // alongside the top-level `name` so callers can distinguish
+            // "already captured" (treat as success) from genuine failures,
+            // without re-parsing a translated message string.
+            $issue = (string) ($decoded['details'][0]['issue'] ?? '');
+            $name = (string) ($decoded['name'] ?? '');
+            throw new Remjobs_PayPal_Request_Exception($message, $code, $name, $issue);
         }
 
         return $decoded;
+    }
+}
+
+/**
+ * Thrown by Remjobs_Gateway_PayPal::request() on HTTP >= 400, carrying the
+ * PayPal error `name` and (if present) the specific `details[0].issue` code
+ * so callers can match on them (e.g. ORDER_ALREADY_CAPTURED) without
+ * re-parsing the human-readable message.
+ */
+class Remjobs_PayPal_Request_Exception extends Exception
+{
+    /** @var string */
+    public $paypal_name;
+
+    /** @var string */
+    public $paypal_issue;
+
+    public function __construct(string $message, int $http_code, string $paypal_name = '', string $paypal_issue = '')
+    {
+        parent::__construct($message, $http_code);
+        $this->paypal_name = $paypal_name;
+        $this->paypal_issue = $paypal_issue;
     }
 }
