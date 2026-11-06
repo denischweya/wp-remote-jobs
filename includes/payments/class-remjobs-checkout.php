@@ -78,11 +78,11 @@ class Remjobs_Checkout
     }
 
     /**
-     * Where to return the user to after checkout. Phase 4 points this at the
-     * My Jobs page; for now it's the home page. Filterable for future phases.
+     * Where to return the user to after checkout. Defaults to the home page;
+     * Phase 4's UI filters this to the My Jobs page when configured.
      */
     protected function account_url(): string
     {
-        return home_url('/');
+        return (string) apply_filters('remjobs_account_url', home_url('/'));
     }
 }
