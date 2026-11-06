@@ -28,6 +28,9 @@ class Remjobs_Deactivator
         // Remove plugin options
         delete_option('remjobs_settings');
 
+        // Clear the hourly featured-expiry cron.
+        wp_clear_scheduled_hook('remjobs_feature_expiry_check');
+
         // Schedule rewrite rules flush for after post types are unregistered
         add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_deactivation'), 20);
     }

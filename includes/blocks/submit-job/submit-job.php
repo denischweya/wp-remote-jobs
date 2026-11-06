@@ -138,6 +138,71 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
             <input type="url" id="application-link" name="application_link" required />
         </div>
 
+        <?php
+        $gateway_choices = array();
+        $payments = function_exists('remjobs_payments') ? remjobs_payments() : null;
+        if ($payments) {
+            $gateway_choices = $payments->ui_gateway_choices();
+        }
+        ?>
+        <div class="form-group">
+            <label for="remjobs-plan"><?php esc_html_e('Listing type', 'remote-jobs'); ?></label>
+            <select id="remjobs-plan" name="plan">
+                <option value="free"><?php esc_html_e('Free — reviewed before publishing', 'remote-jobs'); ?></option>
+                <?php if (!empty($gateway_choices) && class_exists('Remjobs_Plans')) :
+                    $single = Remjobs_Plans::get('single');
+                    $monthly = Remjobs_Plans::get('monthly');
+                    if ($single) : ?>
+                        <option value="single">
+                            <?php
+                            echo esc_html(sprintf(
+                                /* translators: 1: price, 2: currency code */
+                                __('Featured — one-time (%1$s %2$s)', 'remote-jobs'),
+                                $single['price'],
+                                $single['currency']
+                            ));
+                            ?>
+                        </option>
+                    <?php endif;
+                    if ($monthly) : ?>
+                        <option value="monthly">
+                            <?php
+                            echo esc_html(sprintf(
+                                /* translators: 1: price, 2: currency code */
+                                __('Featured — monthly (%1$s %2$s/mo)', 'remote-jobs'),
+                                $monthly['price'],
+                                $monthly['currency']
+                            ));
+                            ?>
+                        </option>
+                    <?php endif;
+                endif; ?>
+            </select>
+        </div>
+
+        <?php if (!empty($gateway_choices)) : ?>
+        <div class="form-group" id="remjobs-gateway-group" style="display:none;">
+            <label for="remjobs-gateway"><?php esc_html_e('Payment method', 'remote-jobs'); ?></label>
+            <select id="remjobs-gateway" name="gateway">
+                <?php foreach ($gateway_choices as $gid => $glabel) : ?>
+                    <option value="<?php echo esc_attr($gid); ?>"><?php echo esc_html($glabel); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <script>
+        (function () {
+            var planSelect = document.getElementById('remjobs-plan');
+            var gatewayGroup = document.getElementById('remjobs-gateway-group');
+            if (!planSelect || !gatewayGroup) { return; }
+            function toggle() {
+                gatewayGroup.style.display = (planSelect.value === 'free') ? 'none' : '';
+            }
+            planSelect.addEventListener('change', toggle);
+            toggle();
+        })();
+        </script>
+        <?php endif; ?>
+
         <button type="submit"
             class="submit-button"><?php esc_html_e('Submit Job', 'remote-jobs'); ?></button>
     </form>
@@ -305,6 +370,25 @@ function remjobs_handle_job_submission()
             unset($_SESSION['remjobs_job_form_data']);
         }
 
+        // Paid plan: hold the job as a draft awaiting payment and route to
+        // checkout. Free (or no) plan: leave the existing pending/moderation
+        // flow untouched.
+        $plan = isset($_POST['plan']) ? sanitize_text_field(wp_unslash($_POST['plan'])) : '';
+        $gateway = isset($_POST['gateway']) ? sanitize_text_field(wp_unslash($_POST['gateway'])) : '';
+
+        try {
+            $checkout_url = remjobs_route_submitted_job($job_id, $plan, $gateway, get_current_user_id());
+        } catch (Exception $e) {
+            set_transient('remjobs_ui_error_' . get_current_user_id(), $e->getMessage(), 60);
+            wp_safe_redirect(wp_get_referer() ?: home_url());
+            exit;
+        }
+
+        if ($checkout_url !== null) {
+            wp_redirect($checkout_url);
+            exit;
+        }
+
         // Redirect with success message
         wp_safe_redirect(add_query_arg(array(
             'remjobs_job_submitted' => 'success',
@@ -322,6 +406,40 @@ function remjobs_handle_job_submission()
         exit;
     }
 }
+
+/**
+ * Decide whether a freshly submitted job needs to be routed through
+ * checkout, and if so, hold it as a draft awaiting payment and start the
+ * checkout session. Factored out of the admin-post handler so the decision
+ * logic (unlike the redirect/exit handler itself) is directly testable.
+ *
+ * @param int    $job_id  The just-inserted job post ID.
+ * @param string $plan    'free' | 'single' | 'monthly' (sanitized by caller).
+ * @param string $gateway 'stripe' | 'paypal' (sanitized by caller).
+ * @param int    $user_id The submitting user (job author).
+ * @return string|null Redirect URL to the gateway, or null when the job
+ *                      should be left on the existing free/pending path.
+ * @throws Exception When checkout cannot be started (propagated from Remjobs_Checkout::start()).
+ */
+function remjobs_route_submitted_job(int $job_id, string $plan, string $gateway, int $user_id): ?string
+{
+    if ($plan === '' || $plan === 'free' || !class_exists('Remjobs_Plans') || !Remjobs_Plans::exists($plan)) {
+        return null; // free: leave as 'pending' (existing behavior)
+    }
+
+    // Paid: hold as draft awaiting payment, then start checkout.
+    wp_update_post(array('ID' => $job_id, 'post_status' => 'draft'));
+    update_post_meta($job_id, '_remjobs_payment_status', 'awaiting');
+
+    $payments = function_exists('remjobs_payments') ? remjobs_payments() : null;
+    $checkout = $payments ? $payments->checkout() : null;
+    if (!$checkout) {
+        return null;
+    }
+
+    return $checkout->start($user_id, $job_id, $plan, $gateway); // throws on validation error
+}
+
 add_action('admin_post_remjobs_submit_job', 'remjobs_handle_job_submission');
 add_action('admin_post_nopriv_remjobs_submit_job', 'remjobs_handle_job_submission');
 
