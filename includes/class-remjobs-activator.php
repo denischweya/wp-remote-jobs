@@ -32,8 +32,74 @@ class Remjobs_Activator
             'notification_email' => get_option('admin_email'),
         ));
 
+        // Create the payments tables.
+        self::create_tables();
+
         // Schedule a one-time action to flush rewrite rules
         add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_activation'), 20);
+    }
+
+    /**
+     * Create the custom tables used by the payments subsystem.
+     *
+     * Safe to run repeatedly: dbDelta only applies the diff, and the schema
+     * version is stored so the orchestrator can self-heal on upgrades.
+     *
+     * @since 1.1.0
+     */
+    public static function create_tables(): void
+    {
+        global $wpdb;
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        $charset_collate = $wpdb->get_charset_collate();
+        $orders = $wpdb->prefix . 'remjobs_orders';
+        $subs   = $wpdb->prefix . 'remjobs_subscriptions';
+
+        $sql_orders = "CREATE TABLE {$orders} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            order_key VARCHAR(32) NOT NULL,
+            user_id BIGINT UNSIGNED NOT NULL,
+            job_id BIGINT UNSIGNED NULL,
+            plan VARCHAR(20) NOT NULL,
+            gateway VARCHAR(20) NOT NULL,
+            gateway_order_id VARCHAR(255) NULL,
+            gateway_event_id VARCHAR(255) NULL,
+            subscription_id BIGINT UNSIGNED NULL,
+            amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+            currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY order_key (order_key),
+            KEY user_id (user_id),
+            KEY job_id (job_id),
+            KEY gateway_order_id (gateway_order_id),
+            KEY status (status)
+        ) {$charset_collate};";
+
+        $sql_subs = "CREATE TABLE {$subs} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id BIGINT UNSIGNED NOT NULL,
+            scope VARCHAR(10) NOT NULL DEFAULT 'job',
+            job_id BIGINT UNSIGNED NULL,
+            gateway VARCHAR(20) NOT NULL,
+            gateway_subscription_id VARCHAR(255) NOT NULL,
+            gateway_customer_id VARCHAR(255) NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'active',
+            current_period_end DATETIME NULL,
+            cancel_at_period_end TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            KEY gateway_subscription_id (gateway_subscription_id),
+            KEY status (status)
+        ) {$charset_collate};";
+
+        dbDelta($sql_orders);
+        dbDelta($sql_subs);
+        update_option('remjobs_db_version', REMJOBS_DB_VERSION);
     }
 
     /**

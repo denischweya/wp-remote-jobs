@@ -40,6 +40,8 @@ if (! defined('WPINC')) {
 define('REMJOBS_VERSION', '1.0.8');
 define('REMJOBS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('REMJOBS_PLUGIN_URL', plugin_dir_url(__FILE__));
+// Schema version for the payments tables; bump to trigger a dbDelta self-heal.
+define('REMJOBS_DB_VERSION', '1');
 
 /**
  * The code that runs during plugin activation.
