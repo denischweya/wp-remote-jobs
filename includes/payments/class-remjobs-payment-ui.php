@@ -41,6 +41,31 @@ class Remjobs_Payment_Ui
         add_action('admin_menu', array($this, 'add_orders_page'));
         add_filter('manage_remjobs_jobs_posts_columns', array($this, 'add_job_columns'));
         add_action('manage_remjobs_jobs_posts_custom_column', array($this, 'render_job_column'), 10, 2);
+        add_action('wp_trash_post', array($this, 'cancel_subscription_for_deleted_job'));
+        add_action('before_delete_post', array($this, 'cancel_subscription_for_deleted_job'));
+    }
+
+    /**
+     * Trashing/deleting a job with an active per-job subscription cancels
+     * that subscription at the gateway, so it stops billing the employer's
+     * card for a job that no longer exists (spec §9).
+     */
+    public function cancel_subscription_for_deleted_job(int $post_id): void
+    {
+        if (get_post_type($post_id) !== 'remjobs_jobs') {
+            return;
+        }
+
+        $sub = Remjobs_Subscriptions::active_for_job($post_id);
+        if (!$sub) {
+            return;
+        }
+
+        $gid = (string) $sub['gateway'];
+        if (isset($this->gateways[$gid])) {
+            $this->gateways[$gid]->cancel_subscription((string) $sub['gateway_subscription_id']);
+        }
+        Remjobs_Subscriptions::set_status((int) $sub['id'], 'canceled');
     }
 
     public function my_jobs_url(string $url): string
