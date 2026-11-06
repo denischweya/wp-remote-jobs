@@ -85,6 +85,11 @@ class Remjobs_Core
         $this->loader = new Remjobs_Loader();
         new Remjobs_Job();
         new Remjobs_Assets($this->plugin_name, $this->version);
+
+        // Payments subsystem (orders, subscriptions, plans, settings, lifecycle).
+        require_once REMJOBS_PLUGIN_PATH . 'includes/payments/class-remjobs-payments.php';
+        $payments = new Remjobs_Payments();
+        $payments->init();
     }
 
     /**
