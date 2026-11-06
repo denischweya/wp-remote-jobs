@@ -33,7 +33,113 @@ class Remjobs_Gateway_PayPal implements Remjobs_Payment_Gateway
     /** @return string hosted redirect URL; throws Exception on failure */
     public function create_checkout(array $order, array $plan, string $return_url, string $cancel_url): string
     {
-        return '';
+        $amount = number_format(
+            (float) $plan['price'],
+            in_array(strtoupper($plan['currency']), Remjobs_Plans::ZERO_DECIMAL, true) ? 0 : 2,
+            '.',
+            ''
+        );
+
+        if ($plan['type'] === 'one_time') {
+            $response = $this->request('POST', '/v2/checkout/orders', array(
+                'intent'              => 'CAPTURE',
+                'purchase_units'      => array(array(
+                    'custom_id'   => (string) $order['id'],
+                    'description' => __('Featured job listing', 'remote-jobs'),
+                    'amount'      => array(
+                        'currency_code' => $plan['currency'],
+                        'value'         => $amount,
+                    ),
+                )),
+                'application_context' => array(
+                    'return_url'         => $return_url,
+                    'cancel_url'         => $cancel_url,
+                    'user_action'        => 'PAY_NOW',
+                    'shipping_preference' => 'NO_SHIPPING',
+                ),
+            ));
+
+            return $this->approve_link($response, __('PayPal order did not return an approval link.', 'remote-jobs'));
+        }
+
+        $plan_id = $this->ensure_plan_id($plan, $amount);
+
+        $response = $this->request('POST', '/v1/billing/subscriptions', array(
+            'plan_id'             => $plan_id,
+            'custom_id'           => (string) $order['id'],
+            'application_context' => array(
+                'return_url'          => $return_url,
+                'cancel_url'          => $cancel_url,
+                'user_action'         => 'SUBSCRIBE_NOW',
+                'shipping_preference' => 'NO_SHIPPING',
+            ),
+        ));
+
+        return $this->approve_link($response, __('PayPal subscription did not return an approval link.', 'remote-jobs'));
+    }
+
+    /**
+     * Ensure a billing plan id exists for the monthly plan, creating a
+     * Product + Plan on first use and caching the plan id in settings.
+     */
+    private function ensure_plan_id(array $plan, string $amount): string
+    {
+        $cached = (string) Remjobs_Payment_Settings::get('paypal_plan_id_monthly', '');
+        if ($cached !== '') {
+            return $cached;
+        }
+
+        $product = $this->request('POST', '/v1/catalogs/products', array(
+            'name' => __('Featured listing — monthly', 'remote-jobs'),
+            'type' => 'SERVICE',
+        ));
+        if (empty($product['id'])) {
+            throw new Exception(__('Could not create PayPal product.', 'remote-jobs'));
+        }
+
+        $billing_plan = $this->request('POST', '/v1/billing/plans', array(
+            'product_id'     => (string) $product['id'],
+            'billing_cycles' => array(array(
+                'frequency'      => array(
+                    'interval_unit'  => 'MONTH',
+                    'interval_count' => 1,
+                ),
+                'tenure_type'    => 'REGULAR',
+                'sequence'       => 1,
+                'total_cycles'   => 0,
+                'pricing_scheme' => array(
+                    'fixed_price' => array(
+                        'value'         => $amount,
+                        'currency_code' => $plan['currency'],
+                    ),
+                ),
+            )),
+            'payment_preferences' => array(
+                'auto_bill_outstanding' => true,
+            ),
+        ));
+        if (empty($billing_plan['id'])) {
+            throw new Exception(__('Could not create PayPal billing plan.', 'remote-jobs'));
+        }
+
+        $plan_id = (string) $billing_plan['id'];
+        $settings = Remjobs_Payment_Settings::all();
+        $settings['paypal_plan_id_monthly'] = $plan_id;
+        update_option(Remjobs_Payment_Settings::OPTION, $settings);
+
+        return $plan_id;
+    }
+
+    /** @return string the `href` of the `links` entry whose `rel` is `approve`; throws if absent */
+    private function approve_link(array $response, string $error_message): string
+    {
+        $links = isset($response['links']) && is_array($response['links']) ? $response['links'] : array();
+        foreach ($links as $link) {
+            if (is_array($link) && ($link['rel'] ?? '') === 'approve' && !empty($link['href'])) {
+                return (string) $link['href'];
+            }
+        }
+        throw new Exception($error_message);
     }
 
     public function parse_webhook(WP_REST_Request $request): ?array
