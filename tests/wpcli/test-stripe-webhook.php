@@ -100,14 +100,21 @@ $del_evt = $g->parse_webhook($del_req);
 remjobs_t_assert($del_evt['kind'] === 'subscription_canceled', 'customer.subscription.deleted mapped');
 remjobs_t_assert($del_evt['subscription']['gateway_subscription_id'] === 'sub_del', 'canceled subscription id');
 
-// Unknown event type -> null
+// Signature-valid but unmapped event type -> 'ignored' (NOT null; null is
+// reserved for signature failure so the handler can distinguish them).
 $unk_body = json_encode(array('id'=>'evt_6','type'=>'charge.refunded','data'=>array('object'=>array())));
 $unk_t = time();
 $unk_sig = hash_hmac('sha256', $unk_t . '.' . $unk_body, 'whsec_test');
 $unk_req = new WP_REST_Request('POST', '/remjobs/v1/webhooks/stripe');
 $unk_req->set_body($unk_body);
 $unk_req->set_header('stripe_signature', "t={$unk_t},v1={$unk_sig}");
-remjobs_t_assert($g->parse_webhook($unk_req) === null, 'unknown event type returns null');
+$unk_evt = $g->parse_webhook($unk_req);
+remjobs_t_assert(is_array($unk_evt) && $unk_evt['kind'] === 'ignored', 'signature-valid unmapped event returns ignored, not null');
+remjobs_t_assert($unk_evt['event_id'] === 'evt_6', 'ignored event still carries event id');
+
+// A bad signature on an unmapped type still returns null (verification failure).
+$unk_req->set_header('stripe_signature', "t={$unk_t},v1=deadbeef");
+remjobs_t_assert($g->parse_webhook($unk_req) === null, 'bad signature returns null even for unmapped type');
 
 update_option('remjobs_payment_settings', Remjobs_Payment_Settings::defaults());
 remjobs_t_done();

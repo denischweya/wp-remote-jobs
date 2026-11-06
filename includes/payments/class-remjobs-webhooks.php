@@ -44,7 +44,21 @@ class Remjobs_Webhooks
         $event = $this->gateways[$gid]->parse_webhook($request);
         if ($event === null) {
             return new WP_REST_Response(array('ok' => false), 400);
-        } // bad signature / irrelevant
+        } // signature/verification failure only
+
+        // Signature-valid but unmapped/irrelevant event: acknowledge, no action.
+        if (($event['kind'] ?? '') === 'ignored') {
+            return new WP_REST_Response(array('ok' => true), 200);
+        }
+
+        // Event-id dedupe: a replayed or out-of-order redelivery of an
+        // already-processed event is a no-op. Covers renew()/cancel() which
+        // have no order-status guard of their own.
+        $event_id = (string) ($event['event_id'] ?? '');
+        $dedupe_key = $event_id !== '' ? 'remjobs_wh_' . $gid . '_' . $event_id : '';
+        if ($dedupe_key !== '' && get_transient($dedupe_key)) {
+            return new WP_REST_Response(array('ok' => true), 200);
+        }
 
         switch ($event['kind']) {
             case 'payment_succeeded':
@@ -60,6 +74,11 @@ class Remjobs_Webhooks
                 $this->fulfillment->cancel($event);
                 break;
         }
+
+        if ($dedupe_key !== '') {
+            set_transient($dedupe_key, 1, DAY_IN_SECONDS);
+        }
+
         return new WP_REST_Response(array('ok' => true), 200);
     }
 }

@@ -111,7 +111,11 @@ class Remjobs_Gateway_Stripe implements Remjobs_Payment_Gateway
         return $price_id;
     }
 
-    /** @return array|null normalized event (see plan); null if unverified/irrelevant */
+    /**
+     * @return array|null normalized event (see plan). `null` ONLY on
+     *               signature/verification failure; a signature-valid but
+     *               unmapped event returns array('kind'=>'ignored', 'event_id'=>...).
+     */
     public function parse_webhook(WP_REST_Request $request): ?array
     {
         $payload = $request->get_body();
@@ -215,7 +219,11 @@ class Remjobs_Gateway_Stripe implements Remjobs_Payment_Gateway
                 );
 
             default:
-                return null;
+                // Signature-valid but unmapped/irrelevant event: acknowledge
+                // it (HTTP 200, no action) so Stripe doesn't treat repeated
+                // 4xx as failures and auto-disable the endpoint. `null` is
+                // reserved strictly for signature/verification failure.
+                return array('kind' => 'ignored', 'event_id' => $event_id);
         }
     }
 
