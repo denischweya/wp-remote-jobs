@@ -97,6 +97,16 @@ class Remjobs_Subscriptions
         return $row ?: null;
     }
 
+    public static function active_account_for_user(int $user_id): ?array
+    {
+        global $wpdb;
+        $row = $wpdb->get_row(
+            $wpdb->prepare('SELECT * FROM ' . self::table() . " WHERE user_id = %d AND scope = 'account' AND status = 'active' ORDER BY id DESC LIMIT 1", $user_id),
+            ARRAY_A
+        );
+        return $row ?: null;
+    }
+
     public static function active_count_for_user(int $user_id): int
     {
         global $wpdb;

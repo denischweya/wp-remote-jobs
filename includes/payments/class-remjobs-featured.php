@@ -146,6 +146,9 @@ class Remjobs_Featured
             if (Remjobs_Subscriptions::active_for_job((int) $job_id) !== null) {
                 continue;
             }
+            if (Remjobs_Subscriptions::active_account_for_user((int) get_post_field('post_author', $job_id)) !== null) {
+                continue;
+            }
             $this->expire_feature((int) $job_id);
         }
 
