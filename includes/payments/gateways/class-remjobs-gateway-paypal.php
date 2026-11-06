@@ -142,14 +142,132 @@ class Remjobs_Gateway_PayPal implements Remjobs_Payment_Gateway
         throw new Exception($error_message);
     }
 
+    /**
+     * @return array|null normalized event (see plan). `null` ONLY on
+     *               signature/verification failure; a verified but
+     *               unmapped event returns array('kind'=>'ignored', 'event_id'=>...).
+     */
     public function parse_webhook(WP_REST_Request $request): ?array
     {
-        return null;
+        $algo = (string) $request->get_header('paypal_auth_algo');
+        $cert_url = (string) $request->get_header('paypal_cert_url');
+        $transmission_id = (string) $request->get_header('paypal_transmission_id');
+        $transmission_sig = (string) $request->get_header('paypal_transmission_sig');
+        $transmission_time = (string) $request->get_header('paypal_transmission_time');
+
+        $body = $request->get_body();
+        $event = json_decode((string) $body, true);
+        if (!is_array($event) || empty($event['id']) || empty($event['event_type'])) {
+            return null;
+        }
+
+        try {
+            $verify = $this->request('POST', '/v1/notifications/verify-webhook-signature', array(
+                'auth_algo'         => $algo,
+                'cert_url'          => $cert_url,
+                'transmission_id'   => $transmission_id,
+                'transmission_sig'  => $transmission_sig,
+                'transmission_time' => $transmission_time,
+                'webhook_id'        => (string) Remjobs_Payment_Settings::get('paypal_webhook_id', ''),
+                'webhook_event'     => $event,
+            ));
+        } catch (Exception $e) {
+            return null;
+        }
+
+        if (($verify['verification_status'] ?? '') !== 'SUCCESS') {
+            return null;
+        }
+
+        $event_id = (string) $event['id'];
+        $r = isset($event['resource']) && is_array($event['resource']) ? $event['resource'] : array();
+
+        switch ($event['event_type']) {
+            case 'CHECKOUT.ORDER.APPROVED':
+                // Capture server-side; the resulting PAYMENT.CAPTURE.COMPLETED
+                // event drives fulfillment. Let a capture failure throw so
+                // PayPal retries the webhook delivery.
+                $this->request('POST', '/v2/checkout/orders/' . rawurlencode((string) $r['id']) . '/capture', array());
+                return array('kind' => 'ignored', 'event_id' => $event_id);
+
+            case 'PAYMENT.CAPTURE.COMPLETED':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'payment_succeeded',
+                    'order_id'         => isset($r['custom_id']) ? (int) $r['custom_id'] : null,
+                    'gateway_order_id' => (string) ($r['id'] ?? ''),
+                    'subscription'     => null,
+                );
+
+            case 'BILLING.SUBSCRIPTION.ACTIVATED':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'payment_succeeded',
+                    'order_id'         => isset($r['custom_id']) ? (int) $r['custom_id'] : null,
+                    'gateway_order_id' => (string) ($r['id'] ?? ''),
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($r['id'] ?? ''),
+                        'gateway_customer_id'     => (string) ($r['subscriber']['payer_id'] ?? ''),
+                        'current_period_end'      => $this->paypal_date($r['billing_info']['next_billing_time'] ?? null),
+                        'status'                  => 'active',
+                    ),
+                );
+
+            case 'PAYMENT.SALE.COMPLETED':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'subscription_renewed',
+                    'order_id'         => null,
+                    'gateway_order_id' => (string) ($r['id'] ?? ''),
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($r['billing_agreement_id'] ?? ''),
+                        'gateway_customer_id'     => '',
+                        'current_period_end'      => null,
+                        'status'                  => 'active',
+                    ),
+                );
+
+            case 'BILLING.SUBSCRIPTION.CANCELLED':
+            case 'BILLING.SUBSCRIPTION.EXPIRED':
+            case 'BILLING.SUBSCRIPTION.SUSPENDED':
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'subscription_canceled',
+                    'order_id'         => null,
+                    'gateway_order_id' => '',
+                    'subscription'     => array(
+                        'gateway_subscription_id' => (string) ($r['id'] ?? ''),
+                        'gateway_customer_id'     => '',
+                        'current_period_end'      => null,
+                        'status'                  => 'canceled',
+                    ),
+                );
+
+            default:
+                return array('kind' => 'ignored', 'event_id' => $event_id);
+        }
+    }
+
+    /** Convert an ISO-8601 timestamp (e.g. `2026-12-06T10:00:00Z`) to `Y-m-d H:i:s` UTC, or null. */
+    private function paypal_date(?string $iso): ?string
+    {
+        if ($iso === null || $iso === '') {
+            return null;
+        }
+        $ts = strtotime($iso);
+        return $ts !== false ? gmdate('Y-m-d H:i:s', $ts) : null;
     }
 
     public function cancel_subscription(string $gateway_subscription_id): bool
     {
-        return false;
+        try {
+            $this->request('POST', '/v1/billing/subscriptions/' . rawurlencode($gateway_subscription_id) . '/cancel', array(
+                'reason' => __('Canceled by customer.', 'remote-jobs'),
+            ));
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     private function base_url(): string
