@@ -104,5 +104,208 @@ class Remjobs_Payment_Ui
         exit;
     }
 
-    // render_my_jobs/add_orders_page/add_job_columns/render_job_column -> Tasks 3-4.
+    /**
+     * [remjobs_my_jobs] shortcode: lists the current user's jobs with status,
+     * featured/expiry state, and Feature / Cancel subscription actions.
+     */
+    public function render_my_jobs($atts = array()): string
+    {
+        if (!is_user_logged_in()) {
+            return '<div class="remjobs-notice remjobs-my-jobs-login">'
+                . esc_html__('Please log in to see your jobs.', 'remote-jobs')
+                . '</div>';
+        }
+
+        $user_id = get_current_user_id();
+        $out = $this->render_notices($user_id);
+        $out .= $this->render_return_cancel_notice();
+
+        $jobs = get_posts(array(
+            'post_type'      => 'remjobs_jobs',
+            'post_status'    => 'any',
+            'author'         => $user_id,
+            'posts_per_page' => 50,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ));
+
+        $out .= '<table class="remjobs-my-jobs"><thead><tr>'
+            . '<th>' . esc_html__('Title', 'remote-jobs') . '</th>'
+            . '<th>' . esc_html__('Status', 'remote-jobs') . '</th>'
+            . '<th>' . esc_html__('Action', 'remote-jobs') . '</th>'
+            . '</tr></thead><tbody>';
+
+        foreach ($jobs as $job) {
+            $out .= '<tr>';
+            $out .= '<td>' . esc_html(get_the_title($job)) . '</td>';
+            $out .= '<td>' . esc_html($this->job_status_label((int) $job->ID, $job->post_status)) . '</td>';
+            $out .= '<td>' . $this->render_job_action((int) $job->ID, $job->post_status) . '</td>';
+            $out .= '</tr>';
+        }
+
+        $out .= '</tbody></table>';
+
+        return $out;
+    }
+
+    /**
+     * Human-readable status label for a My Jobs row.
+     */
+    private function job_status_label(int $job_id, string $post_status): string
+    {
+        $payment_status = get_post_meta($job_id, '_remjobs_payment_status', true);
+        if ($post_status === 'draft' && $payment_status === 'awaiting') {
+            return __('Awaiting payment', 'remote-jobs');
+        }
+        if ($post_status === 'publish' && $this->featured->is_featured($job_id)) {
+            $expires = get_post_meta($job_id, '_remjobs_featured_expires', true);
+            return sprintf(
+                /* translators: %s: expiry date */
+                __('Featured until %s', 'remote-jobs'),
+                $expires ? $expires : __('unknown', 'remote-jobs')
+            );
+        }
+        return $post_status;
+    }
+
+    /**
+     * Action cell for a My Jobs row: Feature form, or renewal date + Cancel
+     * subscription form when the feature is backed by an active subscription.
+     */
+    private function render_job_action(int $job_id, string $post_status): string
+    {
+        $is_featured = $this->featured->is_featured($job_id);
+        $sub_id = (int) get_post_meta($job_id, '_remjobs_feature_subscription_id', true);
+
+        if ($is_featured && $sub_id > 0) {
+            $expires = get_post_meta($job_id, '_remjobs_featured_expires', true);
+            $html = '<div class="remjobs-renewal">';
+            $html .= sprintf(
+                /* translators: %s: renewal date */
+                esc_html__('Renews %s', 'remote-jobs'),
+                esc_html($expires ? $expires : '')
+            );
+            $html .= '</div>';
+            $html .= $this->cancel_subscription_form($sub_id);
+            return $html;
+        }
+
+        if (!$is_featured && in_array($post_status, array('publish', 'pending', 'draft'), true)) {
+            return $this->feature_form($job_id);
+        }
+
+        return '';
+    }
+
+    /**
+     * Feature form: plan + gateway choice, posting to admin-post.php.
+     */
+    private function feature_form(int $job_id): string
+    {
+        $gateway_choices = $this->enabled_gateway_choices();
+        if (empty($gateway_choices)) {
+            return '';
+        }
+
+        $html = '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        $html .= '<input type="hidden" name="action" value="remjobs_start_checkout" />';
+        $html .= '<input type="hidden" name="job_id" value="' . esc_attr((string) $job_id) . '" />';
+        $html .= wp_nonce_field('remjobs_start_checkout', '_wpnonce', true, false);
+
+        $html .= '<select name="plan">';
+        foreach (Remjobs_Plans::ids() as $plan_id) {
+            $plan = Remjobs_Plans::get($plan_id);
+            if (!$plan) {
+                continue;
+            }
+            $html .= '<option value="' . esc_attr($plan_id) . '">'
+                . esc_html($plan_id) . ' (' . esc_html($plan['price']) . ' ' . esc_html($plan['currency']) . ')'
+                . '</option>';
+        }
+        $html .= '</select>';
+
+        $html .= '<select name="gateway">';
+        foreach ($gateway_choices as $gid => $glabel) {
+            $html .= '<option value="' . esc_attr($gid) . '">' . esc_html($glabel) . '</option>';
+        }
+        $html .= '</select>';
+
+        $html .= '<button type="submit">' . esc_html__('Feature', 'remote-jobs') . '</button>';
+        $html .= '</form>';
+
+        return $html;
+    }
+
+    /**
+     * Cancel subscription form, posting to admin-post.php.
+     */
+    private function cancel_subscription_form(int $subscription_id): string
+    {
+        $html = '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        $html .= '<input type="hidden" name="action" value="remjobs_cancel_subscription" />';
+        $html .= '<input type="hidden" name="subscription_id" value="' . esc_attr((string) $subscription_id) . '" />';
+        $html .= wp_nonce_field('remjobs_cancel_subscription', '_wpnonce', true, false);
+        $html .= '<button type="submit">' . esc_html__('Cancel subscription', 'remote-jobs') . '</button>';
+        $html .= '</form>';
+
+        return $html;
+    }
+
+    /**
+     * Prepend+consume any pending error/notice transient for this user.
+     */
+    private function render_notices(int $user_id): string
+    {
+        $out = '';
+
+        $error = get_transient('remjobs_ui_error_' . $user_id);
+        if ($error) {
+            delete_transient('remjobs_ui_error_' . $user_id);
+            $out .= '<div class="remjobs-notice remjobs-error">' . esc_html((string) $error) . '</div>';
+        }
+
+        $notice = get_transient('remjobs_ui_notice_' . $user_id);
+        if ($notice) {
+            delete_transient('remjobs_ui_notice_' . $user_id);
+            $out .= '<div class="remjobs-notice remjobs-success">' . esc_html((string) $notice) . '</div>';
+        }
+
+        return $out;
+    }
+
+    /**
+     * Return/cancel notice from the gateway redirect: verifies the return
+     * nonce and looks up the order by key before showing any status text.
+     */
+    private function render_return_cancel_notice(): string
+    {
+        if (isset($_GET['remjobs_cancel'])) {
+            return '<div class="remjobs-notice remjobs-cancel">'
+                . esc_html__('Checkout was canceled.', 'remote-jobs')
+                . '</div>';
+        }
+
+        if (isset($_GET['remjobs_return']) && isset($_GET['_wpnonce'])) {
+            $key = sanitize_text_field(wp_unslash($_GET['remjobs_return']));
+            $nonce = sanitize_text_field(wp_unslash($_GET['_wpnonce']));
+
+            if (wp_verify_nonce($nonce, 'remjobs_return_' . $key)) {
+                $order = Remjobs_Orders::get_by_key($key);
+                if ($order) {
+                    if ($order['status'] === 'paid') {
+                        return '<div class="remjobs-notice remjobs-success">'
+                            . esc_html__('Payment received — your listing is being published.', 'remote-jobs')
+                            . '</div>';
+                    }
+                    return '<div class="remjobs-notice remjobs-pending">'
+                        . esc_html__('We are confirming your payment…', 'remote-jobs')
+                        . '</div>';
+                }
+            }
+        }
+
+        return '';
+    }
+
+    // add_orders_page/add_job_columns/render_job_column -> Task 4.
 }
