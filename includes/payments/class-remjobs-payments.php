@@ -16,6 +16,9 @@ class Remjobs_Payments
     /** @var Remjobs_Payment_Settings */
     private $settings;
 
+    /** @var Remjobs_Featured */
+    private $featured;
+
     public function __construct()
     {
         $base = REMJOBS_PLUGIN_PATH . 'includes/payments/';
@@ -23,15 +26,20 @@ class Remjobs_Payments
         require_once $base . 'class-remjobs-plans.php';
         require_once $base . 'class-remjobs-orders.php';
         require_once $base . 'class-remjobs-subscriptions.php';
+        require_once $base . 'class-remjobs-featured.php';
         require_once REMJOBS_PLUGIN_PATH . 'includes/class-remjobs-activator.php';
 
         $this->settings = new Remjobs_Payment_Settings();
+        $this->featured = new Remjobs_Featured();
     }
 
     public function init(): void
     {
         add_action('plugins_loaded', array($this, 'maybe_upgrade_schema'), 20);
         $this->settings->register();
+
+        add_action(Remjobs_Featured::CRON_HOOK, array($this->featured, 'run_expiry_sweep'));
+        add_action('init', array($this, 'maybe_schedule_cron'));
     }
 
     /**
@@ -41,6 +49,16 @@ class Remjobs_Payments
     {
         if (get_option('remjobs_db_version') !== REMJOBS_DB_VERSION) {
             Remjobs_Activator::create_tables();
+        }
+    }
+
+    /**
+     * Self-heal the hourly featured-expiry cron if it is missing.
+     */
+    public function maybe_schedule_cron(): void
+    {
+        if (!wp_next_scheduled(Remjobs_Featured::CRON_HOOK)) {
+            wp_schedule_event(time() + HOUR_IN_SECONDS, 'hourly', Remjobs_Featured::CRON_HOOK);
         }
     }
 }

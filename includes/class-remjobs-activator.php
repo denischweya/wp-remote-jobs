@@ -38,6 +38,11 @@ class Remjobs_Activator
         // Seed default payment settings on first activation.
         self::seed_payment_settings();
 
+        // Schedule the hourly featured-expiry cron.
+        if (!wp_next_scheduled('remjobs_feature_expiry_check')) {
+            wp_schedule_event(time() + HOUR_IN_SECONDS, 'hourly', 'remjobs_feature_expiry_check');
+        }
+
         // Schedule a one-time action to flush rewrite rules
         add_action('init', array(__CLASS__, 'flush_rewrite_rules_on_activation'), 20);
     }
