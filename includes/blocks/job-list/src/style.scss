@@ -212,20 +212,10 @@ $font-color: #232323;
 
 		&.premium {
 			border-color: var(--wp--preset--color--accent-3);
-
-			&::before {
-				content: "Premium";
-				position: absolute;
-				top: 10px;
-				right: 10px;
-				background: var(--wp--preset--color--accent-3);
-				color: $font-color;
-				font-size: 12px;
-				font-weight: 600;
-				padding: 3px 8px;
-				border-radius: 12px;
-				z-index: 1;
-			}
+			// The "Premium" ribbon is rendered as real markup (see
+			// remjobs_render_premium_badge_html()) rather than this
+			// pseudo-element, so it can include an icon and isn't
+			// limited to plain text.
 		}
 
 		.job-card-header {
@@ -416,20 +406,10 @@ $font-color: #232323;
 
 		&.premium {
 			border-color: var(--wp--preset--color--accent-3);
-
-			&::before {
-				content: "Premium";
-				position: absolute;
-				top: 10px;
-				right: 10px;
-				background: var(--wp--preset--color--accent-3);
-				color: $font-color;
-				font-size: 12px;
-				font-weight: 600;
-				padding: 3px 8px;
-				border-radius: 12px;
-				z-index: 1;
-			}
+			// The "Premium" ribbon is rendered as real markup (see
+			// remjobs_render_premium_badge_html()) rather than this
+			// pseudo-element, so it can include an icon and isn't
+			// limited to plain text.
 		}
 
 		.job-row-main {
@@ -714,20 +694,6 @@ $font-color: #232323;
 
 	&.premium {
 		border-color: #ffc107;
-
-		&::before {
-			content: "Premium";
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			background: #ffc107;
-			color: #000;
-			font-size: 12px;
-			font-weight: 600;
-			padding: 3px 8px;
-			border-radius: 12px;
-			z-index: 1;
-		}
 	}
 
 	// Transform job-row-main to act as card header

@@ -11,6 +11,11 @@
  * @package    Wp_Remote_Jobs
  * @subpackage Wp_Remote_Jobs/public/partials
  */
+
+// If this file is called directly, abort.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->

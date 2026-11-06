@@ -2,24 +2,24 @@
 Contributors: Afrothemes, Fortisthemes
 Tags: jobs, remote jobs, job board, recruitment
 Requires at least: 5.8
-Tested up to: 6.8
-Stable tag: 1.0.7
+Tested up to: 7.2
+Stable tag: 1.0.8
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Create a powerful Remote Jobs on your WordPress site with 4 customizable Gutenberg blocks for job listings, search, categories, and application forms.
+Build a remote job board on WordPress with 4 Gutenberg blocks: a filterable job list, a job detail sidebar, a job submission form, and a company registration form.
 
 == Description ==
 
-Transform your WordPress website into a fully-featured Remote Jobs with WP Remote Jobs. This plugin provides four essential Gutenberg blocks designed to create a seamless job listing and application experience:
+Remote Jobs turns a WordPress site into a job board using a custom "Job" post type and four Gutenberg blocks:
 
 **Key Features:**
 
-* **Jobs Grid Block:** Display job listings in a responsive grid layout with filtering options for categories, experience levels, and job types
-* **Job Search Block:** Advanced search functionality with auto-complete and filters for location, salary range, and employment type
-* **Job Categories Block:** Showcase job categories in an intuitive interface with category icons and post counts
-* **Job Application Block:** Custom application form with resume upload, cover letter, and automated email notifications
+* **Job List Block:** Displays job postings in a grid or list layout, with search and dropdown filters for category, location, and skills. Filtering runs over AJAX, and category/location/skills/employment-type archive pages are supported out of the box via custom taxonomies.
+* **Job Sidebar Block:** Shown on a single job's page, it displays company, salary range, location, employment type, application deadline, required skills, and benefits, plus an Apply Now button and a link to the company's website.
+* **Submit Job Block:** A front-end form for logged-in users with the `publish_posts` capability to submit a job listing. New submissions are saved as `pending` so a site admin can review them before they go live.
+* **Company Registration Block:** A front-end sign-up form for employers. Submitting it creates a new WordPress user account (with the `author` role, so the account can use the Submit Job block) and emails the new user their login details.
 
 Perfect for:
 * Career websites
@@ -28,7 +28,7 @@ Perfect for:
 * Remote work communities
 * Professional associations
 
-The plugin integrates seamlessly with WordPress's block editor while maintaining excellent performance and SEO optimization out of the box.
+All four blocks work with any block theme. A companion "Remote Jobs" theme is also available, with templates and styling tuned specifically for this plugin's blocks.
 
 == Installation ==
 
@@ -56,6 +56,18 @@ The Remote Jobs plugin is designed to work with any WordPress theme that support
 The plugin follows WordPress best practices for data handling. For job applications, ensure you add appropriate privacy notices and obtain user consent as required by GDPR and other privacy regulations.
 
 == Changelog ==
+
+= 1.0.8 =
+* Fixed: company name was never displayed on job cards (only a one-letter logo placeholder); job-list.php now reads the existing `_remjobs_company` meta it was already populated with.
+* Fixed: remote location was duplicated in job cards and list rows when both meta and taxonomy data were present.
+* Fixed: the job list block's view.js was being enqueued twice under different handles, double-firing a DOMContentLoaded listener and duplicating an unstyled "star" indicator on every premium card; removed the redundant enqueue and the dead indicator code.
+* Fixed: a `padding: 20rem` typo in the Submit Job block's stylesheet (meant to be `2rem`).
+* Fixed: company registration created `subscriber` accounts, which lack the `publish_posts` capability the Submit Job block requires, so a new employer could never actually submit a job after registering. Accounts are now created with the `author` role.
+* Added: Submit Job block now also collects and validates company name and remote location.
+* Added: Job Sidebar block now also shows location, employment type, application deadline, required skills, and benefits (taxonomy data that existed but was not displayed).
+* Added: job cards show an individually-tagged skill list and a real "Premium" badge (icon + label) instead of a CSS-only ribbon, and a human-readable "posted X ago" time.
+* Removed: two orphaned, unreferenced `block.php` files (in `job-list/` and `submit-job/`) left over from an earlier refactor; one redeclared a function already defined in the active file, a latent fatal-error risk if ever accidentally included.
+* Security: added the standard "if this file is called directly, abort" guard to several class and template-partial files that were missing it.
 
 = 1.0.7 =
 * Fixed WordPress.org guidelines violation: Replace hardcoded wp-admin/admin-ajax.php URLs with proper admin_url() function

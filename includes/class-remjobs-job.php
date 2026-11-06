@@ -27,7 +27,7 @@ class Remjobs_Job
     {
         add_action('init', array($this, 'register_meta_fields'));
         add_action('add_meta_boxes', array($this, 'add_job_meta_boxes'));
-        add_action('save_post_jobs', array($this, 'save_job_meta'));
+        add_action('save_post_remjobs_jobs', array($this, 'save_job_meta'));
     }
 
     /**
@@ -74,7 +74,7 @@ class Remjobs_Job
             'remjobs_details',
             __('Job Details', 'remote-jobs'),
             array($this, 'render_job_meta_box'),
-            'remjobs',
+            'remjobs_jobs',
             'normal',
             'high'
         );
@@ -134,6 +134,9 @@ class Remjobs_Job
      */
     public function save_job_meta($post_id): void
     {
+        if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || !current_user_can('edit_post', $post_id)) {
+            return;
+        }
         // Verify nonce
         $nonce = isset($_POST['remjobs_meta_nonce']) ? sanitize_text_field(wp_unslash($_POST['remjobs_meta_nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'remjobs_save_meta')) {
@@ -146,6 +149,19 @@ class Remjobs_Job
             if (isset($_POST[$field])) {
                 $value = sanitize_text_field(wp_unslash($_POST[$field]));
                 update_post_meta($post_id, $field, $value);
+                // Keep the fields used by the public blocks in sync with the editor.
+                $public_keys = array(
+                    'salary_range' => '_remjobs_salary',
+                    'company_name' => '_remjobs_company_name',
+                    'company_website' => '_remjobs_company_website',
+                    'application_deadline' => '_remjobs_expiry_date',
+                );
+                if (isset($public_keys[$field])) {
+                    update_post_meta($post_id, $public_keys[$field], $value);
+                }
+                if ($field === 'company_name') {
+                    update_post_meta($post_id, '_remjobs_company', $value);
+                }
             }
         }
     }

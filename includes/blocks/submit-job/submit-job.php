@@ -80,6 +80,16 @@ function remjobs_render_submit_job_block($attributes, $content, $block)
         </div>
 
         <div class="form-group">
+            <label for="company-name"><?php esc_html_e('Company Name', 'remote-jobs'); ?></label>
+            <input type="text" id="company-name" name="company_name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="job-location"><?php esc_html_e('Remote Location', 'remote-jobs'); ?></label>
+            <input type="text" id="job-location" name="job_location" placeholder="Worldwide, EMEA, US…" required />
+        </div>
+
+        <div class="form-group">
             <label
                 for="job-type"><?php esc_html_e('Employment Type', 'remote-jobs'); ?></label>
             <select id="job-type" name="job_type" required>
@@ -182,6 +192,8 @@ function remjobs_handle_job_submission()
     $job_title = isset($_POST['job_title']) ? sanitize_text_field(wp_unslash($_POST['job_title'])) : '';
     $job_description = isset($_POST['job_description']) ? wp_kses_post(wp_unslash($_POST['job_description'])) : '';
     $job_type = isset($_POST['job_type']) ? sanitize_text_field(wp_unslash($_POST['job_type'])) : '';
+    $company_name = isset($_POST['company_name']) ? sanitize_text_field(wp_unslash($_POST['company_name'])) : '';
+    $job_location = isset($_POST['job_location']) ? sanitize_text_field(wp_unslash($_POST['job_location'])) : '';
     $salary_range = isset($_POST['salary_range']) ? sanitize_text_field(wp_unslash($_POST['salary_range'])) : '';
     $application_link = isset($_POST['application_link']) ? esc_url_raw(wp_unslash($_POST['application_link'])) : '';
 
@@ -194,6 +206,10 @@ function remjobs_handle_job_submission()
 
     if (empty($job_description)) {
         $errors[] = esc_html__('Job description is required.', 'remote-jobs');
+    }
+
+    if (empty($company_name) || empty($job_location)) {
+        $errors[] = esc_html__('Company name and remote location are required.', 'remote-jobs');
     }
 
     if (empty($job_type)) {
@@ -275,7 +291,14 @@ function remjobs_handle_job_submission()
         // Save additional meta data
         update_post_meta($job_id, '_remjobs_job_type', $job_type);
         update_post_meta($job_id, '_remjobs_salary_range', $salary_range);
+        update_post_meta($job_id, '_remjobs_salary', $salary_range);
         update_post_meta($job_id, '_remjobs_application_link', $application_link);
+        update_post_meta($job_id, '_remjobs_application_url', $application_link);
+        update_post_meta($job_id, '_remjobs_company_name', $company_name);
+        update_post_meta($job_id, '_remjobs_company', $company_name);
+        update_post_meta($job_id, '_remjobs_location', $job_location);
+        wp_set_object_terms($job_id, $job_location, 'remjobs_job_location');
+        wp_set_object_terms($job_id, $job_type, 'remjobs_job_employment_type');
 
         // Clean up session data if used
         if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['remjobs_job_form_data'])) {

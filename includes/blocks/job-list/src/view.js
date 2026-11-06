@@ -235,27 +235,6 @@ function setupSaveJobButtons() {
 }
 
 /**
- * Highlight premium jobs with crown icon
- */
-document.addEventListener("DOMContentLoaded", function () {
-	// Add premium job indicators
-	const premiumJobs = document.querySelectorAll(
-		".job-card.premium, .job-row.premium",
-	);
-
-	premiumJobs.forEach((job) => {
-		const indicator = document.createElement("div");
-		indicator.className = "premium-indicator";
-		indicator.innerHTML = `
-			<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-				<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
-			</svg>
-		`;
-		job.appendChild(indicator);
-	});
-});
-
-/**
  * Save job functionality
  */
 document.addEventListener("DOMContentLoaded", function () {

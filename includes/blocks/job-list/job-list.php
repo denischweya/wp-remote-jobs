@@ -45,15 +45,15 @@ function remjobs_render_job_list_block($attributes)
     $background_color = !empty($attributes['backgroundColor']) ? $attributes['backgroundColor'] : '#f7f9fc';
     $layout = !empty($attributes['layout']) ? $attributes['layout'] : 'grid';
     $posts_per_page = !empty($attributes['postsPerPage']) ? intval($attributes['postsPerPage']) : 10;
-    $show_toggle = !empty($attributes['showToggle']) ? $attributes['showToggle'] : true;
-    $show_filters = !empty($attributes['showFilters']) ? $attributes['showFilters'] : false;
+    $show_toggle = isset($attributes['showToggle']) ? (bool) $attributes['showToggle'] : true;
+    $show_filters = isset($attributes['showFilters']) ? (bool) $attributes['showFilters'] : true;
     $featured_only = !empty($attributes['featuredOnly']) ? $attributes['featuredOnly'] : false;
 
     // Filter visibility settings
-    $show_category_filter = !empty($attributes['showCategoryFilter']) ? $attributes['showCategoryFilter'] : true;
-    $show_location_filter = !empty($attributes['showLocationFilter']) ? $attributes['showLocationFilter'] : true;
-    $show_skills_filter = !empty($attributes['showSkillsFilter']) ? $attributes['showSkillsFilter'] : false;
-    $show_search_filter = !empty($attributes['showSearchFilter']) ? $attributes['showSearchFilter'] : true;
+    $show_category_filter = isset($attributes['showCategoryFilter']) ? (bool) $attributes['showCategoryFilter'] : true;
+    $show_location_filter = isset($attributes['showLocationFilter']) ? (bool) $attributes['showLocationFilter'] : true;
+    $show_skills_filter = isset($attributes['showSkillsFilter']) ? (bool) $attributes['showSkillsFilter'] : true;
+    $show_search_filter = isset($attributes['showSearchFilter']) ? (bool) $attributes['showSearchFilter'] : true;
 
     // Taxonomy filters
     $filter_by_category = !empty($attributes['filterByCategory']) ? $attributes['filterByCategory'] : array();
@@ -437,9 +437,16 @@ function remjobs_render_job_list_block($attributes)
 
             if ($layout === 'grid') {
                 // Grid layout - card style
+                $avatar_hue = remjobs_job_avatar_hue_class(get_the_ID());
+                $posted_ago = sprintf(
+                    /* translators: %s: human-readable time difference, e.g. "2 hours" */
+                    __('%s ago', 'remote-jobs'),
+                    human_time_diff(get_the_time('U'), current_time('timestamp'))
+                );
                 ?>
 <div class="job-card <?php echo esc_attr($premium_class); ?>">
     <div class="job-card-header">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
         <?php if (has_post_thumbnail() || !empty($company)) : ?>
         <div class="company-logo-container">
             <?php if (has_post_thumbnail()) : ?>
@@ -447,23 +454,32 @@ function remjobs_render_job_list_block($attributes)
                 <?php the_post_thumbnail('thumbnail'); ?>
             </div>
             <?php elseif (!empty($company)) : ?>
-            <div class="company-logo-placeholder">
+            <div class="company-logo-placeholder <?php echo esc_attr($avatar_hue); ?>">
                 <?php echo esc_html(isset($company[0]) ? $company[0] : '?'); ?>
             </div>
             <?php endif; ?>
         </div>
         <?php endif; ?>
+        <?php echo remjobs_render_premium_badge_html($featured); // phpcs:ignore WordPress.Security.EscapeOutput -- trusted, pre-escaped markup from this file. ?>
+        </div>
 
         <h3 class="job-title">
             <a
                 href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
         </h3>
 
-        <?php if ($category_name) : ?>
+        <?php if ($company || $category_name) : ?>
         <div class="job-company">
-            <?php esc_html_e('in', 'remote-jobs'); ?>
+            <?php if ($company) : ?>
+            <span class="company-name"><?php echo esc_html($company); ?></span>
+            <?php endif; ?>
+            <?php if ($company && $category_name) : ?>
+            &middot;
+            <?php endif; ?>
+            <?php if ($category_name) : ?>
             <span
                 class="job-category"><?php echo esc_html($category_name); ?></span>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
     </div>
@@ -489,17 +505,15 @@ function remjobs_render_job_list_block($attributes)
 
         <?php if (!empty($skills_list)) : ?>
         <div class="job-skills">
-            <div class="skills-label">
-                <?php esc_html_e('Skills:', 'remote-jobs'); ?>
-            </div>
             <div class="skills-list">
-                <?php echo esc_html(implode(', ', $skills_list)); ?>
+                <?php echo wp_kses_post(remjobs_render_skill_tags_html($skills_list)); ?>
             </div>
         </div>
         <?php endif; ?>
     </div>
 
     <div class="job-card-footer">
+        <span class="job-date"><?php echo esc_html($posted_ago); ?></span>
         <a href="#" class="save-job-button"
             data-job-id="<?php echo esc_attr(get_the_ID()); ?>"
             aria-label="<?php esc_attr_e('Save job', 'remote-jobs'); ?>">
@@ -512,6 +526,13 @@ function remjobs_render_job_list_block($attributes)
 <?php
             } else {
                 // List layout - match the original block structure
+                $avatar_hue = remjobs_job_avatar_hue_class(get_the_ID());
+                $posted_ago = sprintf(
+                    /* translators: %s: human-readable time difference, e.g. "2 hours" */
+                    __('%s ago', 'remote-jobs'),
+                    human_time_diff(get_the_time('U'), current_time('timestamp'))
+                );
+
                 echo '<div class="job-row' . esc_attr($premium_class) . '">';
 
                 echo '<div class="job-row-main">';
@@ -524,7 +545,7 @@ function remjobs_render_job_list_block($attributes)
                         the_post_thumbnail('thumbnail');
                         echo '</div>';
                     } elseif (!empty($company)) {
-                        echo '<div class="company-logo-placeholder">';
+                        echo '<div class="company-logo-placeholder ' . esc_attr($avatar_hue) . '">';
                         echo esc_html(isset($company[0]) ? $company[0] : '?');
                         echo '</div>';
                     }
@@ -532,34 +553,22 @@ function remjobs_render_job_list_block($attributes)
                 }
 
                 echo '<div class="job-row-content">';
+                echo '<div class="job-title-row">';
                 echo '<h3 class="job-title">';
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
                 echo '</h3>';
+                echo remjobs_render_premium_badge_html($featured); // phpcs:ignore WordPress.Security.EscapeOutput -- trusted, pre-escaped markup from this file.
+                echo '</div>';
 
-                // Job company info with category (only show category, no company name)
-                if ($categories && !is_wp_error($categories)) {
-                    echo '<div class="job-company">';
-                    echo 'in ';
-                    foreach ($categories as $category) {
-                        echo '<span class="job-category">' . esc_html($category->name) . '</span>';
-                        break; // Show only first category
-                    }
-                    echo '</div>';
-                }
+                // Job company name and category
+                echo wp_kses_post(remjobs_render_job_company_html($company, $categories));
 
                 // Skills in list layout (use span elements)
-                if ($skills && !is_wp_error($skills)) {
-                    $skills_list = array_map(function ($term) {
-                        return $term->name;
-                    }, array_slice($skills, 0, 3));
-
+                if (!empty($skills_list)) {
                     echo '<div class="job-skills">';
-                    echo '<span class="skills-label">';
-                    echo esc_html__('Skills:', 'remote-jobs');
-                    echo '</span>';
-                    echo '<span class="skills-list">';
-                    echo esc_html(implode(', ', $skills_list));
-                    echo '</span>';
+                    echo '<div class="skills-list">';
+                    echo wp_kses_post(remjobs_render_skill_tags_html($skills_list));
+                    echo '</div>';
                     echo '</div>';
                 }
 
@@ -577,8 +586,7 @@ function remjobs_render_job_list_block($attributes)
                     echo '</svg>';
                     if ($location_meta) {
                         echo esc_html($location_meta);
-                    }
-                    if ($locations && !is_wp_error($locations)) {
+                    } elseif ($locations && !is_wp_error($locations)) {
                         $location_names = array_map(function ($term) {
                             return $term->name;
                         }, $locations);
@@ -590,7 +598,7 @@ function remjobs_render_job_list_block($attributes)
                 echo '</div>'; // End job-row-meta
 
                 echo '<div class="job-row-actions">';
-                echo '<span class="job-date">' . esc_html(get_the_date()) . '</span>';
+                echo '<span class="job-date">' . esc_html($posted_ago) . '</span>';
                 echo '<a href="#" class="save-job-button" data-job-id="' . esc_attr(get_the_ID()) . '" aria-label="' . esc_attr__('Save job', 'remote-jobs') . '">';
                 echo '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">';
                 echo '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>';
@@ -636,6 +644,93 @@ function remjobs_render_job_list_block($attributes)
     echo '</div>'; // End container
 
     return ob_get_clean();
+}
+
+/**
+ * Build the "company · category" line shared by the initial and AJAX-filtered job cards.
+ *
+ * @param string     $company    Company name meta value.
+ * @param array|null $categories Terms from get_the_terms().
+ * @return string HTML markup, or an empty string when there is nothing to show.
+ */
+function remjobs_render_job_company_html($company, $categories)
+{
+    $category_name = '';
+    if ($categories && !is_wp_error($categories)) {
+        foreach ($categories as $category) {
+            $category_name = $category->name;
+            break;
+        }
+    }
+
+    if (empty($company) && empty($category_name)) {
+        return '';
+    }
+
+    $html = '<div class="job-company">';
+    if (!empty($company)) {
+        $html .= '<span class="company-name">' . esc_html($company) . '</span>';
+    }
+    if (!empty($company) && !empty($category_name)) {
+        $html .= ' &middot; ';
+    }
+    if (!empty($category_name)) {
+        $html .= '<span class="job-category">' . esc_html($category_name) . '</span>';
+    }
+    $html .= '</div>';
+
+    return $html;
+}
+
+/**
+ * Build the "Premium" badge shown on featured job cards.
+ *
+ * @param bool $is_premium Whether the job is marked premium/featured.
+ * @return string HTML markup, or an empty string when the job isn't premium.
+ */
+function remjobs_render_premium_badge_html($is_premium)
+{
+    if (! $is_premium) {
+        return '';
+    }
+
+    return '<span class="premium-badge">'
+        . '<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"></path></svg>'
+        . esc_html__('Premium', 'remote-jobs')
+        . '</span>';
+}
+
+/**
+ * Build individual skill pill tags (replaces a single comma-separated string).
+ *
+ * @param array $skills_list Skill term names.
+ * @param int   $limit       Maximum number of tags to render.
+ * @return string HTML markup, or an empty string when there are no skills.
+ */
+function remjobs_render_skill_tags_html($skills_list, $limit = 3)
+{
+    if (empty($skills_list)) {
+        return '';
+    }
+
+    $html = '';
+    foreach (array_slice($skills_list, 0, $limit) as $skill) {
+        $html .= '<span class="skill-tag">' . esc_html($skill) . '</span>';
+    }
+
+    return $html;
+}
+
+/**
+ * Pick one of three avatar color themes for a job's logo placeholder, keyed
+ * off the post ID so the same job always gets the same color.
+ *
+ * @param int $post_id Job post ID.
+ * @return string CSS class suffix ('hue-0', 'hue-1', or 'hue-2').
+ */
+function remjobs_job_avatar_hue_class($post_id)
+{
+    return 'hue-' . ($post_id % 3);
 }
 
 // ============================================
@@ -717,9 +812,12 @@ function remjobs_localize_on_block_render($block_content, $block)
             }
         }
 
-        // Also try the manual approach as backup
+        // Only fall back to a manual enqueue if no view script handle was found
+        // above. Enqueuing build/view.js a second time under a different handle
+        // loads and executes the file twice, double-firing its DOMContentLoaded
+        // listeners (e.g. duplicating the premium-job star indicator per card).
         static $manual_enqueued = false;
-        if (!$manual_enqueued) {
+        if (!$manual_enqueued && empty($view_handles)) {
             wp_enqueue_script(
                 'remjobs-job-list-render',
                 plugin_dir_url(__FILE__) . 'build/view.js',
@@ -840,12 +938,25 @@ function remjobs_filter_jobs()
             $locations = get_the_terms(get_the_ID(), 'remjobs_job_location');
 
             $premium_class = $featured ? ' premium' : '';
+            $avatar_hue = remjobs_job_avatar_hue_class(get_the_ID());
+            $posted_ago = sprintf(
+                /* translators: %s: human-readable time difference, e.g. "2 hours" */
+                __('%s ago', 'remote-jobs'),
+                human_time_diff(get_the_time('U'), current_time('timestamp'))
+            );
+            $skills_list = array();
+            if ($skills && !is_wp_error($skills)) {
+                $skills_list = array_map(function ($term) {
+                    return $term->name;
+                }, array_slice($skills, 0, 3));
+            }
 
             if ($layout === 'grid') {
                 // Grid layout - match the original block structure
                 echo '<div class="job-card' . esc_attr($premium_class) . '">';
 
                 echo '<div class="job-card-header">';
+                echo '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">';
 
                 // Company logo container (matching original structure)
                 if (has_post_thumbnail() || !empty($company)) {
@@ -855,27 +966,21 @@ function remjobs_filter_jobs()
                         the_post_thumbnail('thumbnail');
                         echo '</div>';
                     } elseif (!empty($company)) {
-                        echo '<div class="company-logo-placeholder">';
+                        echo '<div class="company-logo-placeholder ' . esc_attr($avatar_hue) . '">';
                         echo esc_html(isset($company[0]) ? $company[0] : '?');
                         echo '</div>';
                     }
                     echo '</div>';
                 }
+                echo remjobs_render_premium_badge_html($featured); // phpcs:ignore WordPress.Security.EscapeOutput -- trusted, pre-escaped markup from this file.
+                echo '</div>';
 
                 echo '<h3 class="job-title">';
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
                 echo '</h3>';
 
-                // Job company info with category (only show category)
-                if ($categories && !is_wp_error($categories)) {
-                    echo '<div class="job-company">';
-                    echo 'in ';
-                    foreach ($categories as $category) {
-                        echo '<span class="job-category">' . esc_html($category->name) . '</span>';
-                        break; // Show only first category
-                    }
-                    echo '</div>';
-                }
+                // Job company name and category
+                echo wp_kses_post(remjobs_render_job_company_html($company, $categories));
 
                 echo '</div>'; // End job-card-header
 
@@ -891,8 +996,7 @@ function remjobs_filter_jobs()
                     echo '</svg>';
                     if ($location_meta) {
                         echo esc_html($location_meta);
-                    }
-                    if ($locations && !is_wp_error($locations)) {
+                    } elseif ($locations && !is_wp_error($locations)) {
                         $location_names = array_map(function ($term) {
                             return $term->name;
                         }, $locations);
@@ -904,17 +1008,10 @@ function remjobs_filter_jobs()
                 echo '</div>'; // End job-meta-info
 
                 // Skills (always show if available)
-                if ($skills && !is_wp_error($skills)) {
-                    $skills_list = array_map(function ($term) {
-                        return $term->name;
-                    }, array_slice($skills, 0, 3)); // Show max 3 skills
-
+                if (!empty($skills_list)) {
                     echo '<div class="job-skills">';
-                    echo '<div class="skills-label">';
-                    echo esc_html__('Skills:', 'remote-jobs');
-                    echo '</div>';
                     echo '<div class="skills-list">';
-                    echo esc_html(implode(', ', $skills_list));
+                    echo wp_kses_post(remjobs_render_skill_tags_html($skills_list));
                     echo '</div>';
                     echo '</div>';
                 }
@@ -922,6 +1019,7 @@ function remjobs_filter_jobs()
                 echo '</div>'; // End job-card-meta
 
                 echo '<div class="job-card-footer">';
+                echo '<span class="job-date">' . esc_html($posted_ago) . '</span>';
                 echo '<a href="#" class="save-job-button" data-job-id="' . esc_attr(get_the_ID()) . '" aria-label="' . esc_attr__('Save job', 'remote-jobs') . '">';
                 echo '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">';
                 echo '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>';
@@ -944,7 +1042,7 @@ function remjobs_filter_jobs()
                         the_post_thumbnail('thumbnail');
                         echo '</div>';
                     } elseif (!empty($company)) {
-                        echo '<div class="company-logo-placeholder">';
+                        echo '<div class="company-logo-placeholder ' . esc_attr($avatar_hue) . '">';
                         echo esc_html(isset($company[0]) ? $company[0] : '?');
                         echo '</div>';
                     }
@@ -952,34 +1050,22 @@ function remjobs_filter_jobs()
                 }
 
                 echo '<div class="job-row-content">';
+                echo '<div class="job-title-row">';
                 echo '<h3 class="job-title">';
                 echo '<a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a>';
                 echo '</h3>';
+                echo remjobs_render_premium_badge_html($featured); // phpcs:ignore WordPress.Security.EscapeOutput -- trusted, pre-escaped markup from this file.
+                echo '</div>';
 
-                // Job company info with category (only show category, no company name)
-                if ($categories && !is_wp_error($categories)) {
-                    echo '<div class="job-company">';
-                    echo 'in ';
-                    foreach ($categories as $category) {
-                        echo '<span class="job-category">' . esc_html($category->name) . '</span>';
-                        break; // Show only first category
-                    }
-                    echo '</div>';
-                }
+                // Job company name and category
+                echo wp_kses_post(remjobs_render_job_company_html($company, $categories));
 
                 // Skills in list layout (use span elements)
-                if ($skills && !is_wp_error($skills)) {
-                    $skills_list = array_map(function ($term) {
-                        return $term->name;
-                    }, array_slice($skills, 0, 3));
-
+                if (!empty($skills_list)) {
                     echo '<div class="job-skills">';
-                    echo '<span class="skills-label">';
-                    echo esc_html__('Skills:', 'remote-jobs');
-                    echo '</span>';
-                    echo '<span class="skills-list">';
-                    echo esc_html(implode(', ', $skills_list));
-                    echo '</span>';
+                    echo '<div class="skills-list">';
+                    echo wp_kses_post(remjobs_render_skill_tags_html($skills_list));
+                    echo '</div>';
                     echo '</div>';
                 }
 
@@ -997,8 +1083,7 @@ function remjobs_filter_jobs()
                     echo '</svg>';
                     if ($location_meta) {
                         echo esc_html($location_meta);
-                    }
-                    if ($locations && !is_wp_error($locations)) {
+                    } elseif ($locations && !is_wp_error($locations)) {
                         $location_names = array_map(function ($term) {
                             return $term->name;
                         }, $locations);
@@ -1010,7 +1095,7 @@ function remjobs_filter_jobs()
                 echo '</div>'; // End job-row-meta
 
                 echo '<div class="job-row-actions">';
-                echo '<span class="job-date">' . esc_html(get_the_date()) . '</span>';
+                echo '<span class="job-date">' . esc_html($posted_ago) . '</span>';
                 echo '<a href="#" class="save-job-button" data-job-id="' . esc_attr(get_the_ID()) . '" aria-label="' . esc_attr__('Save job', 'remote-jobs') . '">';
                 echo '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">';
                 echo '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>';

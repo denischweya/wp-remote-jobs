@@ -156,9 +156,10 @@ function remjobs_process_registration_form()
     $user_id = wp_create_user($email, wp_generate_password(), $email);
 
     if (!is_wp_error($user_id)) {
-        // Apply appropriate role
+        // Apply appropriate role. Employers need publish_posts to use the
+        // Submit Job block, which the subscriber role does not grant.
         $user = new WP_User($user_id);
-        $user->set_role('subscriber');  // Or a custom role if defined
+        $user->set_role('author');
 
         // Store company details as user meta
         update_user_meta($user_id, 'company_name', $company_name);
