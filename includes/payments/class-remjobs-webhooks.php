@@ -73,6 +73,9 @@ class Remjobs_Webhooks
             case 'subscription_payment_failed':
                 $this->fulfillment->cancel($event);
                 break;
+            case 'payment_refunded':
+                $this->fulfillment->refund($event);
+                break;
         }
 
         if ($dedupe_key !== '') {

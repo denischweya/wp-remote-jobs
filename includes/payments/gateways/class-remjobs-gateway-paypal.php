@@ -227,6 +227,20 @@ class Remjobs_Gateway_PayPal implements Remjobs_Payment_Gateway
                     ),
                 );
 
+            case 'PAYMENT.CAPTURE.REFUNDED':
+                if (!isset($r['custom_id']) || (string) $r['custom_id'] === '') {
+                    // Refund has no custom_id to attribute back to our order
+                    // (e.g. a partial/unrelated capture): acknowledge, no action.
+                    return array('kind' => 'ignored', 'event_id' => $event_id);
+                }
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'payment_refunded',
+                    'order_id'         => (int) $r['custom_id'],
+                    'gateway_order_id' => (string) ($r['id'] ?? ''),
+                    'subscription'     => null,
+                );
+
             case 'BILLING.SUBSCRIPTION.CANCELLED':
             case 'BILLING.SUBSCRIPTION.EXPIRED':
             case 'BILLING.SUBSCRIPTION.SUSPENDED':

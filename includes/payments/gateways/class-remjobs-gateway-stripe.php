@@ -59,6 +59,12 @@ class Remjobs_Gateway_Stripe implements Remjobs_Payment_Gateway
             $params['subscription_data'] = array('metadata' => array('order_id' => (string) $order['id']));
         }
 
+        if ($plan['type'] === 'one_time') {
+            // So the resulting Charge also carries order_id (used by
+            // charge.refunded, which has no checkout session metadata).
+            $params['payment_intent_data'] = array('metadata' => array('order_id' => (string) $order['id']));
+        }
+
         $response = $this->request('POST', '/v1/checkout/sessions', $params);
 
         if (empty($response['url'])) {
@@ -202,6 +208,21 @@ class Remjobs_Gateway_Stripe implements Remjobs_Payment_Gateway
                         'current_period_end'      => null,
                         'status'                  => 'past_due',
                     ),
+                );
+
+            case 'charge.refunded':
+                $order_id = isset($obj['metadata']['order_id']) ? (int) $obj['metadata']['order_id'] : 0;
+                if ($order_id <= 0) {
+                    // No order_id on the charge (e.g. pre-fix charge, or a
+                    // refund we can't attribute): acknowledge, no action.
+                    return array('kind' => 'ignored', 'event_id' => $event_id);
+                }
+                return array(
+                    'event_id'         => $event_id,
+                    'kind'             => 'payment_refunded',
+                    'order_id'         => $order_id,
+                    'gateway_order_id' => (string) ($obj['id'] ?? ''),
+                    'subscription'     => null,
                 );
 
             case 'customer.subscription.deleted':

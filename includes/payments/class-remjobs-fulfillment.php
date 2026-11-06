@@ -86,6 +86,25 @@ class Remjobs_Fulfillment
         // The hourly sweep expires the now-unprotected job(s) per the admin setting.
     }
 
+    /** Idempotent. Marks the order refunded and immediately expires its job's feature (if any). */
+    public function refund(array $event): void
+    {
+        $order_id = isset($event['order_id']) ? (int) $event['order_id'] : 0;
+        if ($order_id <= 0) {
+            return;
+        }
+        $order = Remjobs_Orders::get($order_id);
+        if (!$order || $order['status'] === 'refunded') {
+            return;
+        } // idempotent guard
+
+        Remjobs_Orders::update($order_id, array('status' => 'refunded'));
+
+        if (!empty($order['job_id'])) {
+            $this->featured->expire_feature((int) $order['job_id']);
+        }
+    }
+
     /** @return int[] job ids covered by a subscription (per-job: its job; account: all the user's featured jobs) */
     private function covered_job_ids(array $sub): array
     {
