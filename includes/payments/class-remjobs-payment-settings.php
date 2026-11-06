@@ -43,6 +43,7 @@ class Remjobs_Payment_Settings
             'monthly_scope'           => 'job',
             'monthly_account_cap'     => 0,
             'expiry_behavior'         => 'unfeature',
+            'my_jobs_page_id'         => 0,
         );
     }
 
@@ -93,6 +94,7 @@ class Remjobs_Payment_Settings
         $out['monthly_account_cap']  = max(0, (int) ($input['monthly_account_cap'] ?? $d['monthly_account_cap']));
         $out['monthly_scope']    = (isset($input['monthly_scope']) && $input['monthly_scope'] === 'account') ? 'account' : 'job';
         $out['expiry_behavior']  = (isset($input['expiry_behavior']) && $input['expiry_behavior'] === 'unpublish') ? 'unpublish' : 'unfeature';
+        $out['my_jobs_page_id']  = max(0, (int) ($input['my_jobs_page_id'] ?? $d['my_jobs_page_id']));
 
         return $out;
     }
@@ -145,6 +147,7 @@ class Remjobs_Payment_Settings
                     $this->select_row('monthly_scope', __('Monthly scope', 'remote-jobs'), $s, array('job' => 'Per job', 'account' => 'Account-wide'));
                     $this->text_row('monthly_account_cap', __('Account cap (0 = unlimited)', 'remote-jobs'), $s);
                     $this->select_row('expiry_behavior', __('On expiry', 'remote-jobs'), $s, array('unfeature' => 'Unfeature (keep published)', 'unpublish' => 'Unpublish'));
+                    $this->page_row('my_jobs_page_id', __('My Jobs page', 'remote-jobs'), $s);
                     $this->text_row('stripe_publishable_key', __('Stripe publishable key', 'remote-jobs'), $s);
                     $this->text_row('stripe_secret_key', __('Stripe secret key', 'remote-jobs'), $s);
                     $this->text_row('stripe_webhook_secret', __('Stripe webhook secret', 'remote-jobs'), $s);
@@ -185,5 +188,22 @@ class Remjobs_Payment_Settings
             esc_attr(self::OPTION),
             $opts // phpcs:ignore WordPress.Security.EscapeOutput -- built from esc_attr/esc_html above
         );
+    }
+
+    /**
+     * A wp_dropdown_pages() row for choosing a page (e.g. the My Jobs page).
+     */
+    private function page_row(string $key, string $label, array $s): void
+    {
+        $val = isset($s[$key]) ? (int) $s[$key] : 0;
+        echo '<tr><th scope="row"><label for="' . esc_attr($key) . '">' . esc_html($label) . '</label></th><td>';
+        wp_dropdown_pages(array(
+            'id'                => $key,
+            'name'              => self::OPTION . '[' . $key . ']',
+            'selected'          => $val,
+            'show_option_none'  => __('— None —', 'remote-jobs'),
+            'option_none_value' => '0',
+        ));
+        echo '</td></tr>';
     }
 }
