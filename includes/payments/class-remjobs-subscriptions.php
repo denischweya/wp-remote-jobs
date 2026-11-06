@@ -97,6 +97,20 @@ class Remjobs_Subscriptions
         return $row ?: null;
     }
 
+    /**
+     * Lookup by gateway_subscription_id only (no gateway label needed) — used
+     * when a webhook payload doesn't conveniently carry which gateway it's from.
+     */
+    public static function get_by_gateway_id_any(string $gateway_subscription_id): ?array
+    {
+        global $wpdb;
+        $row = $wpdb->get_row(
+            $wpdb->prepare('SELECT * FROM ' . self::table() . ' WHERE gateway_subscription_id = %s LIMIT 1', $gateway_subscription_id),
+            ARRAY_A
+        );
+        return $row ?: null;
+    }
+
     public static function active_account_for_user(int $user_id): ?array
     {
         global $wpdb;
