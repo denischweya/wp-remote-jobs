@@ -47,3 +47,6 @@ Thumbs.db
 # Development files
 package-lock.json
 composer.lock
+
+# SDD scratch (ledgers, reports) — never commit
+.superpowers/

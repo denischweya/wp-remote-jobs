@@ -3,7 +3,7 @@ Contributors: Afrothemes, Fortisthemes
 Tags: job board, remote jobs, job listings, stripe, paypal
 Requires at least: 5.8
 Tested up to: 7.2
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -13,6 +13,8 @@ Build a remote job board with 4 Gutenberg blocks, AJAX filtering, and paid featu
 == Description ==
 
 **Remote Jobs** turns any WordPress site into a full-featured remote job board. It adds a custom "Job" post type, four Gutenberg blocks, filterable taxonomy archives, and optional paid featured listings processed by **Stripe** and **PayPal** — no page builder or extra plugin required.
+
+**Live demo:** https://remotejobs.swishfolio.com/
 
 **Blocks:**
 
@@ -85,8 +87,14 @@ The plugin follows WordPress best practices for data handling. For job applicati
 3. The front-end Submit Job form, including the optional plan chooser for Free vs. Featured (Single/Monthly) listings.
 4. The Company Registration form for employers signing up.
 5. The admin Payments settings screen for configuring Stripe/PayPal keys, pricing, and expiry behavior.
+6. The admin Orders screen showing a log of job payment orders with plan, gateway, amount, and status.
+7. The admin Jobs list showing published listings with category, skills, location, benefits, salary range, and featured status columns.
 
 == Changelog ==
+
+= 1.1.1 =
+* Added plugin screenshots (blocks + admin) to the plugin directory listing.
+* Added a live demo link and refreshed the readme.
 
 = 1.1.0 =
 * Added: paid featured listings. Employers can pay via Stripe or PayPal to feature a job, with a one-time Single plan (fixed-duration feature) and a recurring Monthly subscription plan (Stripe Billing / PayPal Subscriptions).

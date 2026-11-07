@@ -43,3 +43,7 @@ Thumbs.db
 /create-zip.sh
 /run-build.sh
 *.zip
+
+# WordPress.org SVN assets (screenshots, banners, icons) — live in the SVN
+# assets/ directory, not in the plugin zip
+/.wordpress-org
