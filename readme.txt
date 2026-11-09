@@ -3,7 +3,7 @@ Contributors: Afrothemes, Fortisthemes
 Tags: job board, remote jobs, job listings, stripe, paypal
 Requires at least: 5.8
 Tested up to: 7.2
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -91,6 +91,10 @@ The plugin follows WordPress best practices for data handling. For job applicati
 7. The admin Jobs list showing published listings with category, skills, location, benefits, salary range, and featured status columns.
 
 == Changelog ==
+
+= 1.1.4 =
+* New banner on the plugin directory listing.
+* New briefcase icon for the Jobs admin menu.
 
 = 1.1.3 =
 * Added a link to the product page and downloads in the readme.

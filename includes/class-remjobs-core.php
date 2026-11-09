@@ -129,6 +129,8 @@ class Remjobs_Core
                 'has_archive'        => true,
                 'hierarchical'       => false,
                 'menu_position'      => null,
+                // Solid briefcase, 20x20 SVG. WordPress recolours it to match the admin colour scheme.
+                'menu_icon'          => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBmaWxsPSJibGFjayIgZD0iTTcgNlY0LjVBMS41IDEuNSAwIDAgMSA4LjUgM2gzQTEuNSAxLjUgMCAwIDEgMTMgNC41VjZoLTEuNVY0LjVoLTNWNnpNMy41IDZoMTNBMS41IDEuNSAwIDAgMSAxOCA3LjVWMTBjLTIgLjktNC4xIDEuNC02LjUgMS42VjExYS41LjUgMCAwIDAtLjUtLjVIOWEuNS41IDAgMCAwLS41LjV2LjZDNi4xIDExLjQgNCAxMC45IDIgMTBWNy41QTEuNSAxLjUgMCAwIDEgMy41IDZ6TTIgMTEuNmMyIC44IDQuMSAxLjMgNi41IDEuNXYuNGEuNS41IDAgMCAwIC41LjVoMmEuNS41IDAgMCAwIC41LS41di0uNGMyLjQtLjIgNC41LS43IDYuNS0xLjV2My45YTEuNSAxLjUgMCAwIDEtMS41IDEuNWgtMTNBMS41IDEuNSAwIDAgMSAyIDE1LjV6TTkuNSAxMS41aDF2MS41aC0xeiIvPjwvc3ZnPgo=',
                 'supports'           => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields'),
                 'show_in_rest'       => true,
                 'taxonomies'         => array(
