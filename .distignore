@@ -19,6 +19,7 @@ Thumbs.db
 
 # Planning, scratch, and internal docs (not runtime)
 /.superpowers
+/.claude
 /docs
 /SECURITY_AUDIT_FIXES.md
 
